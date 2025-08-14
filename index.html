@@ -70,10 +70,10 @@
   }
 
   #categoryGrid1 {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(8, 1fr);
   }
   #categoryGrid2 {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(12, 1fr);
   }
 
   .grid button {
@@ -293,6 +293,41 @@
   th:first-child { border-top-left-radius: 8px; }
   th:last-child { border-top-right-radius: 8px; }
   tr:last-child td { border-bottom: none; }
+
+  #traverse-header.active-header {
+    font-size: 1.35em;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  #traverse-header.has-data {
+    color: var(--primary);
+  }
+  #traverse-header.is-empty {
+    color: var(--muted);
+  }
+  #traverse-header .fas {
+    font-size: 0.8em;
+  }
+
+
+  th:nth-child(1), td:nth-child(1) { width: 10%; } /* Increased width */
+  th:nth-child(2), td:nth-child(2) { width: 22%; }
+  th:nth-child(3), td:nth-child(3) { width: 15%; }
+  th:nth-child(4), td:nth-child(4) { width: 8%; }
+  th:nth-child(5), td:nth-child(5) { width: 24%; }
+  th:nth-child(6), td:nth-child(6) { width: 5%; }
+  th:nth-child(7), td:nth-child(7) { width: 8%; }
+  th:nth-child(8), td:nth-child(8) { width: 8%; }
+  
+  /* UPDATED: Right-align first column body cells */
+  #logBody td:first-child {
+    text-align: right;
+    padding-right: 25px; /* Add padding for better alignment */
+  }
+
 
   #logBody tr:nth-child(even) { background-color: var(--row-alt-bg); }
 
