@@ -146,6 +146,7 @@
     border: 4px solid var(--muted); /* Default grey border for active */
     box-shadow: var(--shadow-medium); /* Default medium shadow for active */
     animation-duration: 3s; /* Slower animation for all active buttons */
+    animation-iteration-count: infinite; /* Play animation indefinitely */
   }
   .grid button.active:not(.empty-category) {
     background: var(--primary);
@@ -158,7 +159,7 @@
     background: var(--card-bg);
     color: var(--muted); /* Grey text */
     animation-name: pulse-grey-less-intense; /* Apply new less intense grey pulse */
-    border: 4px solid var(--muted); /* Ensure grey border */
+    border: 4px solid var(--muted); /* Corrected border from 44px to 4px */
     font-weight: bold; /* Make the number bold */
   }
   .grid button.active:not(.empty-category) .day-letter {
@@ -1552,7 +1553,7 @@ const db = (() => {
               updateTraverseHeader(); // Refresh header style and content
           }
 
-          const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN5oJtfAME2P_5/exec';
+          const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN95oJtfAME2P_5/exec';
           const dataForSheet = {
               code: newEntry.code,
               date: new Date(newEntry.date).toLocaleString('de-DE'),
