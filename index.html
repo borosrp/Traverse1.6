@@ -22,7 +22,7 @@
     --border-color: #e0e0e0; /* Light gray border */
     --card-bg: #ffffff; /* White card backgrounds */
     --row-alt-bg: #f8f8f8; /* Very light gray for alternating table rows */
-   
+    
     --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
     --shadow-medium: 0 15px 30px rgba(0, 0, 0, 0.35), 0 25px 50px rgba(0, 0, 0, 0.25);
     --shadow-active: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -127,7 +127,7 @@
     border-color: var(--muted);
     box-shadow: none;
   }
- 
+  
   @keyframes pulse-grey {
     0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
     70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); }
@@ -137,8 +137,7 @@
   .grid button.active {
     border: 4px solid var(--muted); /* Grey border */
     box-shadow: var(--shadow-medium);
-    font-size: 1.5em;
-    font-weight: 700; /* Bold number */
+    font-weight: normal; /* Changed to normal so it's not bold */
     animation: pulse-grey 2s infinite; /* Pulsing effect */
   }
   .grid button.active:not(.empty-category) {
@@ -154,14 +153,14 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0; /* Changed from width: 100% to right: 0 */
     z-index: 1000;
-    display: none;
+    /* display: none; */ /* Keeping this commented as JS controls visibility */
     box-sizing: border-box;
-    padding: 0;
-    background: none;
-    border-top: none;
-    box-shadow: none;
+    padding: 0 15px; /* Added horizontal padding to match body */
+    background: transparent; /* Changed to transparent, allowing inner div to style */
+    border-top: none; /* Removed for container */
+    box-shadow: none; /* Removed for container */
     flex-shrink: 0;
   }
 
@@ -175,8 +174,8 @@
     box-shadow: var(--shadow-soft);
     border: 1px solid var(--border-color);
     box-sizing: border-box;
-    max-width: fit-content;
-    margin: 10px auto;
+    width: 100%; /* Changed from max-width: fit-content to width: 100% */
+    margin: 10px 0; /* Changed from margin: 10px auto to margin: 10px 0 */
     flex-wrap: nowrap;
   }
   .controls .category-display-label {
@@ -241,7 +240,7 @@
   .controls button i {
     margin: 0 4px;
   }
- 
+  
   #manualEntryBtn {
       padding: 18px 44px;
       font-size: 1.5em;
@@ -435,7 +434,7 @@
     box-sizing: border-box;
     overflow: auto; /* Allow scrolling in both directions */
   }
- 
+  
   #imageModal.image-zoomed-in {
     justify-content: flex-start; /* Align to top-left for scrolling */
     align-items: flex-start;
@@ -639,7 +638,7 @@
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-medium);
   }
- 
+  
   #customPromptModal .note-modal-content {
     max-width: 456px;
     align-items: center;
@@ -754,15 +753,15 @@
       <div class="note-modal-content">
         <span id="promptCategoryNumber" class="modal-category-number"></span>
         <h2 id="customPromptTitle">Manuelle Eingabe</h2>
-        <p id="customPromptMessage">Bitte geben Sie den Produktnamen oder die Kennung ein:</p>
+        <p id="customPromptMessage">Bitte geben Sie den Produktnamen vagy a Kennung-ot:</p>
         <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
         <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
-          <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">Abbrechen</button>
+          <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">Mégse</button>
           <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">OK</button>
         </div>
       </div>
   </div>
- 
+  
   <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
 
 <script>
@@ -892,7 +891,7 @@ const db = (() => {
     for (const button of allCategoryButtons) {
         const categoryNum = parseInt(button.textContent);
         const entriesForCategory = await db.getEntriesForCategory(categoryNum);
-       
+        
         const existingIcon = button.querySelector('.time-icon');
         if (existingIcon) {
             existingIcon.remove();
@@ -905,7 +904,7 @@ const db = (() => {
 
         if (entriesForCategory.length > 0) {
             button.classList.remove('empty-category');
-           
+            
             const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
             const entryDate = new Date(latestEntry.date);
             const entryHour = entryDate.getHours();
@@ -952,12 +951,12 @@ const db = (() => {
     if(prevActive) prevActive.classList.remove('active');
     btn.classList.add('active');
     currentCategory = num;
-   
+    
     try {
         entries = await db.getEntriesForCategory(currentCategory);
         updateHeaderAndControls();
         updateTraverseHeader(); // Call to update the new header
-       
+        
         mainControls.style.display = 'block';
         listSection.style.display = 'block';
         renderTable();
@@ -1003,6 +1002,8 @@ const db = (() => {
       traverseHeader.textContent = currentCategory;
       traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
       traverseHeader.style.fontWeight = 'bold';
+      // Increase font size for the header number only
+      traverseHeader.style.fontSize = '1.5em'; 
   }
 
   function showCustomAlert(message, title = 'Info') {
@@ -1046,7 +1047,7 @@ const db = (() => {
       const confirmModal = document.createElement('div');
       confirmModal.id = 'customConfirmModal';
       confirmModal.classList.add('modal-overlay');
-     
+      
       confirmModal.innerHTML = `
         <div class="note-modal-content">
           <h2>${title}</h2>
@@ -1089,7 +1090,7 @@ const db = (() => {
       const confirmModal = document.createElement('div');
       confirmModal.id = 'customConfirmModal';
       confirmModal.classList.add('modal-overlay');
-     
+      
       const isCheckedByDefault = !(entry && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
 
       confirmModal.innerHTML = `
@@ -1252,11 +1253,11 @@ const db = (() => {
 
       return `
       <tr data-id="${e.id}">
-        <td style="font-weight: bold;">${i + 1}</td>
+        <td>${i + 1}</td> <!-- Removed style="font-weight: bold;" -->
         <td class="${codeClass}">${e.code}</td>
         <td>
           ${formattedDate}<br>
-          <span style="font-size: 0.85em; color: var(--muted);">${formattedTime}</span>
+          <span style="font-size: 0.85em; color: var(--muted);"> ${formattedTime}</span>
         </td>
         <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-book' : 'fa-plus'}"></i></button></td>
         <td class="photo-cell">${photosCellHtml}</td>
@@ -1282,11 +1283,11 @@ const db = (() => {
       }));
       logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
   }
- 
+  
   function loadImage(src) {
       return new Promise((resolve, reject) => {
           const img = new Image();
-          img.crossOrigin = 'Anonymous'; 
+          img.crossOrigin = 'Anonymous';  
           img.onload = () => resolve(img);
           img.onerror = (err) => reject(new Error(`Failed to load image with src: ${src.substring(0, 50)}...`));
           img.src = src;
@@ -1318,7 +1319,7 @@ const db = (() => {
     doc.setFont(undefined, 'normal');
     doc.setFontSize(18);
     doc.text(`Datum: ${formattedDateTime}`, 10, 35);
-   
+    
     doc.text(shiftText, 10, 50);
 
     doc.text('Traverse: ', 10, 65);
@@ -1337,7 +1338,7 @@ const db = (() => {
 
     const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
     const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
-   
+    
     const loadedImages = [];
     let failedImageCount = 0;
     imageLoadResults.forEach(result => {
@@ -1398,7 +1399,7 @@ const db = (() => {
             yPos += 15;
         }
     }
-   
+    
     doc.save(`${entry.code}_trav${entry.category}.pdf`);
   }
 
@@ -1408,13 +1409,13 @@ const db = (() => {
       if (!entryToDelete) return;
 
       const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich löschen?`, 'Bestätigung', entryToDelete);
-     
+      
       if (result.confirmed) {
           try {
               if (result.exportPdf) {
                   await generatePdfForEntry(entryToDelete);
               }
-             
+              
               await db.deleteEntry(id);
               entries = entries.filter(e => e.id !== id);
               renderTable();
@@ -1458,7 +1459,7 @@ const db = (() => {
     entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
     imageUploadInput.click();
   }
- 
+  
   function sanitizeImage(imageDataUrl, quality = 0.95) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -1551,7 +1552,7 @@ const db = (() => {
   }
 
   function handleManualEntry() {
-      showCustomPrompt('Bitte geben Sie den Produktnamen oder die Kennung ein:', 'Manuelle Eingabe').then(manualCode => {
+      showCustomPrompt('Bitte geben Sie den Produktnamen vagy a Kennung-ot:', 'Manuelle Eingabe').then(manualCode => {
           if (manualCode && manualCode.trim() !== '') {
               addNewEntry(manualCode.trim(), null, 'manual');
           }
@@ -1594,7 +1595,7 @@ const db = (() => {
           const cancelHandler = () => {
               closeAndResolve(null);
           };
-         
+          
           const keydownHandler = (e) => {
               if (e.key === 'Enter') {
                   e.preventDefault();
@@ -1641,7 +1642,7 @@ const db = (() => {
 
   document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
   document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
- 
+  
   modalImage.addEventListener('click', () => {
     imageModal.classList.toggle('image-zoomed-in');
   });
@@ -1661,8 +1662,8 @@ const db = (() => {
   clearCategoryBtn.addEventListener('click', async () => {
     const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
     const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
-    const result = await showCustomConfirm(`Möchten Sie wirklich alle Einträge für Traverse ${currentCategory} löschen?`, 'Bestätigung', dummyEntryForCheckbox);
-   
+    const result = await showCustomConfirm(`Möchten Sie wirklich alle Einträge für Traverse ${currentCategory} lölni?`, 'Bestätítés', dummyEntryForCheckbox);
+    
     if (result.confirmed) {
         try {
             if (result.exportPdf && entries.length > 0) {
@@ -1670,19 +1671,19 @@ const db = (() => {
                     await generatePdfForEntry(entry);
                 }
             }
-           
+            
             await db.clearCategory(currentCategory);
             entries = [];
             renderTable();
             await updateCategoryButtonColors();
-           
+            
             updateTraverseHeader(); // Update header after clearing
             categoryLabelLeft.style.color = 'var(--muted)';
             updateControlButtonsColor(true);
 
         } catch (error) {
-            console.error("Fehler beim Löschen oder Exportieren der Kategorie:", error);
-            showCustomAlert('Ein Fehler ist beim Löschen oder Exportieren der Kategorie aufgetreten.', 'Fehler');
+            console.error("Hiba a kategória trlése vagy exportálása során:", error);
+            showCustomAlert('Hiba történt a kategória trlése vagy exportálása során.', 'Hiba');
         }
     }
   });
