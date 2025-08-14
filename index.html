@@ -202,7 +202,7 @@
     font-weight: bold; /* Make day letter bold for active non-empty category */
   }
 
-  /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában */
+  /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában (L betű) */
   .grid button .fa-na-icon { /* Átneveztem a class-t a pontosabb leírásért */
     position: absolute;
     top: 5px;
@@ -210,6 +210,15 @@
     width: 1.2em; /* Méret beállítása */
     height: 1.2em; /* Méret beállítása */
     z-index: 10; /* Hogy a többi elem fölött legyen */
+  }
+
+  /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
+  .header-traverse-icon {
+    width: 40px; /* Az ikon szélessége - KÉTSZER NAGYOBB */
+    height: 40px; /* Az ikon magassága - KÉTSZER NAGYOBB */
+    vertical-align: middle; /* Függőleges igazítás a szöveghez */
+    margin-right: 5px; /* Távolság a szövegtől */
+    display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
   }
 
   #mainControls {
@@ -729,16 +738,6 @@
     border: none !important;
     box-shadow: var(--shadow-soft) !important;
   }
-  #customConfirmCancelBtn, #customPromptCancelBtn {
-    background: #cccccc !important;
-    color: var(--text) !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  #customAlertCloseBtn:hover, #customConfirmOkBtn:hover, #customPromptOkBtn:hover {
-    background: var(--primary-dark) !important;
-    box-shadow: var(--shadow-medium) !important;
-  }
   #customConfirmCancelBtn:hover, #customPromptCancelBtn:hover {
     background: #bbbbbb !important;
   }
@@ -1075,18 +1074,23 @@ const db = (() => {
   function updateTraverseHeader() {
       const traverseHeader = document.getElementById('traverse-header');
       if (!currentCategory) {
-          traverseHeader.textContent = '#';
+          traverseHeader.innerHTML = '#'; /* A HTML tartalom beállítása */
           traverseHeader.style.color = 'var(--muted)';
           traverseHeader.style.fontWeight = 'bold';
+          traverseHeader.style.fontSize = '0.9em'; /* Visszaállítom az alapértelmezett méretre, ha nincs kiválasztva */
           return;
       }
 
       const isEmpty = entries.length === 0;
-      traverseHeader.textContent = currentCategory;
+      // Az ikon SVG kódja, szín dinamikusan beállítva
+      const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+      const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
+
+      // Az innerHTML beállítása az ikonnal és a kategória számmal
+      traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
       traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
       traverseHeader.style.fontWeight = 'bold';
-      // Increase font size for the header number only
-      traverseHeader.style.fontSize = '1.5em'; 
+      traverseHeader.style.fontSize = '1.5em'; /* Növelje a betűméretet a fejléc számához */
   }
 
   function showCustomAlert(message, title = 'Info') {
@@ -1336,8 +1340,12 @@ const db = (() => {
 
       return `
       <tr data-id="${e.id}">
-        <td>${i + 1}</td> <!-- Removed style="font-weight: bold;" -->
-        <td class="${codeClass}">${e.code}</td>
+        <td>
+          ${i + 1}
+        </td>
+        <td class="${codeClass}">
+          ${e.code} <!-- Az Auftrag kód -->
+        </td>
         <td>
           ${formattedDate}<br>
           <span style="font-size: 0.85em; color: var(--muted);"> ${formattedTime}</span>
@@ -1491,7 +1499,7 @@ const db = (() => {
       const entryToDelete = entries.find(e => e.id === id);
       if (!entryToDelete) return;
 
-      const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich löschen?`, 'Bestätigung', entryToDelete);
+      const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich lölni?`, 'Bestätigung', entryToDelete);
       
       if (result.confirmed) {
           try {
@@ -1745,7 +1753,7 @@ const db = (() => {
   clearCategoryBtn.addEventListener('click', async () => {
     const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
     const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
-    const result = await showCustomConfirm(`Möchten Sie wirklich alle Eintrések for Traverse ${currentCategory} törölni?`, 'Bestätítés', dummyEntryForCheckbox);
+    const result = await showCustomConfirm(`Möchten Sie den Eintrag "${dummyEntryForCheckbox ? 'FA/NA' : 'összes'}" wirklich törölni?`, 'Bestätítés', dummyEntryForCheckbox);
     
     if (result.confirmed) {
         try {
