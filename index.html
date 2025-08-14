@@ -19,6 +19,7 @@
     --light-primary-dark: #5A8FC2; /* Sötétebb világoskék hoverhez */
     --medium-primary: #2C6BB0; /* Új: köztes kék szín, kicsit sötétebb */
     --medium-primary-dark: #23558A; /* Új: sötétebb köztes kék hoverhez */
+    --very-light-blue: #E0F2F7; /* Új: Nagyon halványkék az 1-16 kategóriák rácsához */
     --accent: #28a745; /* A professional green for accent/success */
     --success: #28a745; /* Green for success messages */
     --danger: #dc3545; /* Red for danger/delete */
@@ -73,9 +74,10 @@
   #categoryGrid2 {
     background: #70A4D5; /* Megtartva a rács hátterét, de a gombok színe most felülírja */
   }
-
+  /* ÚJ SZABÁLY: Nagyon halványkék háttér az 1-16 kategóriák rácsához */
   #categoryGrid1 {
     grid-template-columns: repeat(8, 1fr);
+    background: var(--very-light-blue);
   }
   #categoryGrid2 {
     grid-template-columns: repeat(12, 1fr);
