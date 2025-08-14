@@ -136,7 +136,6 @@
   }
   .grid button:hover {
     background: var(--primary-dark);
-    border-color: var(--primary-dark);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
   }
   .grid button.empty-category:hover {
@@ -303,7 +302,7 @@
 
   .controls button.empty-category-control {
     background: var(--muted) !important;
-    color: var(--text) !important; /* Szöveg színe is szürke legyen */
+    color: var(--text) !important; /* Szöveg színe is muted legyen */
     box-shadow: none !important;
   }
 
@@ -835,8 +834,8 @@
       <p id="customPromptMessage">Bitte geben Sie den Produktnamen vagy a Kennung-ot:</p>
       <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
       <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
-        <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">Mégse</button>
-        <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">OK</button>
+        <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-times"></i></button>
+        <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-check"></i> GOMB</button>
       </div>
     </div>
   </div>
@@ -1681,17 +1680,19 @@ const db = (() => {
           const cancelBtn = document.getElementById('customPromptCancelBtn');
           const categoryNumberSpan = document.getElementById('promptCategoryNumber');
 
+          // Ikon eltávolítása a prompt modálból, ha volt
+          const existingIcon = categoryNumberSpan.querySelector('.category-label-icon');
+          if (existingIcon) {
+              existingIcon.remove();
+          }
+          // A szám szövegének beállítása ikon nélkül
           categoryNumberSpan.textContent = currentCategory;
+
 
           const count = await db.getEntryCountForCategory(currentCategory);
           const isEmpty = count === 0; // Meghatározzuk az üres állapotot
 
-          // Az ikon SVG kódja, szín dinamikusan beállítva
-          const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-          const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="0" y="75" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="75" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" style="width: 2.2em; height: 2.2em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
-
-          // A kategóriaszám és az ikon frissítése a modálban
-          categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
+          // A kategóriaszám színének frissítése a modálban
           categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
 
 
