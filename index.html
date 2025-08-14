@@ -513,7 +513,7 @@
     position: fixed;
     top:0; left:0; right:0; bottom:0;
     background: rgba(0,0,0,0.6);
-    display: none;
+    display: flex; /* Always flex for centering */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -522,14 +522,19 @@
     box-sizing: border-box;
     overflow: auto; /* Allow scrolling in both directions */
   }
+  /* Alapértelmezésben rejtve, JS jeleníti meg */
+  .modal-overlay:not([style*="display: flex"]) {
+    display: none;
+  }
   
   #imageModal.image-zoomed-in {
     justify-content: flex-start; /* Align to top-left for scrolling */
     align-items: flex-start;
   }
 
+  /* Eltávolítottam a padding-top-ot, hogy a flexbox középre igazítsa */
   #customPromptModal, #noteModal {
-    padding-top: 20vh;
+    padding-top: 0; 
   }
   #customConfirmModal {
     justify-content: center;
@@ -748,14 +753,16 @@
     font-size: 2em;
     font-weight: bold;
   }
-  #customAlertCloseBtn, #customConfirmOkBtn, #customPromptOkBtn {
-    background: var(--primary) !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: var(--shadow-soft) !important;
+  /* Módosítva: OK gomb ikonjának mérete */
+  #customPromptOkBtn i {
+    font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
   }
-  #customConfirmCancelBtn:hover, #customPromptCancelBtn:hover {
-    background: #bbbbbb !important;
+  /* Módosítva: Mégse gomb ikonjának mérete és hover árnyalata */
+  #customPromptCancelBtn i {
+    font-size: 1.2em; /* Alapértelmezett méret az X ikonnak */
+  }
+  #customPromptCancelBtn:hover {
+    background: #bbbbbb !important; /* Sötétebb árnyalat hoverre */
   }
 
 
@@ -835,7 +842,7 @@
       <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
       <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
         <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-times"></i></button>
-        <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-check"></i> GOMB</button>
+        <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-check"></i></button>
       </div>
     </div>
   </div>
@@ -909,6 +916,7 @@ const db = (() => {
   const noteModalSaveBtn = document.getElementById('noteModalSaveBtn');
   const deleteImageBtn = document.getElementById('deleteImageBtn');
   const imageUploadInput = document.getElementById('imageUploadInput');
+  const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
 
   // Gombok
   const manualEntryBtn = document.getElementById('manualEntryBtn');
@@ -930,6 +938,18 @@ const db = (() => {
   let laserScannerTimer = null;
 
   window.addEventListener('keydown', (e) => {
+    // Esc billentyű kezelése
+    if (e.key === 'Escape') {
+      if (imageModal.style.display === 'flex') {
+        closeModal(imageModal);
+      } else if (noteModal.style.display === 'flex') {
+        closeModal(noteModal);
+      } else if (customPromptModal.style.display === 'flex') { // customPromptModal hozzáadása
+        closeModal(customPromptModal);
+      }
+      return;
+    }
+
     if (document.querySelector('.modal-overlay[style*="display: flex"]') || !currentCategory) {
       return;
     }
@@ -1540,7 +1560,7 @@ const db = (() => {
                   updateControlButtonsColor(true);
               }
           } catch (error) {
-              console.error("Fehler beim Löszön oder Exportieren:", error);
+              console.error("Fehler beim Löszön vagy Exportálás során.", error);
               showCustomAlert('Ein Fehler ist beim Löszön oder Exportieren aufgetreten.', 'Fehler');
           }
       }
@@ -1620,7 +1640,7 @@ const db = (() => {
   async function addNewEntry(code, image, source) {
       if (!code) return;
       if (entries.find(e => e.code === code)) {
-          showCustomAlert('Diese ID ist bereits in der lokalen Liste vorhanden.', 'Hinweis');
+          showCustomAlert('Diese ID ist bereits in der lokális listában.', 'Hinweis');
           return;
       }
       const newEntry = {
@@ -1680,13 +1700,8 @@ const db = (() => {
           const cancelBtn = document.getElementById('customPromptCancelBtn');
           const categoryNumberSpan = document.getElementById('promptCategoryNumber');
 
-          // Ikon eltávolítása a prompt modálból, ha volt
-          const existingIcon = categoryNumberSpan.querySelector('.category-label-icon');
-          if (existingIcon) {
-              existingIcon.remove();
-          }
-          // A szám szövegének beállítása ikon nélkül
-          categoryNumberSpan.textContent = currentCategory;
+          // A szám eltávolítása a prompt modálból
+          categoryNumberSpan.textContent = '';
 
 
           const count = await db.getEntryCountForCategory(currentCategory);
