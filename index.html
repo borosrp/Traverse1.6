@@ -326,6 +326,12 @@
   th:nth-child(6), td:nth-child(6) { width: 5%; }
   th:nth-child(7), td:nth-child(7) { width: 8%; }
   th:nth-child(8), td:nth-child(8) { width: 8%; }
+  
+  /* UPDATED: Right-align first column body cells */
+  #logBody td:first-child {
+    text-align: right;
+    padding-right: 25px; /* Add padding for better alignment */
+  }
 
 
   #logBody tr:nth-child(even) { background-color: var(--row-alt-bg); }
@@ -1458,25 +1464,6 @@ const db = (() => {
     }
     noteModal.style.display = 'none';
     document.body.classList.remove('modal-open');
-  }
-
-  async function openCameraModal(event) {
-      entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
-      if(isNaN(entryIdToUpdate)) return;
-      await openModal(cameraModal, cameraModalVideo);
-  }
-
-  async function takePhotoAndSave() {
-      const imageDataUrl = captureFrame(cameraModalVideo);
-      const entry = entries.find(e => e.id === entryIdToUpdate);
-      if (entry) {
-          if (!entry.kepek) entry.kepek = [];
-          entry.kepek.push(imageDataUrl);
-          await db.updateEntry(entry);
-          renderTable();
-          navigator.vibrate?.(100);
-      }
-      closeModal(cameraModal);
   }
 
   function handleUploadPhotoClick(event) {
