@@ -202,6 +202,15 @@
     font-weight: bold; /* Make day letter bold for active non-empty category */
   }
 
+  /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában */
+  .grid button .fa-na-icon { /* Átneveztem a class-t a pontosabb leírásért */
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 1.2em; /* Méret beállítása */
+    height: 1.2em; /* Méret beállítása */
+    z-index: 10; /* Hogy a többi elem fölött legyen */
+  }
 
   #mainControls {
     position: fixed;
@@ -956,6 +965,13 @@ const db = (() => {
             existingDayLetter.remove();
         }
 
+        // FA/NA ikon eltávolítása minden frissítés előtt
+        const existingFaNaIcon = button.querySelector('.fa-na-icon');
+        if (existingFaNaIcon) {
+            existingFaNaIcon.remove();
+        }
+
+        let hasFaNaEntry = false;
         if (entriesForCategory.length > 0) {
             button.classList.remove('empty-category');
             
@@ -971,11 +987,9 @@ const db = (() => {
             icon.classList.add('fas', 'time-icon');
             if (entryHour < 14) {
                 icon.classList.add('fa-sun');
-                // Changed from '#A9A9A9' to '#666666' for darker gray
                 icon.style.color = isPreviousDay ? '#666666' : 'yellow';
             } else {
                 icon.classList.add('fa-moon');
-                // Changed from '#A9A9A9' to '#666666' for darker gray
                 icon.style.color = isPreviousDay ? '#666666' : '#F9E79F';
             }
             button.appendChild(icon);
@@ -987,8 +1001,21 @@ const db = (() => {
             daySpan.textContent = days[dayIndex];
             button.appendChild(daySpan);
 
+            // Ellenőrizze, hogy van-e FA vagy NA kezdetű bejegyzés
+            hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
+
         } else {
             button.classList.add('empty-category');
+        }
+
+        // FA/NA ikon hozzáadása, ha van ilyen bejegyzés
+        if (hasFaNaEntry) {
+            const faNaIcon = document.createElement('img'); // Képként illesztjük be
+            // SVG a fehér L betűvel egy átlátszó háttéren
+            faNaIcon.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"%3E%3Ctext x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="16" fill="white" font-weight="bold"%3EL%3C/text%3E%3C/svg%3E';
+            faNaIcon.alt = 'L icon';
+            faNaIcon.classList.add('fa-na-icon');
+            button.appendChild(faNaIcon);
         }
     }
   }
