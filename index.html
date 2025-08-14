@@ -22,7 +22,7 @@
     --border-color: #e0e0e0; /* Light gray border */
     --card-bg: #ffffff; /* White card backgrounds */
     --row-alt-bg: #f8f8f8; /* Very light gray for alternating table rows */
-    
+   
     --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
     --shadow-medium: 0 15px 30px rgba(0, 0, 0, 0.35), 0 25px 50px rgba(0, 0, 0, 0.25);
     --shadow-active: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -127,7 +127,7 @@
     border-color: var(--muted);
     box-shadow: none;
   }
-  
+ 
   @keyframes pulse-grey {
     0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
     70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); }
@@ -241,7 +241,7 @@
   .controls button i {
     margin: 0 4px;
   }
-  
+ 
   #manualEntryBtn {
       padding: 18px 44px;
       font-size: 1.5em;
@@ -435,7 +435,7 @@
     box-sizing: border-box;
     overflow: auto; /* Allow scrolling in both directions */
   }
-  
+ 
   #imageModal.image-zoomed-in {
     justify-content: flex-start; /* Align to top-left for scrolling */
     align-items: flex-start;
@@ -639,7 +639,7 @@
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-medium);
   }
-  
+ 
   #customPromptModal .note-modal-content {
     max-width: 456px;
     align-items: center;
@@ -707,6 +707,7 @@
       <table>
         <thead>
           <tr>
+            <th id="traverse-header">#</th>
             <th>Auftrag</th>
             <th>Datum</th>
             <th>Notiz</th>
@@ -761,7 +762,7 @@
         </div>
       </div>
   </div>
-  
+ 
   <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
 
 <script>
@@ -891,7 +892,7 @@ const db = (() => {
     for (const button of allCategoryButtons) {
         const categoryNum = parseInt(button.textContent);
         const entriesForCategory = await db.getEntriesForCategory(categoryNum);
-        
+       
         const existingIcon = button.querySelector('.time-icon');
         if (existingIcon) {
             existingIcon.remove();
@@ -904,7 +905,7 @@ const db = (() => {
 
         if (entriesForCategory.length > 0) {
             button.classList.remove('empty-category');
-            
+           
             const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
             const entryDate = new Date(latestEntry.date);
             const entryHour = entryDate.getHours();
@@ -951,11 +952,12 @@ const db = (() => {
     if(prevActive) prevActive.classList.remove('active');
     btn.classList.add('active');
     currentCategory = num;
-    
+   
     try {
         entries = await db.getEntriesForCategory(currentCategory);
         updateHeaderAndControls();
-        
+        updateTraverseHeader(); // Call to update the new header
+       
         mainControls.style.display = 'block';
         listSection.style.display = 'block';
         renderTable();
@@ -967,7 +969,7 @@ const db = (() => {
     }
   }
 
-  // UPDATED: Helper function to update the traverse header and bottom label
+  // Helper function to update the bottom label and controls
   function updateHeaderAndControls() {
     if (!currentCategory) {
         categoryLabelLeft.textContent = '';
@@ -985,6 +987,22 @@ const db = (() => {
     } else {
         categoryLabelLeft.style.color = 'var(--primary)';
     }
+  }
+
+  // NEW: Function to update the traverse header in the table
+  function updateTraverseHeader() {
+      const traverseHeader = document.getElementById('traverse-header');
+      if (!currentCategory) {
+          traverseHeader.textContent = '#';
+          traverseHeader.style.color = 'var(--muted)';
+          traverseHeader.style.fontWeight = 'bold';
+          return;
+      }
+
+      const isEmpty = entries.length === 0;
+      traverseHeader.textContent = currentCategory;
+      traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
+      traverseHeader.style.fontWeight = 'bold';
   }
 
   function showCustomAlert(message, title = 'Info') {
@@ -1019,7 +1037,7 @@ const db = (() => {
     });
   }
 
-  // NEW: Simplified confirmation modal for image deletion
+  // Simplified confirmation modal for image deletion
   function showSimpleConfirm(message, title = 'Bestätigung') {
     return new Promise(resolve => {
       const existingModal = document.getElementById('customConfirmModal');
@@ -1028,7 +1046,7 @@ const db = (() => {
       const confirmModal = document.createElement('div');
       confirmModal.id = 'customConfirmModal';
       confirmModal.classList.add('modal-overlay');
-      
+     
       confirmModal.innerHTML = `
         <div class="note-modal-content">
           <h2>${title}</h2>
@@ -1071,7 +1089,7 @@ const db = (() => {
       const confirmModal = document.createElement('div');
       confirmModal.id = 'customConfirmModal';
       confirmModal.classList.add('modal-overlay');
-      
+     
       const isCheckedByDefault = !(entry && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
 
       confirmModal.innerHTML = `
@@ -1164,7 +1182,6 @@ const db = (() => {
       }
   }
 
-  // UPDATED: Use simple confirmation for image deletion
   async function deleteCurrentImage() {
       if (!currentImageEntryId || currentModalImages.length === 0) {
           showCustomAlert('Kein Bild zum Löschen vorhanden.', 'Fehler');
@@ -1210,7 +1227,7 @@ const db = (() => {
   }
 
 
-  // UPDATED: renderTable to create max 3 images per row
+  // renderTable to include the new sequential number column
   function renderTable(){
     const sortedEntries = entries.slice().sort((a,b)=> new Date(b.date) - new Date(a.date));
     logBody.innerHTML = sortedEntries.map((e,i) => {
@@ -1235,6 +1252,7 @@ const db = (() => {
 
       return `
       <tr data-id="${e.id}">
+        <td style="font-weight: bold;">${i + 1}</td>
         <td class="${codeClass}">${e.code}</td>
         <td>
           ${formattedDate}<br>
@@ -1264,7 +1282,7 @@ const db = (() => {
       }));
       logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
   }
-  
+ 
   function loadImage(src) {
       return new Promise((resolve, reject) => {
           const img = new Image();
@@ -1300,7 +1318,7 @@ const db = (() => {
     doc.setFont(undefined, 'normal');
     doc.setFontSize(18);
     doc.text(`Datum: ${formattedDateTime}`, 10, 35);
-    
+   
     doc.text(shiftText, 10, 50);
 
     doc.text('Traverse: ', 10, 65);
@@ -1319,7 +1337,7 @@ const db = (() => {
 
     const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
     const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
-    
+   
     const loadedImages = [];
     let failedImageCount = 0;
     imageLoadResults.forEach(result => {
@@ -1380,7 +1398,7 @@ const db = (() => {
             yPos += 15;
         }
     }
-    
+   
     doc.save(`${entry.code}_trav${entry.category}.pdf`);
   }
 
@@ -1390,13 +1408,13 @@ const db = (() => {
       if (!entryToDelete) return;
 
       const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich löschen?`, 'Bestätigung', entryToDelete);
-      
+     
       if (result.confirmed) {
           try {
               if (result.exportPdf) {
                   await generatePdfForEntry(entryToDelete);
               }
-              
+             
               await db.deleteEntry(id);
               entries = entries.filter(e => e.id !== id);
               renderTable();
@@ -1440,7 +1458,7 @@ const db = (() => {
     entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
     imageUploadInput.click();
   }
-  
+ 
   function sanitizeImage(imageDataUrl, quality = 0.95) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -1576,7 +1594,7 @@ const db = (() => {
           const cancelHandler = () => {
               closeAndResolve(null);
           };
-          
+         
           const keydownHandler = (e) => {
               if (e.key === 'Enter') {
                   e.preventDefault();
@@ -1623,7 +1641,7 @@ const db = (() => {
 
   document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
   document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
-  
+ 
   modalImage.addEventListener('click', () => {
     imageModal.classList.toggle('image-zoomed-in');
   });
@@ -1644,7 +1662,7 @@ const db = (() => {
     const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
     const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
     const result = await showCustomConfirm(`Möchten Sie wirklich alle Einträge für Traverse ${currentCategory} löschen?`, 'Bestätigung', dummyEntryForCheckbox);
-    
+   
     if (result.confirmed) {
         try {
             if (result.exportPdf && entries.length > 0) {
@@ -1652,12 +1670,13 @@ const db = (() => {
                     await generatePdfForEntry(entry);
                 }
             }
-            
+           
             await db.clearCategory(currentCategory);
             entries = [];
             renderTable();
             await updateCategoryButtonColors();
-            
+           
+            updateTraverseHeader(); // Update header after clearing
             categoryLabelLeft.style.color = 'var(--muted)';
             updateControlButtonsColor(true);
 
