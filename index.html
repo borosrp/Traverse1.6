@@ -221,6 +221,16 @@
     display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
   }
 
+  /* ÚJ SZABÁLY: Ikon a mainControls kategória címkéje mellett */
+  .category-label-icon {
+    /* A .controls .category-display-label font-size-a 2.2em, ehhez igazítjuk */
+    width: 2.2em; /* Az ikon szélessége a szám magasságához igazítva */
+    height: 2.2em; /* Az ikon magassága a szám magasságához igazítva */
+    vertical-align: middle; /* Függőleges igazítás a szöveghez */
+    margin-right: 10px; /* Távolság a számtól */
+    display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
+  }
+
   #mainControls {
     position: fixed;
     bottom: 0;
@@ -263,6 +273,7 @@
     flex-shrink: 1;
     flex-basis: auto;
     margin: 0 10px;
+    line-height: 1; /* Hozzáadva, hogy a szöveg magassága pontosan a font-size legyen */
   }
 
   #categoryLabelRight {
@@ -292,7 +303,7 @@
 
   .controls button.empty-category-control {
     background: var(--muted) !important;
-    color: #fff;
+    color: var(--text) !important; /* Szöveg színe is szürke legyen */
     box-shadow: none !important;
   }
 
@@ -311,6 +322,8 @@
 
   .controls button i {
     margin: 0 4px;
+    font-size: 1.8em; /* Megnöveltem a vonalkód ikon méretét */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Árnyék a jobb láthatóságért */
   }
   
   #manualEntryBtn {
@@ -406,7 +419,11 @@
     color: #fff;
     box-shadow: var(--shadow-soft);
   }
-  .deleteBtn:active { transform: scale(0.95); }
+  .deleteBtn:active {
+    transform: scale(0.95);
+    box-shadow: var(--shadow-active);
+  }
+
 
   .noteToggleBtn {
     background: none;
@@ -1030,12 +1047,13 @@ const db = (() => {
   async function selectCategory(num, btn){
     if(currentCategory === num) return;
     const prevActive = document.querySelector('.grid button.active');
-    if(prevActive) prevActive.classList.remove('active');
+    if(prevActive) prevActive.classList.remove('active'); // Javítva: prev helyett prevActive
     btn.classList.add('active');
     currentCategory = num;
     
     try {
         entries = await db.getEntriesForCategory(currentCategory);
+        const isEmpty = entries.length === 0; // Meghatározzuk az üres állapotot
         updateHeaderAndControls();
         updateTraverseHeader(); // Call to update the new header
         
@@ -1043,6 +1061,7 @@ const db = (() => {
         listSection.style.display = 'block';
         renderTable();
         await updateCategoryButtonColors();
+        updateControlButtonsColor(isEmpty); // Hozzáadva: a szkenner gomb színének frissítése
     }
     catch (e) {
         console.error("Fehler beim Lesen der Datenbank:", e);
@@ -1053,21 +1072,20 @@ const db = (() => {
   // Helper function to update the bottom label and controls
   function updateHeaderAndControls() {
     if (!currentCategory) {
-        categoryLabelLeft.textContent = '';
+        categoryLabelLeft.innerHTML = ''; /* A HTML tartalom beállítása */
         categoryLabelLeft.style.color = 'var(--muted)';
         return;
     }
 
     const isEmpty = entries.length === 0;
-    categoryLabelLeft.textContent = `${currentCategory}`;
-    clearCategoryBtn.disabled = isEmpty;
-    updateControlButtonsColor(isEmpty);
+    // Az ikon SVG kódja, szín dinamikusan beállítva
+    const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+    // Az ikon SVG kódja talpakkal
+    const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="0" y="75" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="75" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="category-label-icon">`;
 
-    if (isEmpty) {
-        categoryLabelLeft.style.color = 'var(--muted)';
-    } else {
-        categoryLabelLeft.style.color = 'var(--primary)';
-    }
+    // Az innerHTML beállítása az ikonnal és a kategória számmal
+    categoryLabelLeft.innerHTML = `${iconSvg} ${currentCategory}`;
+    categoryLabelLeft.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
   }
 
   // NEW: Function to update the traverse header in the table
@@ -1084,7 +1102,8 @@ const db = (() => {
       const isEmpty = entries.length === 0;
       // Az ikon SVG kódja, szín dinamikusan beállítva
       const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-      const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
+      // ÚJ: Az ikon SVG kódja talpakkal
+      const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="0" y="75" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="75" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
 
       // Az innerHTML beállítása az ikonnal és a kategória számmal
       traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
@@ -1380,16 +1399,19 @@ const db = (() => {
           const img = new Image();
           img.crossOrigin = 'Anonymous';  
           img.onload = () => resolve(img);
-          img.onerror = (err) => reject(new Error(`Failed to load image with src: ${src.substring(0, 50)}...`));
-          img.src = src;
-      });
+          img.onerror = () => {
+            console.warn(`Failed to load image for PDF: ${src.substring(0, 50)}...`);
+            reject(new Error('Failed to load image for sanitization.'));
+          };
+          img.src = imageDataUrl;
+    });
   }
 
   // --- PDF GENERATION (REVISED) ---
   async function generatePdfForEntry(entry) {
     if (typeof window.jspdf === 'undefined') {
         console.error('jsPDF is not loaded!');
-        showCustomAlert('PDF export fehlgeschlagen: jsPDF-Bibliothek nicht geladen.', 'Fehler');
+        showCustomAlert('PDF export fehlgeschlagen: jsPDF-Bibliothek nicht geloaden.', 'Fehler');
         return;
     }
     const { jsPDF } = window.jspdf;
@@ -1486,7 +1508,7 @@ const db = (() => {
         } catch (e) {
             console.error("Fehler beim Hinzufügen eines Bildes zum PDF:", e);
             if (yPos > 280) { doc.addPage(); yPos = 10; }
-            doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos);
+            doc.text(`[Bild ${i + 1} konnte nem verarbeitet werden]`, 10, yPos);
             yPos += 15;
         }
     }
@@ -1499,7 +1521,7 @@ const db = (() => {
       const entryToDelete = entries.find(e => e.id === id);
       if (!entryToDelete) return;
 
-      const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich lölni?`, 'Bestätigung', entryToDelete);
+      const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich törölni?`, 'Bestätigung', entryToDelete);
       
       if (result.confirmed) {
           try {
@@ -1563,8 +1585,9 @@ const db = (() => {
             resolve(canvas.toDataURL('image/jpeg', quality));
         };
         img.onerror = () => {
+            console.warn(`Failed to load image for sanitization: ${imageDataUrl.substring(0, 50)}...`);
             reject(new Error('Failed to load image for sanitization.'));
-        };
+          };
         img.src = imageDataUrl;
     });
   }
@@ -1587,7 +1610,7 @@ const db = (() => {
             }
         } catch (error) {
             console.error("Image sanitization failed:", error);
-            showCustomAlert('Das Bild konnte nicht verarbeitet werden. Es ist möglicherweise beschädigt.', 'Fehler');
+            showCustomAlert('Das Bild konnte nem verarbeitet werden. Es ist möglicherweise beschädigt.', 'Fehler');
         }
     };
     reader.readAsDataURL(file);
@@ -1661,16 +1684,52 @@ const db = (() => {
           categoryNumberSpan.textContent = currentCategory;
 
           const count = await db.getEntryCountForCategory(currentCategory);
-          if (count === 0) {
-              categoryNumberSpan.style.color = 'var(--muted)';
-          } else {
-              categoryNumberSpan.style.color = 'var(--primary)';
-          }
+          const isEmpty = count === 0; // Meghatározzuk az üres állapotot
+
+          // Az ikon SVG kódja, szín dinamikusan beállítva
+          const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+          const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="0" y="40" width="100" height="20" fill="${iconColor}"/%3E%3Crect x="10" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="80" y="20" width="10" height="60" fill="${iconColor}"/%3E%3Crect x="0" y="75" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="75" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" style="width: 2.2em; height: 2.2em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
+
+          // A kategóriaszám és az ikon frissítése a modálban
+          categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
+          categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
+
 
           input.value = '';
           promptModal.style.display = 'flex';
           document.body.classList.add('modal-open');
           input.focus();
+
+          // OK gomb színének beállítása
+          if (isEmpty) {
+            okBtn.style.background = 'var(--muted)';
+            okBtn.style.color = 'white'; /* Szöveg színe fehér legyen a szürke gombon */
+            okBtn.style.boxShadow = 'none';
+          } else {
+            okBtn.style.background = 'var(--primary)';
+            okBtn.style.color = 'white';
+            okBtn.style.boxShadow = 'var(--shadow-soft)';
+          }
+          // Hover és active állapotok kezelése
+          okBtn.onmouseover = () => {
+            if (isEmpty) okBtn.style.background = '#888';
+            else okBtn.style.background = 'var(--primary-dark)';
+            okBtn.style.boxShadow = 'var(--shadow-medium)';
+          };
+          okBtn.onmouseout = () => {
+            if (isEmpty) okBtn.style.background = 'var(--muted)';
+            else okBtn.style.background = 'var(--primary)';
+            okBtn.style.boxShadow = isEmpty ? 'none' : 'var(--shadow-soft)';
+          };
+          okBtn.onmousedown = () => {
+            okBtn.style.transform = 'scale(0.98)';
+            okBtn.style.boxShadow = 'var(--shadow-active)';
+          };
+          okBtn.onmouseup = () => {
+            okBtn.style.transform = 'scale(1)';
+            okBtn.style.boxShadow = isEmpty ? 'none' : 'var(--shadow-soft)';
+          };
+
 
           const processAndResolve = (value) => {
               if (value && value.includes('.')) {
@@ -1707,6 +1766,11 @@ const db = (() => {
               cancelBtn.removeEventListener('click', cancelHandler);
               promptModal.removeEventListener('click', overlayHandler);
               input.removeEventListener('keydown', keydownHandler);
+              // Eseménykezelők eltávolítása a gombokról is, hogy ne maradjanak meg
+              okBtn.onmouseover = null;
+              okBtn.onmouseout = null;
+              okBtn.onmousedown = null;
+              okBtn.onmouseup = null;
               resolve(value);
           };
 
@@ -1775,7 +1839,7 @@ const db = (() => {
         } catch (error) {
             console.error("Hiba a kategória törlése vagy exportálása során:", error);
             showCustomAlert('Ein Fehler ist beim Löszön oder Exportieren aufgetreten.', 'Fehler');
-        }
+          }
     }
   });
 
