@@ -128,29 +128,43 @@
     box-shadow: none;
   }
   
-  @keyframes pulse-grey {
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(0, 64, 133, 0.7); } /* Use primary-dark RGB */
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Use primary-dark RGB */
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(0, 64, 133, 0); } /* Use primary-dark RGB */
+  @keyframes pulse-primary-dark { /* Renamed for clarity */
+    0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
+    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Increased spread, reduced intensity */
+    100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
+  }
+
+  @keyframes pulse-grey-less-intense { /* New animation for less intense grey pulse */
+    0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
+    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Increased spread, reduced intensity */
+    100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
   }
 
   .grid button.active {
-    font-weight: normal; /* Changed to normal so it's not bold */
-    animation: pulse-grey 2s infinite; /* Pulsing effect */
+    font-weight: normal;
     /* Default active border/shadow, to be overridden by more specific rules if needed */
     border: 4px solid var(--muted); /* Default grey border for active */
     box-shadow: var(--shadow-medium); /* Default medium shadow for active */
+    animation-duration: 3s; /* Slower animation for all active buttons */
   }
   .grid button.active:not(.empty-category) {
     background: var(--primary);
-    color: #ffffff; /* Changed to white */
-    border: 4px solid var(--primary-dark); /* Dark blue border */
+    color: #ffffff; /* Text color is white */
+    border: 4px solid #ffffff; /* White border for active non-empty category */
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Darker, more prominent shadow */
+    animation-name: pulse-primary-dark; /* Apply dark blue pulse */
   }
   .grid button.active.empty-category {
     background: var(--card-bg);
     color: var(--muted); /* Grey text */
+    animation-name: pulse-grey-less-intense; /* Apply new less intense grey pulse */
+    border: 4px solid var(--muted); /* Ensure grey border */
+    font-weight: bold; /* Make the number bold */
   }
+  .grid button.active:not(.empty-category) .day-letter {
+    font-weight: bold; /* Make day letter bold for active non-empty category */
+  }
+
 
   #mainControls {
     position: fixed;
@@ -734,7 +748,7 @@
   </div>
 
   <div id="imageModal" class="modal-overlay">
-    <img id="modalImage" src="" alt="Bild vergrößert" />
+    <img id="modalImage" src="" alt="Bild vergrötes" />
     <div class="modal-controls">
       <button id="imageModalPrevBtn"><i class="fas fa-chevron-left"></i></button>
       <button id="imageModalNextBtn"><i class="fas fa-chevron-right"></i></button>
@@ -1356,7 +1370,7 @@ const db = (() => {
     });
 
     if (failedImageCount > 0) {
-        showCustomAlert(`${failedImageCount} Bild(er) konnten nicht für den PDF-Export geladen werden und wurden übersprungen.`, 'Warnung');
+        showCustomAlert(`${failedImageCount} Bild(er) konnten nicht für den PDF-Export geladen werden és átugorva.`, 'Warnung');
     }
 
     for (let i = 0; i < loadedImages.length; i++) {
@@ -1538,7 +1552,7 @@ const db = (() => {
               updateTraverseHeader(); // Refresh header style and content
           }
 
-          const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN95oJtfAME2P_5/exec';
+          const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN5oJtfAME2P_5/exec';
           const dataForSheet = {
               code: newEntry.code,
               date: new Date(newEntry.date).toLocaleString('de-DE'),
@@ -1656,7 +1670,7 @@ const db = (() => {
       if (e.target === imageModal) {
           imageModal.style.display = 'none';
           document.body.classList.remove('modal-open');
-      }
+        }
   });
   noteModal.addEventListener('click', (e) => {
       if (e.target === noteModal) {
