@@ -129,20 +129,23 @@
   }
   
   @keyframes pulse-grey {
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); }
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
+    0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(0, 64, 133, 0.7); } /* Use primary-dark RGB */
+    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Use primary-dark RGB */
+    100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(0, 64, 133, 0); } /* Use primary-dark RGB */
   }
 
   .grid button.active {
-    border: 4px solid var(--muted); /* Grey border */
-    box-shadow: var(--shadow-medium);
     font-weight: normal; /* Changed to normal so it's not bold */
     animation: pulse-grey 2s infinite; /* Pulsing effect */
+    /* Default active border/shadow, to be overridden by more specific rules if needed */
+    border: 4px solid var(--muted); /* Default grey border for active */
+    box-shadow: var(--shadow-medium); /* Default medium shadow for active */
   }
   .grid button.active:not(.empty-category) {
     background: var(--primary);
-    color: var(--muted); /* Grey text */
+    color: #ffffff; /* Changed to white */
+    border: 4px solid var(--primary-dark); /* Dark blue border */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Darker, more prominent shadow */
   }
   .grid button.active.empty-category {
     background: var(--card-bg);
@@ -917,10 +920,12 @@ const db = (() => {
             icon.classList.add('fas', 'time-icon');
             if (entryHour < 14) {
                 icon.classList.add('fa-sun');
-                icon.style.color = isPreviousDay ? '#A9A9A9' : 'yellow';
+                // Changed from '#A9A9A9' to '#666666' for darker gray
+                icon.style.color = isPreviousDay ? '#666666' : 'yellow';
             } else {
                 icon.classList.add('fa-moon');
-                icon.style.color = isPreviousDay ? '#A9A9A9' : '#F9E79F';
+                // Changed from '#A9A9A9' to '#666666' for darker gray
+                icon.style.color = isPreviousDay ? '#666666' : '#F9E79F';
             }
             button.appendChild(icon);
 
@@ -1662,7 +1667,7 @@ const db = (() => {
   clearCategoryBtn.addEventListener('click', async () => {
     const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
     const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
-    const result = await showCustomConfirm(`Möchten Sie wirklich alle Einträge für Traverse ${currentCategory} lölni?`, 'Bestätítés', dummyEntryForCheckbox);
+    const result = await showCustomConfirm(`Möchten Sie wirklich alle Eintrések for Traverse ${currentCategory} törölni?`, 'Bestätítés', dummyEntryForCheckbox);
     
     if (result.confirmed) {
         try {
@@ -1682,8 +1687,8 @@ const db = (() => {
             updateControlButtonsColor(true);
 
         } catch (error) {
-            console.error("Hiba a kategória trlése vagy exportálása során:", error);
-            showCustomAlert('Hiba történt a kategória trlése vagy exportálása során.', 'Hiba');
+            console.error("Hiba a kategória törlése vagy exportálása során:", error);
+            showCustomAlert('Hiba történt a kategória törlése vagy exportálása során.', 'Hiba');
         }
     }
   });
