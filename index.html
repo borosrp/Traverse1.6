@@ -1,34 +1,34 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="de">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Traversendaten</title>
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect fill="white" width="16" height="16"/><g fill="%230056b3"><path d="M1 3h1v10H1z"/><path d="M3 3h2v10H3z"/></g><g fill="black"><path d="M6 3h1v10H6z"/><path d="M8 3h2v10H8z"/><path d="M11 3h1v10h-1z"/><path d="M13 3h2v10h-2z"/></g></svg>'>
-    <!-- Font Awesome ikonokhoz -->
+    <!-- Font Awesome für Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- QR Code Library -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <style>
-        /* Otto Lehmann ihlette design - Maximális 3D hatás */
+        /* Von Otto Lehmann inspiriertes Design - Maximaler 3D-Effekt */
         :root {
-            --bg: #f5f5f5; /* Világosszürke háttér */
-            --text: #333333; /* Sötétszürke szöveg */
-            --muted: #6c757d; /* Közepes szürke a visszafogott elemekhez */
-            --primary: #0056b3; /* Otto Lehmann kékje */
-            --primary-dark: #004085; /* Sötétebb kék hoverhez */
-            --light-primary: #70A4D5; /* Világoskék a 17-28 kategóriákhoz */
-            --light-primary-dark: #5A8FC2; /* Sötétebb világoskék hoverhez */
-            --medium-primary: #2C6BB0; /* Új: köztes kék szín, kicsit sötétebb */
-            --medium-primary-dark: #23558A; /* Új: sötétebb köztes kék hoverhez */
-            --very-light-blue: #E0F2F7; /* ÚJ: Nagyon halványkék az 1-16 kategóriák rácsához */
-            --accent: #28a745; /* Professzionális zöld az ékezet/sikerhez */
-            --success: #28a745; /* Zöld a sikerüzenetekhez */
-            --danger: #dc3545; /* Piros a veszélyhez/törléshez */
-            --warning: #ffc107; /* Sárga a figyelmeztetésekhez */
-            --border-color: #e0e0e0; /* Világosszürke szegély */
-            --card-bg: #ffffff; /* Fehér kártyahátterek */
-            --row-alt-bg: #f8f8f8; /* Nagyon világosszürke a váltakozó táblázatsorokhoz */
+            --bg: #f5f5f5; /* Hellgrauer Hintergrund */
+            --text: #333333; /* Dunkelgrauer Text */
+            --muted: #6c757d; /* Mittelgrau für gedämpfte Elemente */
+            --primary: #0056b3; /* Otto Lehmanns Blau */
+            --primary-dark: #004085; /* Dunkleres Blau für Hover */
+            --light-primary: #70A4D5; /* Hellblau für die Kategorien 17-28 */
+            --light-primary-dark: #5A8FC2; /* Dunkleres Hellblau für Hover */
+            --medium-primary: #2C6BB0; /* Neu: mittleres Blau, etwas dunkler */
+            --medium-primary-dark: #23558A; /* Neu: dunkleres mittleres Blau für Hover */
+            --very-light-blue: #E0F2F7; /* NEU: Sehr hellblau für das Raster der Kategorien 1-16 */
+            --accent: #28a745; /* Professionelles Grün für Akzent/Erfolg */
+            --success: #28a745; /* Grün für Erfolgsmeldungen */
+            --danger: #dc3545; /* Rot für Gefahr/Löschen */
+            --warning: #ffc107; /* Gelb für Warnungen */
+            --border-color: #e0e0e0; /* Hellgrauer Rahmen */
+            --card-bg: #ffffff; /* Weiße Kartenhintergründe */
+            --row-alt-bg: #f8f8f8; /* Sehr hellgrau für abwechselnde Tabellenzeilen */
             
             --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
             --shadow-medium: 0 15px 30px rgba(0, 0, 0, 0.35), 0 25px 50px rgba(0, 0, 0, 0.25);
@@ -49,17 +49,17 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            padding: 0 15px; /* Hozzáadva némi oldalsó margó */
+            padding: 0 15px; /* Seitlicher Rand hinzugefügt */
             box-sizing: border-box;
         }
         body.modal-open {
-            overflow: hidden; /* Megakadályozza a görgetést, amikor modál van nyitva */
+            overflow: hidden; /* Verhindert das Scrollen, wenn Modal geöffnet ist */
         }
 
         #main-scrollable-area {
             flex: 1;
             overflow-y: auto;
-            padding: 15px 0 160px; /* Megnövelt alsó margó, hogy elférjen az alsó vezérlőpult */
+            padding: 15px 0 160px; /* Vergrößerter unterer Rand für die untere Steuerleiste */
             box-sizing: border-box;
         }
 
@@ -74,9 +74,9 @@
             border: 1px solid var(--text);
         }
         #categoryGrid2 {
-            background: #70A4D5; /* Megtartva a rács hátterét, de a gombok színe most felülírja */
+            background: #70A4D5; /* Rasterhintergrund beibehalten, aber Schaltflächenfarbe überschreibt jetzt */
         }
-        /* ÚJ SZABÁLY: Nagyon halványkék háttér az 1-16 kategóriák rácsához */
+        /* NEU: Sehr hellblau für das Raster der Kategorien 1-16 */
         #categoryGrid1 {
             grid-template-columns: repeat(8, 1fr);
             background: var(--very-light-blue);
@@ -88,25 +88,25 @@
         .grid button {
             position: relative;
             padding: 20px 10px;
-            font-size: 1.44em; /* 20%-kal nagyobb méret */
+            font-size: 1.44em; /* 20% größere Größe */
             border-radius: 6px;
             border: 1px solid var(--text);
             cursor: pointer;
-            background: var(--primary); /* Alapértelmezett sötétkék */
+            background: var(--primary); /* Standard Dunkelblau */
             color: #ffffff;
             user-select: none;
             transition: all 0.1s ease;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
             text-shadow: none;
         }
-        /* MÓDOSÍTVA: Köztes kék a 17-28-as kategóriagombokhoz, ha van adat */
+        /* GEÄNDERT: Mittleres Blau für Kategorietasten 17-28, wenn Daten vorhanden */
         #categoryGrid2 button:not(.empty-category) {
             background: var(--medium-primary);
         }
-        /* MÓDOSÍTVA: Sötétebb köztes kék hover effekt a 17-28-as kategóriagombokhoz */
+        /* GEÄNDERT: Dunklerer mittlerer Blau-Hover-Effekt für Kategorietasten 17-28 */
         #categoryGrid2 button:not(.empty-category):hover {
             background: var(--medium-primary-dark);
-            border-color: var(--medium-primary-dark); /* Frissített border-color hoverre */
+            border-color: var(--medium-primary-dark); /* Aktualisierte Rahmenfarbe für Hover */
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
         }
 
@@ -115,7 +115,7 @@
             bottom: 5px;
             right: 5px;
             font-size: 0.8em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 3D hatás */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 3D-Effekt */
         }
         .grid button .day-letter {
             position: absolute;
@@ -146,9 +146,9 @@
             box-shadow: none;
         }
         
-        @keyframes pulse-primary-dark { /* Átnevezve a tisztaság kedvéért */
+        @keyframes pulse-primary-dark { /* Umbenannt zur Klarheit */
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
-            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Megnövelt szórás, csökkentett intenzitás */
+            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Erhöhte Streuung, reduzierte Intensität */
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
         }
 
@@ -158,35 +158,35 @@
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
         }
 
-        /* ÚJ ANIMÁCIÓ: Köztes kék pulzálás */
+        /* NEUE ANIMATION: Mittlere blaue Pulsation */
         @keyframes pulse-medium-primary {
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
-            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(44, 107, 176, 0); } /* Köztes kék árnyék */
+            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(44, 107, 176, 0); } /* Mittlerer blauer Schatten */
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
         }
 
-        @keyframes pulse-grey-less-intense { /* Új animáció kevésbé intenzív szürke pulzáláshoz */
+        @keyframes pulse-grey-less-intense { /* Neue Animation für weniger intensive graue Pulsation */
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
-            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Megnövelt szórás, csökkentett intenzitás */
+            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Erhöhte Streuung, reduzierte Intensität */
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
         }
 
         .grid button.active {
-            /* A betűtípust az aktív osztályok kezelik */
-            /* Alapértelmezett aktív szegély/árnyék, szükség esetén specifikusabb szabályok felülírják */
-            border: 4px solid var(--muted); /* Alapértelmezett szürke szegély aktívhoz */
-            box-shadow: var(--shadow-medium); /* Alapértelmezett közepes árnyék aktívhoz */
-            animation-duration: 3s; /* Lassabb animáció minden aktív gombhoz */
-            animation-iteration-count: infinite; /* Korlátlan animáció lejátszása */
+            /* Schriftart wird von aktiven Klassen verwaltet */
+            /* Standardmäßiger aktiver Rahmen/Schatten, spezifischere Regeln überschreiben bei Bedarf */
+            border: 4px solid var(--muted); /* Standardmäßiger grauer Rahmen für aktiv */
+            box-shadow: var(--shadow-medium); /* Standardmäßiger mittlerer Schatten für aktiv */
+            animation-duration: 3s; /* Langsamere Animation für alle aktiven Schaltflächen */
+            animation-iteration-count: infinite; /* Unbegrenzte Animation abspielen */
         }
         .grid button.active:not(.empty-category) {
-            font-weight: bold; /* Félkövér a fehér számhoz */
-            color: #ffffff; /* Szöveg színe fehér */
-            border: 4px solid #ffffff; /* Fehér szegély aktív, nem üres kategóriához */
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Sötétebb, kiemelkedőbb árnyék */
-            animation-name: pulse-primary-dark; /* Alapértelmezett sötétkék pulzálás */
+            font-weight: bold; /* Fett für die weiße Zahl */
+            color: #ffffff; /* Textfarbe weiß */
+            border: 4px solid #ffffff; /* Weißer Rahmen für aktive, nicht leere Kategorie */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Dunklerer, prominenterer Schatten */
+            animation-name: pulse-primary-dark; /* Standardmäßiges dunkelblaues Pulsieren */
         }
-        /* MÓDOSÍTVA: Köztes kék háttér és pulzálás aktív állapotban, ha van adat */
+        /* GEÄNDERT: Mittlerer blauer Hintergrund und Pulsation im aktiven Zustand, wenn Daten vorhanden */
         #categoryGrid2 button.active:not(.empty-category) {
             background: var(--medium-primary);
             animation-name: pulse-medium-primary;
@@ -194,61 +194,61 @@
 
         .grid button.active.empty-category {
             background: var(--card-bg);
-            color: var(--muted); /* Szürke szöveg */
-            animation-name: pulse-grey-less-intense; /* Alkalmazza az új, kevésbé intenzív szürke pulzálást */
-            border: 4px solid var(--muted); /* Javított szegély 44px-ről 4px-re */
-            font-weight: bold; /* Félkövérre állítja a számot */
+            color: var(--muted); /* Grauer Text */
+            animation-name: pulse-grey-less-intense; /* Wendet die neue, weniger intensive graue Pulsation an */
+            border: 4px solid var(--muted); /* Verbesserter Rahmen von 44px auf 4px */
+            font-weight: bold; /* Setzt die Zahl auf fett */
         }
         .grid button.active:not(.empty-category) .day-letter {
-            font-weight: bold; /* Félkövérre állítja a nap betűjét aktív, nem üres kategóriához */
+            font-weight: bold; /* Setzt den Tagesbuchstaben für aktive, nicht leere Kategorie auf fett */
         }
 
-        /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában (L betű) */
-        .grid button .fa-na-icon { /* Átneveztem a class-t a pontosabb leírásért */
+        /* NEUE REGEL: Icon in der oberen linken Ecke der Schaltfläche (L-Buchstabe) */
+        .grid button .fa-na-icon { /* Klasse für präzisere Beschreibung umbenannt */
             position: absolute;
             top: 5px;
             left: 5px;
-            width: 1.2em; /* Méret beállítása */
-            height: 1.2em; /* Méret beállítása */
-            z-index: 10; /* Hogy a többi elem fölött legyen */
+            width: 1.2em; /* Größe einstellen */
+            height: 1.2em; /* Größe einstellen */
+            z-index: 10; /* Damit es über anderen Elementen liegt */
         }
-        /* ÚJ: Ikon a gomb bal felső sarkában (nem FA/NA adat esetén) */
+        /* NEU: Icon in der oberen linken Ecke der Schaltfläche (bei Nicht-FA/NA-Daten) */
         .grid button .non-fa-na-icon {
             position: absolute;
             top: 5px;
             left: 5px;
-            width: 1.2em; /* Méret beállítása */
-            height: 1.2em; /* Méret beállítása */
-            z-index: 10; /* Hogy a többi elem fölött legyen */
+            width: 1.2em; /* Größe einstellen */
+            height: 1.2em; /* Größe einstellen */
+            z-index: 10; /* Damit es über anderen Elementen liegt */
         }
 
 
-        /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
+        /* NEUE REGEL: Icon in der Tabellenüberschrift neben der Traversennummer */
         .header-traverse-icon {
-            width: 1.5em; /* Az ikon szélessége - egyforma a szám magasságával */
-            height: 1.5em; /* Az ikon magassága - egyforma a szám magasságával */
-            vertical-align: middle; /* Függőleges igazítás a szöveghez */
-            margin-right: 5px; /* Távolság a szövegtől */
-            display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
+            width: 1.5em; /* Die Breite des Icons - gleich der Höhe der Zahl */
+            height: 1.5em; /* Die Höhe des Icons - gleich der Höhe der Zahl */
+            vertical-align: middle; /* Vertikale Ausrichtung zum Text */
+            margin-right: 5px; /* Abstand zum Text */
+            display: inline-block; /* Wichtig, dass es inline-block ist wegen der vertikalen Ausrichtung */
         }
 
-        /* ÚJ SZABÁLY: Ikon a mainControls kategória címkéje mellett */
+        /* NEUE REGEL: Icon neben dem Kategorie-Label in mainControls */
         .category-label-icon {
-            /* A .controls .category-display-label font-size-a 2.2em, ehhez igazítjuk */
-            width: 1em; /* Az ikon szélessége a szám magasságához igazítva */
-            height: 1em; /* Az ikon magassága a szám magasságához igazítva */
-            vertical-align: middle; /* Függőleges igazítás a szöveghez */
-            margin-right: 10px; /* Távolság a számtól */
-            display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
+            /* Die .controls .category-display-label font-size-a 2.2em, ehhez igazítjuk */
+            width: 1em; /* Die Breite des Icons an die Höhe der Zahl angepasst */
+            height: 1em; /* Die Höhe des Icons an die Höhe der Zahl angepasst */
+            vertical-align: middle; /* Vertikale Ausrichtung zum Text */
+            margin-right: 10px; /* Abstand zur Zahl */
+            display: inline-block; /* Wichtig, dass es inline-block ist wegen der vertikalen Ausrichtung */
         }
 
-        /* ÚJ: Jegyzet állapotjelző ikon a kategóriagombokon */
+        /* NEU: Notiz-Statusindikator-Icon auf den Kategorietasten */
         .grid button .note-status-indicator {
             position: absolute;
             top: 5px;
             right: 5px;
-            width: 24px; /* Növelt méret */
-            height: 24px; /* Növelt méret */
+            width: 24px; /* Erhöhte Größe */
+            height: 24px; /* Erhöhte Größe */
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -262,21 +262,21 @@
             animation: blink-red-white 1.5s infinite alternate; /* Ugyanaz az animáció, mint a táblázat jegyzet gombján */
         }
         .grid button .note-status-indicator i {
-            text-shadow: none; /* A belső ikon árnyékát eltávolítjuk */
+            text-shadow: none; /* Der Schatten des inneren Icons wird entfernt */
         }
 
         #mainControls {
             position: fixed;
             bottom: 0;
             left: 0;
-            right: 0; /* Megváltoztatva width: 100%-ról right: 0-ra */
+            right: 0; /* Geändert von width: 100% auf right: 0 */
             z-index: 1000;
-            /* display: none; */ /* Maradjon kikommentelve, a JS vezérli a láthatóságot */
+            /* Bleibt auskommentiert, JS steuert die Sichtbarkeit */
             box-sizing: border-box;
-            padding: 0 15px; /* Hozzáadva vízszintes padding, hogy illeszkedjen a body-hoz */
-            background: transparent; /* Átlátszóra változtatva, lehetővé téve a belső div stílusát */
-            border-top: none; /* Eltávolítva a konténerhez */
-            box-shadow: none; /* Eltávolítva a konténerhez */
+            padding: 0 15px; /* Horizontaler Abstand hinzugefügt, um sich dem Body anzupassen */
+            background: transparent; /* Transparent geändert, um die Stilgebung des inneren Divs zu ermöglichen */
+            border-top: none; /* Für den Container entfernt */
+            box-shadow: none; /* Für den Container entfernt */
             flex-shrink: 0;
         }
 
@@ -412,7 +412,8 @@
         th {
             background: #f0f0f0;
             font-weight: 700;
-            color: var(--muted);
+            /* MÓDOSÍTÁS: Fejléc szövegének színe kékre */
+            color: var(--primary); 
             font-size: 0.9em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -566,8 +567,8 @@
             color: var(--primary-dark);
         }
          .master-upload-container.has-data:hover .fas.fa-folder {
-             color: var(--primary-dark);
-         }
+            color: var(--primary-dark);
+        }
         .master-upload-container input[type="checkbox"]:checked + .fas.fa-folder {
             filter: brightness(1.2);
             text-shadow: 0 0 8px rgba(0, 86, 179, 0.7);
@@ -960,10 +961,9 @@
             border: 1px solid var(--border-color);
         }
 
+        /* Hide the h2 element within the QR code modal */
         #qrCodeModal .modal-content h2 {
-            margin: 0;
-            font-size: 1.5em;
-            color: var(--primary);
+            display: none;
         }
 
         #qrCodeContainer {
@@ -980,6 +980,9 @@
         .qr-code-icon {
             cursor: pointer;
             margin-left: 5px;
+            /* Set font-size to match the folder icon */
+            font-size: 1.5em; 
+            vertical-align: middle; /* Align with text */
             color: var(--primary);
             transition: color 0.2s ease;
         }
@@ -1011,7 +1014,7 @@
                             </div>
                         </th>
                         <th width="8%">
-                            <button class="header-delete-btn" id="headerDeleteBtn" title="Kategória törlése">
+                            <button class="header-delete-btn" id="headerDeleteBtn" title="Kategorie löschen">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </th>
@@ -1067,9 +1070,9 @@
     <!-- QR Code Modal -->
     <div id="qrCodeModal" class="modal-overlay">
         <div class="modal-content">
-            <h2>QR Kód</h2>
+            <h2>QR-Code</h2> <!-- This H2 is now hidden by CSS -->
             <div id="qrCodeContainer"></div>
-            <button id="qrCodeCloseBtn" class="modal-close-btn">Bezár</button>
+            <button id="qrCodeCloseBtn" class="modal-close-btn">Schließen</button>
         </div>
     </div>
     
@@ -1109,7 +1112,7 @@ const db = (() => {
     async function performTransaction(storeName, mode, action) {
         const db = await openDB();
         const transaction = db.transaction(storeName, mode);
-        const store = transaction.objectStore(storeName); // FIX: Changed objectObjectStore to objectStore
+        const store = transaction.objectStore(storeName);
         return new Promise((resolve, reject) => {
             const request = action(store);
             request.onsuccess = () => resolve(request.result);
@@ -1156,41 +1159,41 @@ const db = (() => {
     const noteModalSaveBtn = document.getElementById('noteModalSaveBtn');
     const deleteImageBtn = document.getElementById('deleteImageBtn');
     const imageUploadInput = document.getElementById('imageUploadInput');
-    const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
-    const loadingOverlay = document.getElementById('loadingOverlay'); // Hozzáadva: loadingOverlay elem
+    const customPromptModal = document.getElementById('customPromptModal');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const customPromptInput = document.getElementById('customPromptInput');
-    const qrCodeModal = document.getElementById('qrCodeModal'); // QR Code Modal
-    const qrCodeContainer = document.getElementById('qrCodeContainer'); // QR Code Container
+    const qrCodeModal = document.getElementById('qrCodeModal');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
 
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
     const clearCategoryBtn = document.getElementById('clearCategoryBtn');
-    // selectAllUploadsToggle most a rejtett jelölőnégyzet
+    // selectAllUploadsToggle ist jetzt die versteckte Checkbox
     const selectAllUploadsToggle = document.getElementById('selectAllUploadsToggle'); 
-    // NEU: Header Delete Button
+    // NEU: Header-Löschtaste
     const headerDeleteBtn = document.getElementById('headerDeleteBtn');
-    // NEU: masterUploadContainer is defined here
-    const masterUploadContainer = document.querySelector('.master-upload-container'); // Move this declaration here
+    // NEU: masterUploadContainer ist hier definiert
+    const masterUploadContainer = document.querySelector('.master-upload-container');
 
     // Anwendungsstatus
-    let currentCategory = null; // A jelenleg kiválasztott kategória száma
-    let entries = []; // A jelenleg kiválasztott kategória bejegyzései
-    let entryIdToUpdate = null; // A képfeltöltéshez kiválasztott bejegyzés ID-je
-    let noteEntryIdToUpdate = null; // A jegyzet szerkesztéséhez kiválasztott bejegyzés ID-je
+    let currentCategory = null; // Die Nummer der aktuell ausgewählten Kategorie
+    let entries = []; // Die Einträge der aktuell ausgewählten Kategorie
+    let entryIdToUpdate = null; // Die ID des für den Bildupload ausgewählten Eintrags
+    let noteEntryIdToUpdate = null; // Die ID des für die Notizbearbeitung ausgewählten Eintrags
 
     // Globaler Status für das Bildkarussell im Modal
-    let currentModalImages = []; // A jelenleg megjelenített képek listája
-    let currentModalImageIndex = 0; // A jelenleg megjelenített kép indexe
-    let currentImageEntryId = null; // Annak a bejegyzésnek az ID-je, amelyikhez a képek tartoznak
+    let currentModalImages = []; // Die Liste der aktuell angezeigten Bilder
+    let currentModalImageIndex = 0; // Der Index des aktuell angezeigten Bildes
+    let currentImageEntryId = null; // Die ID des Eintrags, zu dem die Bilder gehören
 
     // Laserscanner Eingabepuffer und Timer
     let laserScannerBuffer = [];
     let laserScannerTimer = null;
 
-    // Globális változó a fókuszban lévő kategóriagomb tárolására
+    // Globale Variable zum Speichern der fokussierten Kategorietaste
     let focusedCategoryButton = null;
 
-    // Grid konstansok a navigációhoz
+    // Grid-Konstanten für die Navigation
     const GRID1_COLS = 8;
     const GRID2_COLS = 12;
     const GRID1_SIZE = 16;  
@@ -1210,30 +1213,30 @@ const db = (() => {
         document.body.classList.remove('modal-open');
     }
 
-    // Függvény a gombok fókuszálásához
+    // Funktion zum Fokussieren der Schaltflächen
     function setButtonFocus(button) {
-        if (!button) return; // Ne próbáljunk nem létező gombot fókuszálni
+        if (!button) return; // Versuchen Sie nicht, eine nicht existierende Schaltfläche zu fokussieren
 
-        // Eltávolítja a fókuszt az előzőleg fókuszált gombról
+        // Entfernt den Fokus von der zuvor fokussierten Schaltfläche
         if (focusedCategoryButton && focusedCategoryButton !== button) {
             focusedCategoryButton.classList.remove('focused');
         }
 
-        // Hozzáadja a fókuszt az új gombhoz
+        // Fügt den Fokus zur neuen Schaltfläche hinzu
         button.classList.add('focused');
         focusedCategoryButton = button;
 
-        // Gondoskodik róla, hogy a gomb látható legyen
+        // Stellt sicher, dass die Schaltfläche sichtbar ist
         button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
         
-        // Valódi böngészőfókuszt is beállítja az Enter billentyű kezeléséhez
+        // Setzt auch den echten Browserfokus für die Enter-Taste
         button.focus(); 
     }
 
 
     // Tastaturereignis-Handler für Scannereingabe und Esc-Taste
     window.addEventListener('keydown', (e) => {
-        // 1. Modális ablakok bezárása Esc billentyűvel
+        // 1. Schließen von Modalitäten mit der Esc-Taste
         if (e.key === 'Escape') {
             if (imageModal.style.display === 'flex') {
                 closeModal(imageModal);
@@ -1244,7 +1247,7 @@ const db = (() => {
             } else if (customPromptModal.style.display === 'flex') {
                 closeModal(customPromptModal);
                 return;
-            } else if (qrCodeModal.style.display === 'flex') { // QR Code Modal
+            } else if (qrCodeModal.style.display === 'flex') { // QR-Code-Modal
                 closeModal(qrCodeModal);
                 return;
             } else if (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') {
@@ -1253,43 +1256,43 @@ const db = (() => {
             }
         }
 
-        // Ellenőrizzük, hogy van-e megnyitott modális ablak, kivéve a customPromptInput-ot, ha abban gépelnek.
+        // Überprüfen, ob ein Modal geöffnet ist, außer dem customPromptInput, wenn darin getippt wird.
         const isAnyModalOpenAndNotPromptInputFocused = (
             imageModal.style.display === 'flex' ||
             noteModal.style.display === 'flex' ||
-            qrCodeModal.style.display === 'flex' || // QR Code Modal
+            qrCodeModal.style.display === 'flex' || // QR-Code-Modal
             (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') ||
             (customPromptModal.style.display === 'flex' && document.activeElement !== customPromptInput)
         );
 
-        // Ha van megnyitott modális ablak (és nem a prompt inputban gépelnek), ne dolgozzuk fel a további billentyűket.
+        // Wenn ein Modal geöffnet ist (und nicht im Prompt-Input getippt wird), verarbeiten Sie keine weiteren Tasten.
         if (isAnyModalOpenAndNotPromptInputFocused) {
             return;
         }
 
-        // Ha a customPromptInput a fókuszben lévő elem, akkor az Enter billentyűt a saját kezelője dolgozza fel.
+        // Wenn der customPromptInput das fokussierte Element ist, verarbeitet seine eigene Keydown-Behandlung die Enter-Taste.
         if (document.activeElement === customPromptInput) {
-            // Itt nem kell semmit tenni, mert a customPromptInput saját keydown kezelője van.
+            // Hier muss nichts getan werden, da der customPromptInput eine eigene Keydown-Behandlung hat.
             return;
         }
 
-        // 2. Enter billentyű kezelése fókuszált kategóriagomb esetén (manuális bevitel megnyitása)
+        // 2. Behandlung der Enter-Taste bei fokussierter Kategorietaste (manuelle Eingabe öffnen)
         if (e.key === 'Enter' && focusedCategoryButton) {
-            e.preventDefault(); // Megakadályozza az alapértelmezett böngésző viselkedést (pl. űrlap elküldése)
+            e.preventDefault(); // Verhindert das Standard-Browserverhalten (z.B. Formular senden)
             const focusedCategoryNum = parseInt(focusedCategoryButton.textContent);
             if (currentCategory !== focusedCategoryNum) {
-                // Ha a fókuszált gomb nem az aktuálisan kiválasztott, válassza ki először
+                // Wenn die fokussierte Schaltfläche nicht die aktuell ausgewählte ist, wählen Sie sie zuerst aus
                 selectCategory(focusedCategoryNum, focusedCategoryButton);
             } else {
-                // Ha már ki van választva, csak nyissa meg a manuális bevitelt
+                // Wenn bereits ausgewählt, öffnen Sie einfach die manuelle Eingabe
                 handleManualEntry();
             }
-            return; // Esemény feldolgozva
+            return; // Ereignis verarbeitet
         }
 
-        // 3. Nyílbillentyűk navigációja a kategóriagombok között
+        // 3. Pfeiltasten-Navigation zwischen den Kategorietasten
         if (e.key.startsWith('Arrow')) {
-            e.preventDefault(); // Megakadályozza az alapértelmezett görgetési viselkedést
+            e.preventDefault(); // Verhindert das Standard-Scrollverhalten
             const allCategoryButtons = Array.from(document.querySelectorAll('.grid button'));
             let currentIdx = -1;
 
@@ -1340,11 +1343,11 @@ const db = (() => {
             if (allCategoryButtons[nextIdx]) {
                 setButtonFocus(allCategoryButtons[nextIdx]);
             }
-            return; // Nyílbillentyű feldolgozva
+            return; // Pfeiltaste verarbeitet
         }
 
-        // 4. Szkenner bemenet (csak akkor, ha nincs fókuszban kategóriagomb, és nem input/textarea)
-        // Ez a kulcsfontosságú változás: csak akkor pufferel karaktereket, ha NINCS kategóriagomb fókuszban.
+        // 4. Scanner-Eingabe (nur wenn keine Kategorietaste fokussiert ist und nicht in Input/Textarea)
+        // Dies ist die entscheidende Änderung: Es werden nur Zeichen gepuffert, wenn KEINE Kategorietaste fokussiert ist.
         if (e.key.length === 1 && e.key !== ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && !focusedCategoryButton) {
             laserScannerBuffer.push(e.key);
             clearTimeout(laserScannerTimer);
@@ -1355,13 +1358,13 @@ const db = (() => {
                     laserScannerBuffer = [];
                 }
             }, 100);
-            return; // Karakter feldolgozva
+            return; // Zeichen verarbeitet
         }
 
-        // Ha egy kategóriagomb fókuszban van, és egy karakter billentyűt nyomnak meg (és nem nyíl vagy Enter),
-        // akkor ne csináljon semmit, megakadályozva, hogy szkenner bemenetként kezelje.
+        // Wenn eine Kategorietaste fokussiert ist und eine Zeichentaste gedrückt wird (und nicht Pfeil oder Enter),
+        // dann nichts tun, um die Behandlung als Scannereingabe zu verhindern.
         if (focusedCategoryButton && e.key.length === 1) {
-            e.preventDefault(); // Megakadályozza a böngésző alapértelmezett viselkedését
+            e.preventDefault(); // Verhindert das Standardverhalten des Browsers
             return;
         }
     });
@@ -1386,7 +1389,7 @@ const db = (() => {
         const allCategoryButtons = document.querySelectorAll('.grid button');
         // Icon-URL aus dem versteckten HTML-Element extrahieren
         const iconUrl = document.getElementById('iconDataLoader').dataset.iconUrl;
-        const nonFaNaIconUrl = document.getElementById('iconDataLoader').dataset.nonFaNaIconUrl; // ÚJ: Nem FA/NA ikon URL
+        const nonFaNaIconUrl = document.getElementById('iconDataLoader').dataset.nonFaNaIconUrl; // NEU: Nicht-FA/NA-Icon URL
 
         for (const button of allCategoryButtons) {
             const categoryNum = parseInt(button.textContent);
@@ -1409,20 +1412,20 @@ const db = (() => {
             if (existingFaNaIcon) {
                 existingFaNaIcon.remove();
             }
-            // ÚJ: Nem FA/NA ikon eltávolítása
+            // NEU: Nicht-FA/NA-Icon entfernen
             const existingNonFaNaIcon = button.querySelector('.non-fa-na-icon');
             if (existingNonFaNaIcon) {
                 existingNonFaNaIcon.remove();
             }
 
-            // NEU: Notiz-Status-Indikator entfernen
+            // NEU: Notiz-Statusindikator entfernen
             const existingNoteIndicator = button.querySelector('.note-status-indicator');
             if (existingNoteIndicator) {
                 existingNoteIndicator.remove();
             }
 
             let hasFaNaEntry = false;
-            let hasNonFaNaEntry = false; // ÚJ: Flag nem FA/NA bejegyzéshez
+            let hasNonFaNaEntry = false; // NEU: Flag für Nicht-FA/NA-Eintrag
             let hasNoteInAnyEntry = false; // NEU: Flag für Notiz in Kategorie
 
             if (entriesForCategory.length > 0) {
@@ -1457,7 +1460,7 @@ const db = (() => {
 
                 // Überprüfen, ob ein Eintrag mit FA oder NA beginnt
                 hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
-                // ÚJ: Ellenőrizze, hogy van-e nem FA/NA kezdetű bejegyzés
+                // NEU: Überprüfen, ob ein Eintrag mit Nicht-FA/NA beginnt
                 hasNonFaNaEntry = entriesForCategory.some(entry => entry.code && !(entry.code.startsWith('FA') || entry.code.startsWith('NA')));
                 // NEU: Überprüfen, ob ein Eintrag eine Notiz hat
                 hasNoteInAnyEntry = entriesForCategory.some(entry => entry.note && entry.note.trim() !== '');
@@ -1474,16 +1477,16 @@ const db = (() => {
                 faNaIcon.classList.add('fa-na-icon');
                 button.appendChild(faNaIcon);
             }
-            // ÚJ: Nem FA/NA ikon hozzáadása, ha van ilyen bejegyzés
+            // NEU: Nicht-FA/NA-Icon hinzufügen, wenn ein solcher Eintrag vorhanden ist
             if (hasNonFaNaEntry) {
                 const nonFaNaIcon = document.createElement('img');
                 nonFaNaIcon.src = nonFaNaIconUrl;
-                nonFaNaIcon.alt = 'Nem FA/NA státusz ikon';
+                nonFaNaIcon.alt = 'Nicht-FA/NA-Status-Icon';
                 nonFaNaIcon.classList.add('non-fa-na-icon');
                 button.appendChild(nonFaNaIcon);
             }
 
-            // NEU: Notiz-Status-Indikator hinzufügen, falls eine Notiz vorhanden ist
+            // NEU: Notiz-Statusindikator hinzufügen, falls eine Notiz vorhanden ist
             if (hasNoteInAnyEntry) {
                 const noteIndicator = document.createElement('div');
                 noteIndicator.classList.add('note-status-indicator');
@@ -1495,7 +1498,7 @@ const db = (() => {
         }
     }
 
-    // NEU: Globális fejléc ikonjainak frissítése
+    // NEU: Globale Header-Icons aktualisieren
     async function updateGlobalHeaderIcons() {
         if (!currentCategory) {
             if (masterUploadContainer) masterUploadContainer.classList.remove('has-data');
@@ -1555,14 +1558,14 @@ const db = (() => {
             
             updateHeaderAndControls(); // Aktualisiert das Label der unteren Steuerleiste
             updateTraverseHeader(); // Aktualisiert den Tabellenkopf
-            await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait
+            await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons
             
             mainControls.style.display = 'block'; // Zeigt die untere Steuerleiste an
             listSection.style.display = 'block'; // Zeigt die Datenliste an
             renderTable(); // Zeichnet die Tabelle mit den Einträgen neu
             await updateCategoryButtonColors(); // Aktualisiert die Farben der Kategorie-Buttons
             updateControlButtonsColor(isEmpty); // Aktualisiert die Farbe des manuellen Eingabe-Buttons
-            setButtonFocus(btn); // Setzi a fókuszt a kiválasztott gombra
+            setButtonFocus(btn); // Setzt den Fokus auf die ausgewählte Schaltfläche
         }
         catch (e) {
             console.error("Fehler beim Lesen der Datenbank:", e);
@@ -1603,8 +1606,8 @@ const db = (() => {
         }
 
         const isEmpty = entries.length === 0;
-        // SVG-Code des Icons, Farbe dynamikususan beállítva
-        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+        // SVG-Code des Icons, Farbe dynamisch eingestellt
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Grau oder Blau */
         // NEU: SVG-Code des Icons mit Basen, angepasst für bessere visuelle Höhe
         const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" class="header-traverse-icon">`;
 
@@ -1612,7 +1615,7 @@ const db = (() => {
         traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
         traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
         traverseHeader.style.fontWeight = 'bold';
-        traverseHeader.style.fontSize = '1.5em'; /* Erhözi a Schriftgröße für die Kopfzeilennummer */
+        traverseHeader.style.fontSize = '1.5em'; /* Erhöht die Schriftgröße für die Kopfzeilennummer */
     }
 
     // Zeigt ein benutzerdefiniertes Alert-Modal an
@@ -1644,20 +1647,20 @@ const db = (() => {
 
         customAlertCloseBtn.addEventListener('click', closeAlertModal);
 
-        // Hozzáadunk egy keydown eseménykezelőt közvetlenül a modálhoz
+        // Fügt einen Keydown-Event-Handler direkt zum Modal hinzu
         alertModal.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === 'Escape') { // OK vagy ESC billentyűvel zárható be
-                e.preventDefault(); // Megakadályozzuk az alapértelmezett viselkedést
+            if (e.key === 'Enter' || e.key === 'Escape') { // Kann mit OK oder ESC geschlossen werden
+                e.preventDefault(); // Verhindern das Standardverhalten
                 closeAlertModal();
             }
         });
 
-        // Fókuszáljuk az OK gombot, hogy Enter azonnal működjön
+        // Fokussiert die OK-Taste, damit Enter sofort funktioniert
         customAlertCloseBtn.focus();
 
         // Klick außerhalb des Modals behandeln
         alertModal.addEventListener('click', (e) => {
-            if (e.target === alertModal) { // Ha az overlay-re kattintunk
+            if (e.target === alertModal) { // Wenn auf das Overlay geklickt wird
                 closeAlertModal();
             }
         });
@@ -1700,18 +1703,18 @@ const db = (() => {
             okBtn.addEventListener('click', () => close(true));
             cancelBtn.addEventListener('click', () => close(false));
             
-            // Hozzáadunk egy keydown eseménykezelőt közvetlenül a modálhoz
+            // Fügt einen Keydown-Event-Handler direkt zum Modal hinzu
             confirmModal.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    okBtn.click(); // Enter billentyű az OK gombot aktiválja
+                    okBtn.click(); // Enter-Taste aktiviert die OK-Taste
                 } else if (e.key === 'Escape') {
                     e.preventDefault();
-                    cancelBtn.click(); // Esc billentyű a Mégse gombot aktiválja
+                    cancelBtn.click(); // Esc-Taste aktiviert die Abbrechen-Taste
                 }
             });
 
-            // Fókuszáljuk az OK gombot
+            // Fokussiert die OK-Taste
             okBtn.focus();
 
             confirmModal.addEventListener('click', (e) => {
@@ -1772,18 +1775,18 @@ const db = (() => {
                 resolve({ confirmed: false, exportPdf: false });
             });
             
-            // Hozzáadunk egy keydown eseménykezelőt közvetlenül a modálhoz
+            // Fügt einen Keydown-Event-Handler direkt zum Modal hinzu
             confirmModal.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    okBtn.click(); // Enter billentyű az OK gombot aktiválja
+                    okBtn.click(); // Enter-Taste aktiviert die OK-Taste
                 } else if (e.key === 'Escape') {
                     e.preventDefault();
-                    cancelBtn.click(); // Esc billentyű a Mégse gombot aktiválja
+                    cancelBtn.click(); // Esc-Taste aktiviert die Abbrechen-Taste
                 }
             });
 
-            // Fókuszáljuk a "Löschen" gombot
+            // Fokussiert die "Löschen"-Taste
             okBtn.focus();
 
             confirmModal.addEventListener('click', (e) => {
@@ -1915,7 +1918,7 @@ const db = (() => {
             // Sammelt alle Bilder (Hauptbild + zusätzliche Bilder)
             const allImageSources = [e.image, ...(e.kepek || [])].filter(Boolean);
             let photosCellHtml = '';
-            // Képek megjelenítése 3-as csoportokban egy sorban
+            // Bilder in 3er-Gruppen pro Zeile anzeigen
             for (let j = 0; j < allImageSources.length; j += 3) {
                 photosCellHtml += `<div class="photoRow">${allImageSources.slice(j, j + 3).map(src => `<img src="${src}" alt="Bild">`).join('')}</div>`;
             }
@@ -1937,7 +1940,7 @@ const db = (() => {
                 </td>
                 <td class="${codeClass}">
                     ${e.code} <!-- Der Auftragscode -->
-                    <i class="fas fa-qrcode qr-code-icon" data-code="${e.code}" title="QR Code megjelenítése"></i>
+                    <i class="fas fa-qrcode qr-code-icon" data-code="${e.code}" title="QR-Code anzeigen"></i>
                 </td>
                 <td>
                     ${formattedDate}<br>
@@ -1973,20 +1976,20 @@ const db = (() => {
         }));
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
         
-        // Fő jelölőnégyzet eseménykezelője
+        // Haupt-Checkbox-Event-Handler
         if (selectAllUploadsToggle) { 
             selectAllUploadsToggle.removeEventListener('change', handleMasterToggleChange);
             selectAllUploadsToggle.addEventListener('change', handleMasterToggleChange);
         }
 
-        // Új eseménykezelő a master-upload-container divre
+        // Neuer Event-Handler für das master-upload-container Div
         const masterUploadContainer = document.querySelector('.master-upload-container');
         if (masterUploadContainer) {
             masterUploadContainer.removeEventListener('click', handleMasterContainerClick);
             masterUploadContainer.addEventListener('click', handleMasterContainerClick);
         }
         
-        // NEU: Fejléc törlés gomb eseménykezelője
+        // NEU: Header-Löschtaste-Event-Handler
         if (headerDeleteBtn) {
             headerDeleteBtn.removeEventListener('click', handleHeaderDeleteClick);
             headerDeleteBtn.addEventListener('click', handleHeaderDeleteClick);
@@ -2001,7 +2004,7 @@ const db = (() => {
         });
     }
 
-    // Új függvény a master jelölőnégyzet change eseményének kezelésére
+    // Neue Funktion zur Behandlung des Change-Events der Master-Checkbox
     function handleMasterToggleChange(event) {
         const isChecked = event.target.checked;
         logBody.querySelectorAll('.upload-checkbox').forEach(checkbox => {
@@ -2009,31 +2012,31 @@ const db = (() => {
         });
     }
 
-    // Új függvény a master-upload-container kattintáskezelésére
+    // Neue Funktion zur Behandlung des Klick-Events des Master-Upload-Containers
     function handleMasterContainerClick(event) {
-        // Csak akkor aktiválja a jelölőnégyzetet, ha nem magára a jelölőnégyzetre kattintottak (ami rejtve van)
+        // Aktiviert die Checkbox nur, wenn nicht auf die Checkbox selbst geklickt wurde (die versteckt ist)
         if (event.target !== selectAllUploadsToggle) {
             selectAllUploadsToggle.checked = !selectAllUploadsToggle.checked;
-            // Manuálisan kiváltjuk a change eseményt, mert a .checked módosítása nem teszi meg automatikusan
+            // Löst das Change-Event manuell aus, da das Ändern von .checked dies nicht automatisch tut
             selectAllUploadsToggle.dispatchEvent(new Event('change'));
         }
     }
     
-    // NEU: Fejléc törlés gomb kattintáskezelője
+    // NEU: Header-Löschtaste-Klick-Handler
     async function handleHeaderDeleteClick() {
         if (!currentCategory) {
-            showCustomAlert('Nincs kiválasztott kategória a törléshez.', 'Hiba');
+            showCustomAlert('Keine Kategorie zum Löschen ausgewählt.', 'Fehler');
             return;
         }
         
-        // Ugyanaz a logika, mint a clearCategoryBtn-nél
+        // Dieselbe Logik wie bei clearCategoryBtn
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
         
-        const result = await showCustomConfirm(`Biztosan törölni szeretné ${dummyEntryForCheckbox ? 'az összes FA/NA bejegyzést' : 'az összes bejegyzést'} ebből a kategóriából?`, 'Megerősítés', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Möchten Sie wirklich ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} aus dieser Kategorie löschen?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
-            showLoading("Kategória törlése...");
+            showLoading("Kategorie wird gelöscht...");
             try {
                 if (result.exportPdf) {
                     for (const entry of entries) {
@@ -2049,11 +2052,11 @@ const db = (() => {
                 updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
                 categoryLabelLeft.style.color = 'var(--muted)'; // Farbe des Kategorie-Labels zurücksetzen
                 updateControlButtonsColor(true); // Farbe des Steuerungsbuttons auf leeren Zustand zurücksetzen
-                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
+                await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
-                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
             }
@@ -2067,7 +2070,7 @@ const db = (() => {
             img.crossOrigin = 'Anonymous'; // Wichtig für Cross-Origin-Bilder (falls vorhanden)
             img.onload = () => resolve(img);
             img.onerror = () => {
-                console.warn(`Fehler beim Bereinigen des Bildes: ${src.substring(0, 50)}...`); // FIX: Changed imageDataUrl to src
+                console.warn(`Fehler beim Bereinigen des Bildes: ${src.substring(0, 50)}...`);
                 reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
             img.src = src;
@@ -2120,7 +2123,7 @@ const db = (() => {
             yPos += (splitText.length * 10); // Höhe der Notiz hinzufügen
         }
 
-        // Bilder laden és hinzufügen
+        // Bilder laden und hinzufügen
         const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
         // Paralleles Laden von Bildern mit Promise.allSettled zur Fehlerbehandlung
         const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
@@ -2137,7 +2140,7 @@ const db = (() => {
         });
 
         if (failedImageCount > 0) {
-            showCustomAlert(`${failedImageCount} Bilder konnten nem für den PDF-Export geladen werden és wurden übersprungen.`, 'Warnung');
+            showCustomAlert(`${failedImageCount} Bilder konnten nicht für den PDF-Export geladen werden und wurden übersprungen.`, 'Warnung');
         }
 
         for (let i = 0; i < loadedImages.length; i++) {
@@ -2149,7 +2152,7 @@ const db = (() => {
             }
             doc.setFontSize(18);
             doc.text(`Bild ${i + 1}`, 10, yPos); // Bildbeschriftung
-            yPos += 8; // Rand zwischen Bildbeschriftung és Bild
+            yPos += 8; // Rand zwischen Bildbeschriftung und Bild
 
             try {
                 const imgProps = doc.getImageProperties(imageData);
@@ -2172,17 +2175,17 @@ const db = (() => {
                     imgWidth = imgHeight * ratio;
                 }
 
-                if (yPos + imgHeight > pdfHeight - 10) { // Neue Seite, ha das Bild nicht passt
+                if (yPos + imgHeight > pdfHeight - 10) { // Neue Seite, wenn das Bild nicht passt
                     doc.addPage();
                     yPos = 10;
                 }
 
                 doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight); // Bild hinzufügen
-                yPos += imgHeight + 5; // Höhe des Bildes és einen kleinen Rand hinzufügen
+                yPos += imgHeight + 5; // Höhe des Bildes und einen kleinen Rand hinzufügen
             } catch (e) {
                 console.error("Fehler beim Hinzufügen des Bildes zum PDF:", e);
                 if (yPos > 280) { doc.addPage(); yPos = 10; } // Neue Seite, wenn zu viele Fehlermeldungen vorhanden sind
-                doc.text(`[Bild ${i + 1} konnte nem verarbeitet werden]`, 10, yPos); // Fehlermeldung ins PDF
+                doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos); // Fehlermeldung ins PDF
                 yPos += 15;
             }
         }
@@ -2220,10 +2223,12 @@ const db = (() => {
                     categoryLabelLeft.style.color = 'var(--muted)';
                     updateControlButtonsColor(true); // Farbe des manuellen Eingabe-Buttons aktualisieren
                 }
-                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
+                await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
+                updateHeaderAndControls(); // Ensure the category label color updates
+
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren.", error);
-                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
             }
@@ -2238,7 +2243,7 @@ const db = (() => {
             noteModalTextarea.value = entry.note || ''; // Lädt die Notiz oder einen leeren String
             noteModal.style.display = 'flex';
             document.body.classList.add('modal-open');
-            noteModalTextarea.focus(); // Fokusálás a szövegmezőre
+            noteModalTextarea.focus(); // Fokus auf das Textfeld
         }
     }
 
@@ -2251,7 +2256,7 @@ const db = (() => {
                 entry.note = noteModalTextarea.value; // Notiz aktualisieren
                 await db.updateEntry(entry); // In Datenbank speichern
                 renderTable(); // Tabelle neu zeichnen
-                await updateCategoryButtonColors(); // NEU: Kategorie-Buttons aktualisieren nach Notiz-Speicherung
+                await updateCategoryButtonColors(); // NEU: Kategorietasten nach Notizspeicherung aktualisieren
             }
             noteModal.style.display = 'none';
             document.body.classList.remove('modal-open');
@@ -2309,7 +2314,7 @@ const db = (() => {
 
                 if (checkedUploadCheckboxes.length > 0) {
                     // If any checkboxes are checked, use those
-                    checkedUploadCheckboxes.forEach(checkbox => { // FIX: Changed checkedEntryIds to checkedUploadCheckboxes
+                    checkedUploadCheckboxes.forEach(checkbox => {
                         targetEntryIds.push(parseInt(checkbox.dataset.id));
                     });
                 } else {
@@ -2331,12 +2336,12 @@ const db = (() => {
                 // Re-fetch entries to ensure local 'entries' array is up-to-date with all changes
                 entries = await db.getEntriesForCategory(currentCategory); 
                 renderTable();
-                // showCustomAlert('Bild(er) erfolgreich hinzugefügt.', 'Erfolg'); // Eltávolítva a kérés szerint
+                // Entfernt auf Anfrage
                 navigator.vibrate?.(100); // Vibrationsfeedback
 
             } catch (error) {
                 console.error("Bildverarbeitung fehlgeschlagen:", error);
-                showCustomAlert('Das Bild konnte nem processed. It might be corrupted.', 'Fehler');
+                showCustomAlert('Das Bild konnte nicht verarbeitet werden. Es ist möglicherweise beschädigt.', 'Fehler');
             } finally {
                 hideLoading();
                 // Reset all checkboxes after upload
@@ -2366,7 +2371,7 @@ const db = (() => {
         }
 
         const newEntry = {
-            // id: null, // Az ID-t az IndexedDB adja hozzá - EZT ELTÁVOLÍTVA A HIBA JAVÍTÁSÁHOZ
+            // Die ID wird von IndexedDB hinzugefügt - DIES WURDE ZUR FEHLERBEHEBUNG ENTFERNT
             code: code,
             date: new Date().toISOString(), // Aktuelles Datum und Uhrzeit im ISO-Format
             note: '',
@@ -2376,7 +2381,7 @@ const db = (() => {
             source: source // Quelle: 'scanner', 'manual', 'laser'
         };
 
-        showLoading("Eintrag wird hinzugefült...");
+        showLoading("Eintrag wird hinzugefügt...");
         try {
             const wasEmpty = entries.length === 0; // Überprüft, ob die Kategorie vor dem Hinzufügen leer war
             const newId = await db.addEntry(newEntry); // Eintrag zu IndexedDB hinzufügen
@@ -2384,7 +2389,8 @@ const db = (() => {
             entries.push(newEntry); // Eintrag zum lokalen Array hinzufügen
             renderTable(); // Tabelle neu zeichnen
             await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren
-            await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait
+            await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons
+            updateHeaderAndControls(); // Ensure the category label color updates
 
             if (wasEmpty) { // Wenn die Kategorie zuvor leer war
                 updateControlButtonsColor(false); // Farbe der Steuerungsbuttons aktualisieren (nicht leer)
@@ -2464,7 +2470,7 @@ const db = (() => {
             };
             updateOkButtonStyles(); // Erste Einstellung
 
-            // Behandelt Hover- és Active-Zustände dynamisch
+            // Behandelt Hover- und Active-Zustände dynamisch
             okBtn.onmouseover = () => {
                 if (isEmpty) okBtn.style.background = '#888';
                 else okBtn.style.background = 'var(--primary-dark)';
@@ -2484,7 +2490,7 @@ const db = (() => {
 
 
             const processAndResolve = (value) => {
-                // Spezifische Geschäftslogika: Entfernt Dezimalstellen, falls vorhanden
+                // Spezifische Geschäftslogik: Entfernt Dezimalstellen, falls vorhanden
                 if (value && value.includes('.')) {
                     value = value.split('.')[0];
                 }
@@ -2499,7 +2505,7 @@ const db = (() => {
                 closeAndResolve(null);
             };
             
-            // Keydown handler for the input field within the prompt modal
+            // Keydown-Handler für das Eingabefeld innerhalb des Prompt-Modals
             const inputKeydownHandler = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -2522,7 +2528,7 @@ const db = (() => {
                 okBtn.removeEventListener('click', okHandler);
                 cancelBtn.removeEventListener('click', cancelHandler);
                 promptModal.removeEventListener('click', overlayHandler);
-                customPromptInput.removeEventListener('keydown', inputKeydownHandler); // Remove the input's keydown listener
+                customPromptInput.removeEventListener('keydown', inputKeydownHandler); // Entfernt den Keydown-Listener des Inputs
                 
                 okBtn.onmouseover = null;
                 okBtn.onmouseout = null;
@@ -2534,7 +2540,7 @@ const db = (() => {
             okBtn.addEventListener('click', okHandler);
             cancelBtn.addEventListener('click', cancelHandler);
             promptModal.addEventListener('click', overlayHandler);
-            customPromptInput.addEventListener('keydown', inputKeydownHandler); // Attach keydown to the input itself
+            customPromptInput.addEventListener('keydown', inputKeydownHandler); // Fügt Keydown zum Input selbst hinzu
         });
     }
 
@@ -2546,13 +2552,13 @@ const db = (() => {
         document.body.classList.remove('modal-open');
     }
 
-    // QR Code Modal megjelenítése
+    // QR-Code-Modal anzeigen
     function showQrCodeModal(code) {
         if (typeof QRCode === 'undefined') {
-            showCustomAlert('QR kód generáló könyvtár nem található.', 'Hiba');
+            showCustomAlert('QR-Code-Generierungsbibliothek nicht gefunden.', 'Fehler');
             return;
         }
-        qrCodeContainer.innerHTML = ''; // Clear previous QR code
+        qrCodeContainer.innerHTML = ''; // Vorherigen QR-Code löschen
         new QRCode(qrCodeContainer, {
             text: code,
             width: 200,
@@ -2574,7 +2580,7 @@ const db = (() => {
 
     document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
     document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
-    document.getElementById('qrCodeCloseBtn').addEventListener('click', () => closeModal(qrCodeModal)); // QR Code Close Button
+    document.getElementById('qrCodeCloseBtn').addEventListener('click', () => closeModal(qrCodeModal));
     
     // Bild vergrößern/verkleinern
     modalImage.addEventListener('click', () => {
@@ -2594,7 +2600,7 @@ const db = (() => {
             noteModal.style.display = 'none'; document.body.classList.remove('modal-open');
         }
     });
-    // QR Code Modal bezárása overlay kattintásra
+    // QR-Code-Modal bei Klick auf Overlay schließen
     qrCodeModal.addEventListener('click', (e) => {
         if (e.target === qrCodeModal) {
             closeModal(qrCodeModal);
@@ -2607,7 +2613,7 @@ const db = (() => {
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null; // "Dummy"-Eintrag zur Initialisierung des Checkbox-Status
         
-        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'az összes bejegyzést'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
@@ -2626,11 +2632,11 @@ const db = (() => {
                 updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
                 categoryLabelLeft.style.color = 'var(--muted)'; // Farbe des Kategorie-Labels zurücksetzen
                 updateControlButtonsColor(true); // Farbe des Steuerungsbuttons auf leeren Zustand zurücksetzen
-                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
+                await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
-                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
             }
@@ -2646,12 +2652,12 @@ const db = (() => {
     // Aktualisiert die Farben der Kategorie-Buttons beim Laden der Seite
     window.onload = async function() {
         await updateCategoryButtonColors();
-        // Set initial focus to the first category button
+        // Setzt den anfänglichen Fokus auf die erste Kategorietaste
         const firstCategoryButton = document.querySelector('#categoryGrid1 button:first-child');
         if (firstCategoryButton) {
             setButtonFocus(firstCategoryButton);
         }
-        // Initialize global header icons (they won't have data on initial load unless a category is pre-selected)
+        // Initialisiert globale Header-Icons (sie haben beim ersten Laden keine Daten, es sei denn, eine Kategorie ist vorausgewählt)
         await updateGlobalHeaderIcons();
     };
 
