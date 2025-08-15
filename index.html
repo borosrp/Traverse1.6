@@ -230,6 +230,29 @@
         display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
     }
 
+    /* ÚJ: Jegyzet állapotjelző ikon a kategóriagombokon */
+    .grid button .note-status-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.8em;
+        z-index: 10;
+        background: var(--danger);
+        color: white;
+        border: 1px solid var(--danger);
+        box-shadow: var(--shadow-soft);
+        animation: blink-red-white 1.5s infinite alternate; /* Ugyanaz az animáció, mint a táblázat jegyzet gombján */
+    }
+    .grid button .note-status-indicator i {
+        text-shadow: none; /* A belső ikon árnyékát eltávolítjuk */
+    }
+
     #mainControls {
         position: fixed;
         bottom: 0;
@@ -780,6 +803,40 @@
         .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
         .app-title { font-size: 1.2em; /* Az eredeti kódban nincs ilyen elem, de ez egy általános stílus */ }
     }
+
+    /* ÚJ: Loading overlay stílusok */
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        color: white;
+        font-size: 1.5em;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .spinner {
+        border: 8px solid rgba(255, 255, 255, 0.3);
+        border-top: 8px solid #fff;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -798,8 +855,8 @@
                         <th>Datum</th>
                         <th>Notiz</th>
                         <th>Bilder</th>
-                        <th><i class="fas fa-folder"></i></th>
-                        <th><i class="fas fa-trash-alt"></i></th>
+                        <th><i class="fas fa-folder" title="Bild hochladen"></i></th>
+                        <th><i class="fas fa-trash-alt" title="Löschen"></i></th>
                     </tr>
                 </thead>
                 <tbody id="logBody"></tbody>
@@ -812,7 +869,7 @@
                 <div id="categoryLabelLeft" class="category-display-label"></div>
                 <div class="control-buttons">
                     <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
-                    <button id="clearCategoryBtn" title="Kategória törlése"><i class="fas fa-trash-alt"></i></button>
+                    <button id="clearCategoryBtn" title="Kategorie löschen"><i class="fas fa-trash-alt"></i></button>
                 </div>
         </div>
     </div>
@@ -820,10 +877,10 @@
     <div id="imageModal" class="modal-overlay">
         <img id="modalImage" src="" alt="Bild vergrößert" />
         <div class="modal-controls">
-            <button id="imageModalPrevBtn"><i class="fas fa-chevron-left"></i></button>
-            <button id="imageModalNextBtn"><i class="fas fa-chevron-right"></i></button>
+            <button id="imageModalPrevBtn" title="Vorheriges Bild"><i class="fas fa-chevron-left"></i></button>
+            <button id="imageModalNextBtn" title="Nächstes Bild"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <button id="deleteImageBtn" class="delete-image-btn"><i class="fas fa-trash-alt"></i></button>
+        <button id="deleteImageBtn" class="delete-image-btn" title="Bild löschen"><i class="fas fa-trash-alt"></i></button>
     </div>
 
     <div id="noteModal" class="modal-overlay">
@@ -843,7 +900,7 @@
             <p id="customPromptMessage">Bitte geben Sie den Produktnamen oder die Kennung ein:</p>
             <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
             <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
-                <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;" title="Mégse"><i class="fas fa-times"></i></button>
+                <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;" title="Abbrechen"><i class="fas fa-times"></i></button>
                 <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;" title="OK"><i class="fas fa-check"></i></button>
             </div>
         </div>
@@ -853,8 +910,14 @@
 
 <div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png"></div>
 
+<!-- NEU: Loading Overlay Element -->
+<div id="loadingOverlay" style="display: none;">
+    <div class="spinner"></div>
+    <span>Laden...</span>
+</div>
+
 <script>
-/* --- IndexedDB (lokális DB) --- */
+/* --- IndexedDB (lokale DB) --- */
 const db = (() => {
     let dbInstance;
     function openDB() {
@@ -865,17 +928,17 @@ const db = (() => {
             request.onsuccess = (event) => { dbInstance = event.target.result; resolve(dbInstance); };
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                // Létrehoz egy "entries" objektumtárolót, ha még nem létezik.
-                // Az "id" a fő kulcs, autoIncrementtel automatikusan generálódik.
+                // Erstellt einen "entries" Objektspeicher, falls nicht vorhanden.
+                // "id" ist der Primärschlüssel, automatisch generiert mit autoIncrement.
                 const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
-                // Létrehozza a "category" indexet a kategória alapján történő lekérdezéshez.
+                // Erstellt einen "category" Index für Abfragen basierend auf der Kategorie.
                 objectStore.createIndex('category', 'category', { unique: false });
-                // Létrehozza a "category_code" indexet a kategória és a kód egyedi kombinációjának ellenőrzéséhez.
+                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.
                 objectStore.createIndex('category_code', ['category', 'code'], { unique: true });
             };
         });
     }
-    // Tranzakció végrehajtása az IndexedDB-ben
+    // Führt eine Transaktion in IndexedDB aus
     async function performTransaction(storeName, mode, action) {
         const db = await openDB();
         const transaction = db.transaction(storeName, mode);
@@ -907,10 +970,10 @@ const db = (() => {
     };
 })();
 
-/* --- Fő alkalmazáslogika --- */
+/* --- Hauptanwendungslogik --- */
 
 (async function(){
-    // DOM elemek lekérése
+    // DOM-Elemente abrufen
     const categoryGrid1 = document.getElementById('categoryGrid1');
     const categoryGrid2 = document.getElementById('categoryGrid2');
     const categoryLabelLeft = document.getElementById('categoryLabelLeft');
@@ -918,7 +981,7 @@ const db = (() => {
     const listSection = document.getElementById('listSection');
     const logBody = document.getElementById('logBody');
 
-    // Modál elemek
+    // Modale Elemente
     const imageModal = document.getElementById('imageModal');
     const modalImage = document.getElementById('modalImage');
     const noteModal = document.getElementById('noteModal');
@@ -927,29 +990,42 @@ const db = (() => {
     const deleteImageBtn = document.getElementById('deleteImageBtn');
     const imageUploadInput = document.getElementById('imageUploadInput');
     const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
+    const loadingOverlay = document.getElementById('loadingOverlay'); // Hozzáadva: loadingOverlay elem
 
-    // Vezérlőgombok
+    // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
     const clearCategoryBtn = document.getElementById('clearCategoryBtn');
 
-    // Alkalmazás állapota
+    // Anwendungsstatus
     let currentCategory = null; // A jelenleg kiválasztott kategória száma
     let entries = []; // A jelenleg kiválasztott kategória bejegyzései
     let entryIdToUpdate = null; // A képfeltöltéshez kiválasztott bejegyzés ID-je
     let noteEntryIdToUpdate = null; // A jegyzet szerkesztéséhez kiválasztott bejegyzés ID-je
 
-    // Globális állapot a képmodál karusszeljéhez
+    // Globaler Status für das Bildkarussell im Modal
     let currentModalImages = []; // A jelenleg megjelenített képek listája
     let currentModalImageIndex = 0; // A jelenleg megjelenített kép indexe
     let currentImageEntryId = null; // Annak a bejegyzésnek az ID-je, amelyikhez a képek tartoznak
 
-    // Lézer szkenner bemeneti puffer és időzítő
+    // Laserscanner Eingabepuffer und Timer
     let laserScannerBuffer = [];
     let laserScannerTimer = null;
 
-    // Billentyűzet eseménykezelő a szkenner bemenetéhez és Esc gombhoz
+    // Loading Overlay Steuerungen
+    function showLoading(message = "Laden...") {
+        loadingOverlay.querySelector('span').textContent = message;
+        loadingOverlay.style.display = 'flex';
+        document.body.classList.add('modal-open'); // Verhindert das Scrollen des Hintergrunds
+    }
+
+    function hideLoading() {
+        loadingOverlay.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
+    // Tastaturereignis-Handler für Scannereingabe und Esc-Taste
     window.addEventListener('keydown', (e) => {
-        // Esc billentyű kezelése a modálok bezárásához
+        // Esc-Taste zum Schließen von Modalen
         if (e.key === 'Escape') {
             if (imageModal.style.display === 'flex') {
                 closeModal(imageModal);
@@ -958,36 +1034,36 @@ const db = (() => {
             } else if (customPromptModal.style.display === 'flex') {
                 closeModal(customPromptModal);
             }
-            return; // Kilép, ha modált zártunk
+            return; // Beendet, wenn ein Modal geschlossen wurde
         }
 
-        // Ha modál van nyitva, vagy nincs kategória kiválasztva, ne dolgozzuk fel a szkenner bemenetet
+        // Wenn ein Modal geöffnet ist oder keine Kategorie ausgewählt wurde, Laserscanner-Eingabe nicht verarbeiten
         if (document.querySelector('.modal-overlay[style*="display: flex"]') || !currentCategory) {
             return;
         }
 
-        // Enter lenyomása szkenner bemenet után
+        // Enter-Taste nach Scannereingabe
         if (e.key === 'Enter' && laserScannerBuffer.length > 0) {
-            e.preventDefault(); // Megakadályozza az alapértelmezett Enter viselkedést (pl. űrlap elküldése)
-            const scannedCode = laserScannerBuffer.join(''); // Összefűzi a karaktereket
-            addNewEntry(scannedCode, null, 'laser'); // Hozzáadja az új bejegyzést
-            laserScannerBuffer = []; // Törli a puffert
-            clearTimeout(laserScannerTimer); // Törli az időzítőt
+            e.preventDefault(); // Verhindert das Standardverhalten von Enter (z.B. Formular absenden)
+            const scannedCode = laserScannerBuffer.join(''); // Fügt die Zeichen zusammen
+            addNewEntry(scannedCode, null, 'laser'); // Fügt den neuen Eintrag hinzu
+            laserScannerBuffer = []; // Leert den Puffer
+            clearTimeout(laserScannerTimer); // Löscht den Timer
             return;
         }
 
-        // Karakter hozzáadása a szkenner pufferhez
-        if (e.key.length === 1) { // Csak egyetlen karakteres billentyűket dolgoz fel
+        // Zeichen zum Scanner-Puffer hinzufügen
+        if (e.key.length === 1) { // Verarbeitet nur einzelne Zeichentasten
             laserScannerBuffer.push(e.key);
-            clearTimeout(laserScannerTimer); // Reseteli az időzítőt minden billentyűnyomásra
-            // Az időzítő 100 ms után törli a puffert, ha nincs további karakter
+            clearTimeout(laserScannerTimer); // Setzt den Timer bei jedem Tastendruck zurück
+            // Der Timer leert den Puffer nach 100 ms, wenn keine weiteren Zeichen folgen
             laserScannerTimer = setTimeout(() => {
                 laserScannerBuffer = [];
             }, 100);
         }
     });
 
-    // Kategóriagombok létrehozása és inicializálása
+    // Erstellt und initialisiert Kategorie-Buttons
     for(let i=1; i<=16; i++){
         const btn = document.createElement('button');
         btn.textContent = i;
@@ -1001,84 +1077,103 @@ const db = (() => {
         categoryGrid2.appendChild(btn);
     }
 
-    // Frissíti a kategóriagombok színeit és ikonjait az adatok alapján
+    // Aktualisiert die Farben und Symbole der Kategorie-Buttons basierend auf den Daten
     async function updateCategoryButtonColors() {
         const allCategoryButtons = document.querySelectorAll('.grid button');
-        // Kinyerjük az ikon URL-t a rejtett HTML elemből
+        // Icon-URL aus dem versteckten HTML-Element extrahieren
         const iconUrl = document.getElementById('iconDataLoader').dataset.iconUrl;
 
         for (const button of allCategoryButtons) {
             const categoryNum = parseInt(button.textContent);
             const entriesForCategory = await db.getEntriesForCategory(categoryNum);
             
-            // Eltávolítja az idő ikont, ha már létezik
+            // Entfernt das Zeitsymbol, falls es bereits existiert
             const existingTimeIcon = button.querySelector('.time-icon');
             if (existingTimeIcon) {
                 existingTimeIcon.remove();
             }
 
-            // Eltávolítja a nap betűjét, ha már létezik
+            // Entfernt den Tagesbuchstaben, falls er bereits existiert
             const existingDayLetter = button.querySelector('.day-letter');
             if(existingDayLetter) {
                 existingDayLetter.remove();
             }
 
-            // FA/NA ikon eltávolítása minden frissítés előtt
+            // FA/NA-Icon vor jedem Update entfernen
             const existingFaNaIcon = button.querySelector('.fa-na-icon');
             if (existingFaNaIcon) {
                 existingFaNaIcon.remove();
             }
 
+            // NEU: Notiz-Status-Indikator entfernen
+            const existingNoteIndicator = button.querySelector('.note-status-indicator');
+            if (existingNoteIndicator) {
+                existingNoteIndicator.remove();
+            }
+
             let hasFaNaEntry = false;
+            let hasNoteInAnyEntry = false; // NEU: Flag für Notiz in Kategorie
             if (entriesForCategory.length > 0) {
-                button.classList.remove('empty-category'); // Ha van adat, nem üres kategória
+                button.classList.remove('empty-category'); // Wenn Daten vorhanden sind, ist es keine leere Kategorie
                 
-                // Legfrissebb bejegyzés megkeresése az idő és nap ikonhoz
+                // Neuesten Eintrag für Zeit- und Tagessymbol finden
                 const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                 const entryDate = new Date(latestEntry.date);
                 const entryHour = entryDate.getHours();
 
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // Beállítja a mai nap kezdetét
-                const isPreviousDay = entryDate < today; // Ellenőrzi, hogy előző nap-e
+                today.setHours(0, 0, 0, 0); // Setzt den Beginn des heutigen Tages
+                const isPreviousDay = entryDate < today; // Überprüft, ob es sich um den Vortag handelt
 
                 const icon = document.createElement('i');
                 icon.classList.add('fas', 'time-icon');
-                if (entryHour < 14) { // Ha 14 óra előtt van (délelőtt)
+                if (entryHour < 14) { // Wenn vor 14 Uhr (vormittags)
                     icon.classList.add('fa-sun');
-                    icon.style.color = isPreviousDay ? '#666666' : 'yellow'; // Szürke, ha előző nap, sárga, ha ma
-                } else { // Ha 14 óra után van (délután)
+                    icon.style.color = isPreviousDay ? '#666666' : 'yellow'; // Grau, wenn Vortag; Gelb, wenn heute
+                } else { // Wenn nach 14 Uhr (nachmittags)
                     icon.classList.add('fa-moon');
-                    icon.style.color = isPreviousDay ? '#666666' : '#F9E79F'; // Szürke, ha előző nap, halvány sárga, ha ma
+                    icon.style.color = isPreviousDay ? '#666666' : '#F9E79F'; // Grau, wenn Vortag; Hellgelb, wenn heute
                 }
                 button.appendChild(icon);
 
-                const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']; // Napok német rövidítéssel
+                const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']; // Tage auf Deutsch abgekürzt
                 const dayIndex = entryDate.getDay();
                 const daySpan = document.createElement('span');
                 daySpan.className = 'day-letter';
                 daySpan.textContent = days[dayIndex];
                 button.appendChild(daySpan);
 
-                // Ellenőrizze, hogy van-e FA vagy NA kezdetű bejegyzés
+                // Überprüfen, ob ein Eintrag mit FA oder NA beginnt
                 hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
+                // NEU: Überprüfen, ob ein Eintrag eine Notiz hat
+                hasNoteInAnyEntry = entriesForCategory.some(entry => entry.note && entry.note.trim() !== '');
 
             } else {
-                button.classList.add('empty-category'); // Ha nincs adat, üres kategória
+                button.classList.add('empty-category'); // Wenn keine Daten vorhanden sind, ist es eine leere Kategorie
             }
 
-            // FA/NA ikon hozzáadása, ha van ilyen bejegyzés
+            // FA/NA-Icon hinzufügen, falls ein solcher Eintrag vorhanden ist
             if (hasFaNaEntry) {
-                const faNaIcon = document.createElement('img'); // Képként illesztjük be
-                faNaIcon.src = iconUrl; // Az ikon URL-je a rejtett HTML elemből
-                faNaIcon.alt = 'Traverse Status Icon';
+                const faNaIcon = document.createElement('img'); // Als Bild einfügen
+                faNaIcon.src = iconUrl; // URL des Icons aus dem versteckten HTML-Element
+                faNaIcon.alt = 'Traversen-Status-Icon';
                 faNaIcon.classList.add('fa-na-icon');
                 button.appendChild(faNaIcon);
+            }
+
+            // NEU: Notiz-Status-Indikator hinzufügen, falls eine Notiz vorhanden ist
+            if (hasNoteInAnyEntry) {
+                const noteIndicator = document.createElement('div');
+                noteIndicator.classList.add('note-status-indicator');
+                const noteIcon = document.createElement('i');
+                noteIcon.classList.add('fas', 'fa-sticky-note'); // Oder fa-clipboard, fa-book
+                noteIndicator.appendChild(noteIcon);
+                button.appendChild(noteIndicator);
             }
         }
     }
 
-    // Frissíti az alsó vezérlőgombok (kézi bevitel) színét
+    // Aktualisiert die Farbe der unteren Steuerungsbuttons (manuelle Eingabe)
     function updateControlButtonsColor(isEmpty) {
         if (isEmpty) {
             manualEntryBtn.classList.add('empty-category-control');
@@ -1087,84 +1182,87 @@ const db = (() => {
         }
     }
 
-    // Kategória kiválasztása eseménykezelő
+    // Ereignis-Handler für Kategorieauswahl
     async function selectCategory(num, btn){
-        if(currentCategory === num) return; // Ha már ez a kategória van kiválasztva, ne tegyen semmit
+        if(currentCategory === num) return; // Wenn diese Kategorie bereits ausgewählt ist, nichts tun
         
-        // Eltávolítja az "active" osztályt az előzőleg kiválasztott gombról
+        // Entfernt die "active"-Klasse vom zuvor ausgewählten Button
         const prevActive = document.querySelector('.grid button.active');
         if(prevActive) prevActive.classList.remove('active');
         
-        btn.classList.add('active'); // Hozzáadja az "active" osztályt a jelenlegi gombhoz
-        currentCategory = num; // Beállítja a jelenlegi kategóriát
+        btn.classList.add('active'); // Fügt die "active"-Klasse zum aktuellen Button hinzu
+        currentCategory = num; // Setzt die aktuelle Kategorie
         
         try {
-            // Lekérdezi az adatbázisból a kiválasztott kategória bejegyzéseit
+            showLoading("Traversendaten laden...");
+            // Einträge der ausgewählten Kategorie aus der Datenbank abrufen
             entries = await db.getEntriesForCategory(currentCategory);
-            const isEmpty = entries.length === 0; // Meghatározza, hogy a kategória üres-e
+            const isEmpty = entries.length === 0; // Feststellen, ob die Kategorie leer ist
             
-            updateHeaderAndControls(); // Frissíti az alsó vezérlőpult címkéjét
-            updateTraverseHeader(); // Frissíti a táblázat fejlécét
+            updateHeaderAndControls(); // Aktualisiert das Label der unteren Steuerleiste
+            updateTraverseHeader(); // Aktualisiert den Tabellenkopf
             
-            mainControls.style.display = 'block'; // Megjeleníti az alsó vezérlőpultot
-            listSection.style.display = 'block'; // Megjeleníti az adatlistát
-            renderTable(); // Megrajzolja a táblázatot a bejegyzésekkel
-            await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
-            updateControlButtonsColor(isEmpty); // Frissíti a kézi bevitel gomb színét
+            mainControls.style.display = 'block'; // Zeigt die untere Steuerleiste an
+            listSection.style.display = 'block'; // Zeigt die Datenliste an
+            renderTable(); // Zeichnet die Tabelle mit den Einträgen neu
+            await updateCategoryButtonColors(); // Aktualisiert die Farben der Kategorie-Buttons
+            updateControlButtonsColor(isEmpty); // Aktualisiert die Farbe des manuellen Eingabe-Buttons
         }
         catch (e) {
             console.error("Fehler beim Lesen der Datenbank:", e);
-            showCustomAlert('Fehler beim Laden der Traverse.', 'Fehler');
+            showCustomAlert('Fehler beim Laden der Traversendaten.', 'Fehler');
+        } finally {
+            hideLoading();
         }
     }
 
-    // Segédfunkció az alsó címke és vezérlőpult frissítéséhez
+    // Hilfsfunktion zum Aktualisieren des unteren Labels und der Steuerleiste
     function updateHeaderAndControls() {
         if (!currentCategory) {
-            categoryLabelLeft.innerHTML = ''; /* A HTML tartalom beállítása */
+            categoryLabelLeft.innerHTML = ''; /* Den HTML-Inhalt festlegen */
             categoryLabelLeft.style.color = 'var(--muted)';
             return;
         }
 
         const isEmpty = entries.length === 0;
-        // Az ikon SVG kódja, szín dinamikusan beállítva
-        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-        // Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
-        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="category-label-icon">`;
+        // SVG-Code des Icons, Farbe dynamisch gesetzt
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Grau oder Blau */
+        // NEU: SVG-Code des Icons mit Basen, angepasst für bessere visuelle Höhe
+        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" class="category-label-icon">`;
 
-        // Az innerHTML beállítása az ikonnal és a kategória számmal
+        // innerHTML mit Icon und Kategorienummer setzen
         categoryLabelLeft.innerHTML = `${iconSvg} ${currentCategory}`;
         categoryLabelLeft.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
     }
 
-    // ÚJ: Funkció a táblázat fejlécének frissítéséhez
+    // NEU: Funktion zum Aktualisieren des Tabellenkopfes
     function updateTraverseHeader() {
         const traverseHeader = document.getElementById('traverse-header');
         if (!currentCategory) {
-            traverseHeader.innerHTML = '#'; /* A HTML tartalom beállítása */
+            traverseHeader.innerHTML = '#'; /* Den HTML-Inhalt festlegen */
             traverseHeader.style.color = 'var(--muted)';
             traverseHeader.style.fontWeight = 'bold';
-            traverseHeader.style.fontSize = '0.9em'; /* Visszaállítom az alapértelmezett méretre, ha nincs kiválasztva */
+            traverseHeader.style.fontSize = '0.9em'; /* Setzt die Größe auf Standard zurück, wenn nichts ausgewählt ist */
             return;
         }
 
         const isEmpty = entries.length === 0;
-        // Az ikon SVG kódja, szín dinamikusan beállítva
-        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-        // ÚJ: Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
-        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
+        // SVG-Code des Icons, Farbe dynamisch gesetzt
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Grau oder Blau */
+        // NEU: SVG-Code des Icons mit Basen, angepasst für bessere visuelle Höhe
+        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" class="header-traverse-icon">`;
 
-        // Az innerHTML beállítása az ikonnal és a kategória számmal
+        // innerHTML mit Icon und Kategorienummer setzen
         traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
         traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
         traverseHeader.style.fontWeight = 'bold';
-        traverseHeader.style.fontSize = '1.5em'; /* Növeli a betűméretet a fejléc számához */
+        traverseHeader.style.fontSize = '1.5em'; /* Erhöht die Schriftgröße für die Kopfzeilennummer */
     }
 
-    // Egyéni figyelmeztető modál megjelenítése
-    function showCustomAlert(message, title = 'Info') {
+    // Zeigt ein benutzerdefiniertes Alert-Modal an
+    function showCustomAlert(message, title = 'Information') {
         const existingModal = document.getElementById('customAlertModal');
-        if (existingModal) existingModal.remove(); // Eltávolítja az előző alert modált, ha van
+        if (existingModal) existingModal.remove(); // Entfernt das vorherige Alert-Modal, falls vorhanden
 
         const alertModal = document.createElement('div');
         alertModal.id = 'customAlertModal';
@@ -1177,17 +1275,17 @@ const db = (() => {
             </div>
         `;
         document.body.appendChild(alertModal);
-        alertModal.style.display = 'flex'; // Megjeleníti a modált
-        document.body.classList.add('modal-open'); // Letiltja a háttér görgetését
+        alertModal.style.display = 'flex'; // Zeigt das Modal an
+        document.body.classList.add('modal-open'); // Verhindert das Scrollen des Hintergrunds
 
         document.getElementById('customAlertCloseBtn').addEventListener('click', () => {
             alertModal.style.display = 'none';
             document.body.classList.remove('modal-open');
-            alertModal.remove(); // Eltávolítja az elemet a DOM-ból
+            alertModal.remove(); // Entfernt das Element aus dem DOM
         });
-        // Modálon kívüli kattintás kezelése
+        // Klick außerhalb des Modals behandeln
         alertModal.addEventListener('click', (e) => {
-            if (e.target === alertModal) { // Ha az overlay-re kattintunk
+            if (e.target === alertModal) { // Wenn auf das Overlay geklickt wird
                 alertModal.style.display = 'none';
                 document.body.classList.remove('modal-open');
                 alertModal.remove();
@@ -1195,11 +1293,11 @@ const db = (() => {
         });
     }
 
-    // Egyszerű megerősítő modál kép törléséhez
+    // Einfaches Bestätigungs-Modal zum Löschen von Bildern
     function showSimpleConfirm(message, title = 'Bestätigung') {
         return new Promise(resolve => {
             const existingModal = document.getElementById('customConfirmModal');
-            if (existingModal) existingModal.remove(); // Eltávolítja az előző modált, ha van
+            if (existingModal) existingModal.remove(); // Entfernt das vorherige Modal, falls vorhanden
 
             const confirmModal = document.createElement('div');
             confirmModal.id = 'customConfirmModal';
@@ -1239,7 +1337,7 @@ const db = (() => {
         });
     }
 
-    // Komplexebb megerősítő modál PDF exportálási opcióval
+    // Komplexeres Bestätigungs-Modal mit PDF-Export-Option
     function showCustomConfirm(message, title = 'Bestätigung', entry = null) {
         return new Promise(resolve => {
             const existingModal = document.getElementById('customConfirmModal');
@@ -1249,7 +1347,7 @@ const db = (() => {
             confirmModal.id = 'customConfirmModal';
             confirmModal.classList.add('modal-overlay');
             
-            // Alapértelmezett bejelölési állapot: bejelölve, ha az entry nem FA/NA (azaz FA/NA esetén nincs bejelölve)
+            // Standardmäßiger Hakenstatus: Aktiviert, wenn der Eintrag nicht FA/NA ist (d.h. bei FA/NA nicht aktiviert)
             const isCheckedByDefault = !(entry && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
 
             confirmModal.innerHTML = `
@@ -1287,30 +1385,27 @@ const db = (() => {
             });
             confirmModal.addEventListener('click', (e) => {
                 if (e.target === confirmModal) {
-                    confirmModal.style.display = 'none';
-                    document.body.classList.remove('modal-open');
-                    confirmModal.remove();
-                    resolve({ confirmed: false, exportPdf: false });
+                    close(false);
                 }
             });
         });
     }
 
-    // Képmodál megnyitása
+    // Öffnet das Bild-Modal
     function openImageModal(images, startIndex, entryId) {
         currentModalImages = images;
         currentModalImageIndex = startIndex;
         currentImageEntryId = entryId;
 
         modalImage.src = currentModalImages[currentModalImageIndex];
-        modalImage.classList.remove('zoomed'); // Eltávolítja a "zoomed" osztályt
+        modalImage.classList.remove('zoomed'); // Entfernt die "zoomed"-Klasse
         imageModal.style.display = 'flex';
         document.body.classList.add('modal-open');
 
         updateImageModalNavigation();
     }
 
-    // Képmodál navigációs gombjainak állapotának frissítése
+    // Aktualisiert den Zustand der Navigationsbuttons im Bild-Modal
     function updateImageModalNavigation() {
         const prevBtn = document.getElementById('imageModalPrevBtn');
         const nextBtn = document.getElementById('imageModalNextBtn');
@@ -1321,12 +1416,12 @@ const db = (() => {
         } else {
             prevBtn.style.display = 'inline-flex';
             nextBtn.style.display = 'inline-flex';
-            prevBtn.disabled = (currentModalImageIndex === 0); // Tiltja az előző gombot, ha az első kép van
-            nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1); // Tiltja a következő gombot, ha az utolsó kép van
+            prevBtn.disabled = (currentModalImageIndex === 0); // Deaktiviert den vorherigen Button, wenn es das erste Bild ist
+            nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1); // Deaktiviert den nächsten Button, wenn es das letzte Bild ist
         }
     }
 
-    // Következő kép megjelenítése a karusszelben
+    // Zeigt das nächste Bild im Karussell an
     function showNextImage() {
         if (currentModalImageIndex < currentModalImages.length - 1) {
             currentModalImageIndex++;
@@ -1336,7 +1431,7 @@ const db = (() => {
         }
     }
 
-    // Előző kép megjelenítése a karusszelben
+    // Zeigt das vorherige Bild im Karussell an
     function showPrevImage() {
         if (currentModalImageIndex > 0) {
             currentModalImageIndex--;
@@ -1346,106 +1441,114 @@ const db = (() => {
         }
     }
 
-    // Jelenlegi kép törlése a modálból és az adatbázisból
+    // Löscht das aktuelle Bild aus dem Modal und der Datenbank
     async function deleteCurrentImage() {
         if (!currentImageEntryId || currentModalImages.length === 0) {
-            showCustomAlert('Nincs kép a törléshez.', 'Hiba');
+            showCustomAlert('Kein Bild zum Löschen vorhanden.', 'Fehler');
             return;
         }
 
-        const confirmed = await showSimpleConfirm('Biztosan törölni szeretné ezt a képet?', 'Kép törlése');
+        const confirmed = await showSimpleConfirm('Sind Sie sicher, dass Sie dieses Bild löschen möchten?', 'Bild löschen');
         if (!confirmed) {
             return;
         }
 
-        let entry = entries.find(e => e.id === currentImageEntryId);
-        if (entry) {
-            const imageUrlToDelete = currentModalImages[currentModalImageIndex];
+        showLoading("Bild wird gelöscht...");
+        try {
+            let entry = entries.find(e => e.id === currentImageEntryId);
+            if (entry) {
+                const imageUrlToDelete = currentModalImages[currentModalImageIndex];
 
-            // Ellenőrzi, hogy a törlendő kép az elsődleges kép-e
-            if (entry.image === imageUrlToDelete) {
-                if (entry.kepek && entry.kepek.length > 0) {
-                    // Ha van további kép a "kepek" tömbben, az elsőt beállítja elsődleges képnek
-                    entry.image = entry.kepek.shift(); // Eltávolítja az első elemet és visszaadja
+                // Überprüft, ob das zu löschende Bild das Hauptbild ist
+                if (entry.image === imageUrlToDelete) {
+                    if (entry.kepek && entry.kepek.length > 0) {
+                        // Wenn weitere Bilder im "kepek"-Array vorhanden sind, wird das erste zum Hauptbild
+                        entry.image = entry.kepek.shift(); // Entfernt das erste Element und gibt es zurück
+                    } else {
+                        entry.image = null; // Wenn keine weiteren Bilder vorhanden sind, wird auch das Hauptbild null
+                    }
+                } else if (entry.kepek) {
+                    // Wenn das zu löschende Bild im "kepek"-Array ist
+                    const indexToDelete = entry.kepek.indexOf(imageUrlToDelete);
+                    if (indexToDelete > -1) {
+                        entry.kepek.splice(indexToDelete, 1); // Entfernt das Bild aus dem Array
+                    }
+                }
+
+                await db.updateEntry(entry); // Aktualisiert den Eintrag in der Datenbank
+                entries = entries.map(e => e.id === entry.id ? entry : e); // Aktualisiert das lokale "entries"-Array
+                renderTable(); // Tabelle neu zeichnen
+
+                // Bild-Modal mit den verbleibenden Bildern neu öffnen oder schließen, wenn keine Bilder mehr vorhanden sind
+                const allRemainingImages = [entry.image, ...(entry.kepek || [])].filter(Boolean);
+                if (allRemainingImages.length > 0) {
+                    // Setzt den richtigen Index, falls das gelöschte Bild das letzte war
+                    if (currentModalImageIndex >= allRemainingImages.length) {
+                        currentModalImageIndex = allRemainingImages.length - 1;
+                    }
+                    openImageModal(allRemainingImages, currentModalImageIndex, currentImageEntryId);
                 } else {
-                    entry.image = null; // Ha nincs további kép, az elsődleges kép is null lesz
-                }
-            } else if (entry.kepek) {
-                // Ha a törlendő kép a "kepek" tömbben van
-                const indexToDelete = entry.kepek.indexOf(imageUrlToDelete);
-                if (indexToDelete > -1) {
-                    entry.kepek.splice(indexToDelete, 1); // Eltávolítja a képet a tömbből
+                    closeModal(imageModal);
                 }
             }
-
-            await db.updateEntry(entry); // Frissíti a bejegyzést az adatbázisban
-            entries = entries.map(e => e.id === entry.id ? entry : e); // Frissíti a helyi "entries" tömböt
-            renderTable(); // Újra rendereli a táblázatot
-
-            // Újra megnyitja a képmodált a fennmaradó képekkel, vagy bezárja, ha nincs több kép
-            const allRemainingImages = [entry.image, ...(entry.kepek || [])].filter(Boolean);
-            if (allRemainingImages.length > 0) {
-                // Beállítja a megfelelő indexet, ha a törölt kép volt az utolsó
-                if (currentModalImageIndex >= allRemainingImages.length) {
-                    currentModalImageIndex = allRemainingImages.length - 1;
-                }
-                openImageModal(allRemainingImages, currentModalImageIndex, currentImageEntryId);
-            } else {
-                closeModal(imageModal);
-            }
+        } catch (error) {
+            console.error("Fehler beim Löschen des Bildes:", error);
+            showCustomAlert('Fehler beim Löschen des Bildes.', 'Fehler');
+        } finally {
+            hideLoading();
         }
     }
 
 
-    // renderTable a sorrendi szám oszlopával
+    // renderTable mit der Spalte für die laufende Nummer
     function renderTable(){
-        // Rendezés dátum szerint, legújabb elöl
+        // Sortieren nach Datum, neuestes zuerst
         const sortedEntries = entries.slice().sort((a,b)=> new Date(b.date) - new Date(a.date));
         logBody.innerHTML = sortedEntries.map((e,i) => {
             const entryDate = new Date(e.date);
-            const formattedDate = entryDate.toLocaleDateString('de-DE'); // Dátum formázása
-            const formattedTime = entryDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); // Idő formázása
+            const formattedDate = entryDate.toLocaleDateString('de-DE'); // Datum formatieren
+            const formattedTime = entryDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); // Zeit formatieren
 
-            // Összegyűjti az összes képet (fő kép + extra képek)
+            // Sammelt alle Bilder (Hauptbild + zusätzliche Bilder)
             const allImageSources = [e.image, ...(e.kepek || [])].filter(Boolean);
             let photosCellHtml = '';
-            // Képek megjelenítése 3-as csoportokban egy sorban
+            // Bilder in Gruppen von 3 pro Zeile anzeigen
             for (let j = 0; j < allImageSources.length; j += 3) {
                 photosCellHtml += `<div class="photoRow">${allImageSources.slice(j, j + 3).map(src => `<img src="${src}" alt="Bild">`).join('')}</div>`;
             }
 
-            const noteTitle = e.note ? 'Notiz öffnen' : 'Notiz hinzufügen'; // Jegyzet gomb tooltipje
+            const noteTitle = e.note ? 'Notiz öffnen' : 'Notiz hinzufügen'; // Tooltip für Notiz-Button
 
             let codeClass = '';
-            // CSS osztály hozzáadása a kód alapján
+            // CSS-Klasse basierend auf dem Code hinzufügen
             if (e.code && (e.code.startsWith('FA') || e.code.startsWith('NA'))) {
-                codeClass = 'auftrag-colored'; // Színezett FA/NA kódok
+                codeClass = 'auftrag-colored'; // Farbige FA/NA Codes
             } else if (e.source === 'scanner' || e.source === 'manual' || e.source === 'laser') {
-                codeClass = 'auftrag-manual-bold'; // Félkövér kézi vagy szkennelt kódok
+                codeClass = 'auftrag-manual-bold'; // Fettgedruckte manuelle oder gescannte Codes
             }
 
             return `
             <tr data-id="${e.id}">
                 <td>
-                    ${i + 1} <!-- Sorrendi szám -->
+                    ${i + 1} <!-- Laufende Nummer -->
                 </td>
                 <td class="${codeClass}">
-                    ${e.code} <!-- Az Auftrag kód -->
+                    ${e.code} <!-- Der Auftragscode -->
                 </td>
                 <td>
                     ${formattedDate}<br>
                     <span style="font-size: 0.85em; color: var(--muted);"> ${formattedTime}</span>
                 </td>
-                <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-book' : 'fa-plus'}"></i></button></td>
+                <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-sticky-note' : 'fa-plus'}"></i></button></td>
                 <td class="photo-cell">${photosCellHtml}</td>
                 <td><button class="uploadPhotoBtn" data-id="${e.id}" title="Bild hochladen"><i class="fas fa-folder"></i></button></td>
                 <td><button class="deleteBtn" data-id="${e.id}" data-code="${e.code}" title="Löschen"><i class="fas fa-trash-alt"></i></button></td>
             </tr>`;
         }).join('');
-        attachTableEventListeners(); // Hozzáadja az eseménykezelőket az újonnan létrehozott elemekhez
+        attachTableEventListeners(); // Fügt Ereignis-Listener zu den neu erstellten Elementen hinzu
     }
 
-    // Eseménykezelők hozzáadása a táblázat elemeihez
+    // Fügt Ereignis-Listener zu den Tabellenelementen hinzu
     function attachTableEventListeners() {
         logBody.querySelectorAll('.deleteBtn').forEach(btn => btn.addEventListener('click', handleDelete));
         logBody.querySelectorAll('.noteToggleBtn').forEach(btn => btn.addEventListener('click', openNoteModal));
@@ -1462,27 +1565,28 @@ const db = (() => {
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
     }
     
-    // Kép betöltése (promise-t ad vissza Image objektummal)
+    // Lädt ein Bild (gibt ein Promise mit einem Image-Objekt zurück)
     function loadImage(src) {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.crossOrigin = 'Anonymous'; // Fontos a cross-origin képekhez (ha lenne)
+            img.crossOrigin = 'Anonymous'; // Wichtig für Cross-Origin-Bilder (falls vorhanden)
             img.onload = () => resolve(img);
             img.onerror = () => {
-                console.warn(`Failed to load image for PDF: ${src.substring(0, 50)}...`);
-                reject(new Error('Hiba történt a kép betöltésekor szanáláshoz.'));
+                console.warn(`Fehler beim Laden des Bildes für PDF: ${src.substring(0, 50)}...`);
+                reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
             img.src = src;
         });
     }
 
-    // --- PDF GENERÁLÁS (JAVÍTOTT) ---
+    // --- PDF-GENERIERUNG (VERBESSERT) ---
     async function generatePdfForEntry(entry) {
         if (typeof window.jspdf === 'undefined') {
-            console.error('A jsPDF nincs betöltve!');
-            showCustomAlert('PDF exportálás sikertelen: a jsPDF könyvtár nincs betöltve.', 'Hiba');
+            console.error('jsPDF ist nicht geladen!');
+            showCustomAlert('PDF-Export fehlgeschlagen: jsPDF Bibliothek nicht geladen.', 'Fehler');
             return;
         }
+        showLoading("PDF wird generiert...");
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
@@ -1492,9 +1596,9 @@ const db = (() => {
             hour: '2-digit', minute: '2-digit'
         });
         const entryHour = entryDate.getHours();
-        const shiftText = entryHour < 14 ? 'Frühschicht' : 'Spätschicht'; // Műszak meghatározása
+        const shiftText = entryHour < 14 ? 'Frühschicht' : 'Spätschicht'; // Schicht bestimmen
 
-        // Fejléc
+        // Überschrift
         doc.setFontSize(24);
         doc.setFont(undefined, 'bold');
         doc.text(`Auftrag: ${entry.code}`, 10, 20);
@@ -1507,23 +1611,23 @@ const db = (() => {
 
         doc.text('Traverse: ', 10, 65);
         doc.setFont(undefined, 'bold');
-        // Kategória számának pozícionálása a "Traverse:" után
+        // Positionierung der Kategorienummer nach "Traverse:"
         doc.text(String(entry.category), 10 + doc.getStringUnitWidth('Traverse: ') * 18 / doc.internal.scaleFactor, 65);
         doc.setFont(undefined, 'normal');
 
         let yPos = 80;
-        // Jegyzet hozzáadása, ha van
+        // Notiz hinzufügen, falls vorhanden
         if (entry.note) {
             doc.setFontSize(18);
             const noteWithLabel = `Notiz: ${entry.note}`;
-            const splitText = doc.splitTextToSize(noteWithLabel, 180); // Szöveg tördelése
+            const splitText = doc.splitTextToSize(noteWithLabel, 180); // Text umbrechen
             doc.text(splitText, 10, yPos);
-            yPos += (splitText.length * 10); // Hozzáadja a jegyzet magasságát
+            yPos += (splitText.length * 10); // Höhe der Notiz hinzufügen
         }
 
-        // Képek betöltése és hozzáadása
+        // Bilder laden und hinzufügen
         const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
-        // Párhuzamos képbetöltés Promise.allSettled-del a hibák kezelésére
+        // Paralleles Laden von Bildern mit Promise.allSettled zur Fehlerbehandlung
         const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
         
         const loadedImages = [];
@@ -1532,38 +1636,38 @@ const db = (() => {
             if (result.status === 'fulfilled') {
                 loadedImages.push(result.value);
             } else {
-                console.error("Egy kép nem tölthető be:", result.reason);
+                console.error("Ein Bild konnte nicht für PDF geladen werden:", result.reason);
                 failedImageCount++;
             }
         });
 
         if (failedImageCount > 0) {
-            showCustomAlert(`${failedImageCount} kép nem tölthető be a PDF exportáláshoz és kihagyásra került.`, 'Figyelmeztetés');
+            showCustomAlert(`${failedImageCount} Bilder konnten nicht für den PDF-Export geladen werden und wurden übersprungen.`, 'Warnung');
         }
 
         for (let i = 0; i < loadedImages.length; i++) {
             const imageData = loadedImages[i];
-            yPos += 10; // Kis margó a kép előtt
-            if (yPos > 220) { // Új oldalra ugrás, ha nincs elég hely
+            yPos += 10; // Kleiner Rand vor dem Bild
+            if (yPos > 220) { // Neue Seite, wenn nicht genug Platz ist
                 doc.addPage();
                 yPos = 10;
             }
             doc.setFontSize(18);
-            doc.text(`Bild ${i + 1}`, 10, yPos); // Képcímke
-            yPos += 8; // Margó a képcímke és a kép között
+            doc.text(`Bild ${i + 1}`, 10, yPos); // Bildbeschriftung
+            yPos += 8; // Rand zwischen Bildbeschriftung und Bild
 
             try {
                 const imgProps = doc.getImageProperties(imageData);
                 const pdfWidth = doc.internal.pageSize.getWidth();
                 const pdfHeight = doc.internal.pageSize.getHeight();
-                const maxWidth = pdfWidth - 20; // 10px margó mindkét oldalon
-                const maxHeight = pdfHeight - yPos - 10; // Hely a képnek az oldal aljáig
+                const maxWidth = pdfWidth - 20; // 10px Rand auf jeder Seite
+                const maxHeight = pdfHeight - yPos - 10; // Platz für das Bild bis zum Seitenende
 
                 let imgWidth = imgProps.width;
                 let imgHeight = imgProps.height;
                 const ratio = imgWidth / imgHeight;
 
-                // Kép átméretezése, hogy beférjen az oldalra
+                // Bildgröße anpassen, damit es auf die Seite passt
                 if (imgWidth > maxWidth) {
                     imgWidth = maxWidth;
                     imgHeight = imgWidth / ratio;
@@ -1573,87 +1677,100 @@ const db = (() => {
                     imgWidth = imgHeight * ratio;
                 }
 
-                if (yPos + imgHeight > pdfHeight - 10) { // Új oldal, ha a kép nem fér el
+                if (yPos + imgHeight > pdfHeight - 10) { // Neue Seite, ha das Bild nicht passt
                     doc.addPage();
                     yPos = 10;
                 }
 
-                doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight); // Kép hozzáadása
-                yPos += imgHeight + 5; // Hozzáadja a kép magasságát és egy kis margót
+                doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight); // Bild hinzufügen
+                yPos += imgHeight + 5; // Höhe des Bildes és einen kleinen Rand hinzufügen
             } catch (e) {
-                console.error("Hiba történt a kép PDF-hez adásakor:", e);
-                if (yPos > 280) { doc.addPage(); yPos = 10; } // Új oldal, ha túl sok hibaüzenet van
-                doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos); // Hibaüzenet a PDF-be
+                console.error("Fehler beim Hinzufügen des Bildes zum PDF:", e);
+                if (yPos > 280) { doc.addPage(); yPos = 10; } // Neue Seite, wenn zu viele Fehlermeldungen vorhanden sind
+                doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos); // Fehlermeldung ins PDF
                 yPos += 15;
             }
         }
         
-        doc.save(`${entry.code}_trav${entry.category}.pdf`); // PDF mentése fájlként
+        doc.save(`${entry.code}_trav${entry.category}.pdf`); // PDF als Datei speichern
+        hideLoading();
     }
 
-    // Törlés eseménykezelő
+    // Löschereignis-Handler
     async function handleDelete(event) {
         const id = parseInt(event.currentTarget.dataset.id);
         const entryToDelete = entries.find(e => e.id === id);
-        if (!entryToDelete) return; // Ha a bejegyzés nem található, kilép
+        if (!entryToDelete) return; // Wenn der Eintrag nicht gefunden wird, beenden
 
-        // Megerősítés kérése PDF exportálási opcióval
-        const result = await showCustomConfirm(`Biztosan törölni szeretné a(z) "${entryToDelete.code}" bejegyzést?`, 'Megerősítés', entryToDelete);
+        // Bestätigung mit PDF-Export-Option anfordern
+        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie den Eintrag "${entryToDelete.code}" löschen möchten?`, 'Bestätigung', entryToDelete);
         
         if (result.confirmed) {
+            showLoading("Eintrag wird gelöscht...");
             try {
                 if (result.exportPdf) {
-                    await generatePdfForEntry(entryToDelete); // PDF generálása, ha a felhasználó kérte
+                    await generatePdfForEntry(entryToDelete); // PDF generieren, wenn vom Benutzer angefordert
                 }
                 
-                await db.deleteEntry(id); // Bejegyzés törlése az adatbázisból
-                entries = entries.filter(e => e.id !== id); // Eltávolítja a bejegyzést a helyi tömbből
-                renderTable(); // Újra rendereli a táblázatot
-                await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
-                updateTraverseHeader(); // Frissíti a fejlécet törlés után
+                await db.deleteEntry(id); // Eintrag aus der Datenbank löschen
+                entries = entries.filter(e => e.id !== id); // Eintrag aus dem lokalen Array entfernen
+                renderTable(); // Tabelle neu zeichnen
+                await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren
+                updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
 
                 const count = await db.getEntryCountForCategory(currentCategory);
-                if (count === 0) { // Ha a kategória kiürült
+                if (count === 0) { // Wenn die Kategorie leer ist
                     categoryLabelLeft.style.color = 'var(--muted)';
-                    updateControlButtonsColor(true); // Frissíti a kézi bevitel gomb színét
+                    updateControlButtonsColor(true); // Farbe des manuellen Eingabe-Buttons aktualisieren
                 }
             } catch (error) {
-                console.error("Hiba történt a törlés vagy exportálás során.", error);
-                showCustomAlert('Hiba történt a törlés vagy exportálás során.', 'Hiba');
+                console.error("Fehler beim Löschen oder Exportieren.", error);
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
+            } finally {
+                hideLoading();
             }
         }
     }
 
-    // Jegyzet modál megnyitása
+    // Öffnet das Notiz-Modal
     function openNoteModal(event) {
         noteEntryIdToUpdate = parseInt(event.currentTarget.dataset.id);
         const entry = entries.find(e => e.id === noteEntryIdToUpdate);
         if (entry) {
-            noteModalTextarea.value = entry.note || ''; // Betölti a jegyzetet, vagy üres stringet
+            noteModalTextarea.value = entry.note || ''; // Lädt die Notiz oder einen leeren String
             noteModal.style.display = 'flex';
             document.body.classList.add('modal-open');
         }
     }
 
-    // Jegyzet mentése a modálból
+    // Speichert die Notiz aus dem Modal
     async function saveNoteFromModal() {
-        const entry = entries.find(e => e.id === noteEntryIdToUpdate);
-        if (entry) {
-            entry.note = noteModalTextarea.value; // Frissíti a jegyzetet
-            await db.updateEntry(entry); // Mentés az adatbázisba
-            renderTable(); // Újra rendereli a táblázatot
+        showLoading("Notiz wird gespeichert...");
+        try {
+            const entry = entries.find(e => e.id === noteEntryIdToUpdate);
+            if (entry) {
+                entry.note = noteModalTextarea.value; // Notiz aktualisieren
+                await db.updateEntry(entry); // In Datenbank speichern
+                renderTable(); // Tabelle neu zeichnen
+                await updateCategoryButtonColors(); // NEU: Kategorie-Buttons aktualisieren nach Notiz-Speicherung
+            }
+            noteModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        } catch (error) {
+            console.error("Fehler beim Speichern der Notiz:", error);
+            showCustomAlert('Fehler beim Speichern der Notiz.', 'Fehler');
+        } finally {
+            hideLoading();
         }
-        noteModal.style.display = 'none';
-        document.body.classList.remove('modal-open');
     }
 
-    // Képfeltöltés gomb kattintás eseménykezelője
+    // Ereignis-Handler für den Bild-Upload-Button-Klick
     function handleUploadPhotoClick(event) {
         entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
-        imageUploadInput.click(); // Aktiválja a rejtett fájl kiválasztó inputot
+        imageUploadInput.click(); // Aktiviert das versteckte Dateiauswahl-Input
     }
     
-    // Kép szanálása (átméretezés/tömörítés JPEG-be)
+    // Bereinigt das Bild (Größenanpassung/Komprimierung in JPEG)
     function sanitizeImage(imageDataUrl, quality = 0.95) {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -1663,79 +1780,83 @@ const db = (() => {
                 canvas.height = img.naturalHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL('image/jpeg', quality)); // JPEG formátumba konvertálás
+                resolve(canvas.toDataURL('image/jpeg', quality)); // Konvertierung in JPEG-Format
             };
             img.onerror = () => {
-                console.warn(`Hiba történt a kép szanálásakor: ${imageDataUrl.substring(0, 50)}...`);
-                reject(new Error('Hiba történt a kép betöltésekor szanáláshoz.'));
+                console.warn(`Fehler beim Bereinigen des Bildes: ${imageDataUrl.substring(0, 50)}...`);
+                reject(new Error('Fehler beim Laden des Bildes zur Bereinigung.'));
             };
             img.src = imageDataUrl;
         });
     }
 
-    // Fájl kiválasztása eseménykezelő (képfeltöltéshez)
+    // Ereignis-Handler für Dateiauswahl (für Bild-Upload)
     async function handleFileSelected(event) {
         const file = event.target.files[0];
         if (!file || !entryIdToUpdate) return;
 
+        showLoading("Bild wird verarbeitet...");
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                // Kép szanálása a méret csökkentése érdekében
+                // Bild zur Größenreduzierung bereinigen
                 const sanitizedImageDataUrl = await sanitizeImage(e.target.result);
                 const entry = entries.find(entry => entry.id === entryIdToUpdate);
                 if (entry) {
                     if (!entry.kepek) entry.kepek = [];
-                    entry.kepek.push(sanitizedImageDataUrl); // Hozzáadja az extra képekhez
-                    await db.updateEntry(entry); // Frissíti az adatbázist
-                    renderTable(); // Újra rendereli a táblázatot
-                    navigator.vibrate?.(100); // Rezgés visszajelzés
+                    entry.kepek.push(sanitizedImageDataUrl); // Zu den zusätzlichen Bildern hinzufügen
+                    await db.updateEntry(entry); // Datenbank aktualisieren
+                    renderTable(); // Tabelle neu zeichnen
+                    navigator.vibrate?.(100); // Vibrationsfeedback
                 }
             } catch (error) {
-                console.error("Kép szanálása sikertelen:", error);
-                showCustomAlert('A kép nem dolgozható fel. Lehet, hogy sérült.', 'Hiba');
+                console.error("Bildbereinigung fehlgeschlagen:", error);
+                showCustomAlert('Das Bild konnte nicht verarbeitet werden. Es könnte beschädigt sein.', 'Fehler');
+            } finally {
+                hideLoading();
             }
         };
-        reader.readAsDataURL(file); // Fájl beolvasása Data URL-ként
+        reader.readAsDataURL(file); // Datei als Data URL lesen
 
-        event.target.value = null; // Törli az input értékét, hogy ugyanazt a fájlt újra lehessen tölteni
+        event.target.value = null; // Wert des Inputs löschen, damit die gleiche Datei erneut hochgeladen werden kann
     }
 
-    // Új bejegyzés hozzáadása
+    // Neuen Eintrag hinzufügen
     async function addNewEntry(code, image, source) {
-        if (!code) return; // Ha nincs kód, kilép
+        if (!code) return; // Wenn kein Code vorhanden ist, beenden
         
-        // Ellenőrzés, hogy a kategórián belül létezik-e már ilyen kód (UX célból)
+        // Überprüfen, ob dieser Code bereits in der Kategorie existiert (für UX-Zwecke)
         const existingEntryInCurrentCategory = entries.find(e => e.category === currentCategory && e.code === code);
         if (existingEntryInCurrentCategory) {
-            showCustomAlert(`Ez az azonosító ("${code}") már létezik ebben a kategóriában (${currentCategory}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
+            showCustomAlert(`Diese Kennung ("${code}") existiert bereits in dieser Kategorie (${currentCategory}). Bitte verwenden Sie eine eindeutige Kennung.`, 'Doppelter Eintrag');
             return;
         }
 
         const newEntry = {
             code: code,
-            date: new Date().toISOString(), // Jelenlegi dátum és idő ISO formátumban
+            date: new Date().toISOString(), // Aktuelles Datum und Uhrzeit im ISO-Format
             note: '',
-            image: image, // Elsődleges kép
-            kepek: [], // További képek tömbje
+            image: image, // Hauptbild
+            kepek: [], // Array für zusätzliche Bilder
             category: currentCategory,
-            source: source // Forrás: 'scanner', 'manual', 'laser'
+            source: source // Quelle: 'scanner', 'manual', 'laser'
         };
 
+        showLoading("Eintrag wird hinzugefügt...");
         try {
-            const wasEmpty = entries.length === 0; // Ellenőrzi, üres volt-e a kategória hozzáadás előtt
-            const newId = await db.addEntry(newEntry); // Hozzáadja a bejegyzést az IndexedDB-hez
-            newEntry.id = newId; // Frissíti az új bejegyzés ID-jét
-            entries.push(newEntry); // Hozzáadja a bejegyzést a helyi tömbhöz
-            renderTable(); // Újra rendereli a táblázatot
-            await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
+            const wasEmpty = entries.length === 0; // Überprüft, ob die Kategorie vor dem Hinzufügen leer war
+            const newId = await db.addEntry(newEntry); // Eintrag zu IndexedDB hinzufügen
+            newEntry.id = newId; // ID des neuen Eintrags aktualisieren
+            entries.push(newEntry); // Eintrag zum lokalen Array hinzufügen
+            renderTable(); // Tabelle neu zeichnen
+            await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren
 
-            if (wasEmpty) { // Ha előzőleg üres volt a kategória
-                updateControlButtonsColor(false); // Frissíti a vezérlőgombok színét (nem üres)
-                updateTraverseHeader(); // Frissíti a fejléc stílusát és tartalmát
+            if (wasEmpty) { // Wenn die Kategorie zuvor leer war
+                updateControlButtonsColor(false); // Farbe der Steuerungsbuttons aktualisieren (nicht leer)
+                updateTraverseHeader(); // Stil und Inhalt der Kopfzeile aktualisieren
             }
 
-            // Adatok küldése a Google Táblázatba egy Google Apps Script webalkalmazáson keresztül
+            // Daten an Google Tabelle über eine Google Apps Script Web-App senden
             const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN95oJtfAME2P_5/exec';
             const dataForSheet = {
                 code: newEntry.code,
@@ -1744,31 +1865,33 @@ const db = (() => {
             };
             fetch(webAppUrl, {
                 method: 'POST',
-                mode: 'no-cors', // Fontos a CORS problémák elkerüléséhez Apps Script esetén
+                mode: 'no-cors', // Wichtig, um CORS-Probleme bei Apps Script zu vermeiden
                 body: JSON.stringify(dataForSheet)
-            }).catch(error => console.error('Hiba történt a Google Táblázatba küldés során:', error));
+            }).catch(error => console.error('Fehler beim Senden an Google Tabelle:', error));
 
         } catch(e) {
-            // Módosított hibaüzenet az IndexedDB duplikált kulcs hibájára
+            // Geänderte Fehlermeldung für IndexedDB Duplikatsschlüssel-Fehler
             if (e.name === 'ConstraintError') {
-                showCustomAlert(`Ez az azonosító ("${newEntry.code}") már létezik ebben a kategóriában (${newEntry.category}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
+                showCustomAlert(`Diese Kennung ("${newEntry.code}") existiert bereits in dieser Kategorie (${newEntry.category}). Bitte verwenden Sie eine eindeutige Kennung.`, 'Doppelter Eintrag');
             } else {
-                console.error('Hiba történt a helyi mentés során:', e);
-                showCustomAlert('Hiba történt a helyi mentés során! Az adatok nem lettek elmentve.', 'Hiba');
+                console.error('Fehler beim lokalen Speichern:', e);
+                showCustomAlert('Fehler beim lokalen Speichern! Daten wurden nicht gespeichert.', 'Fehler');
             }
+        } finally {
+            hideLoading();
         }
     }
 
-    // Manuális beviteli gomb eseménykezelője
+    // Ereignis-Handler für den Button zur manuellen Eingabe
     function handleManualEntry() {
-        showCustomPrompt('Kérem adja meg a termék nevét vagy az azonosítót:', 'Manuális bejegyzés').then(manualCode => {
+        showCustomPrompt('Bitte geben Sie den Produktnamen oder die Kennung ein:', 'Manuelle Eingabe').then(manualCode => {
             if (manualCode && manualCode.trim() !== '') {
-                addNewEntry(manualCode.trim(), null, 'manual'); // Hozzáadja az új bejegyzést
+                addNewEntry(manualCode.trim(), null, 'manual'); // Neuen Eintrag hinzufügen
             }
         });
     }
 
-    // Egyéni prompt modál megjelenítése
+    // Zeigt ein benutzerdefiniertes Prompt-Modal an
     function showCustomPrompt(message, title = 'Eingabe') {
         return new Promise(async resolve => {
             const promptModal = document.getElementById('customPromptModal');
@@ -1777,23 +1900,23 @@ const db = (() => {
             const cancelBtn = document.getElementById('customPromptCancelBtn');
             const categoryNumberSpan = document.getElementById('promptCategoryNumber');
 
-            // A kategóriaszám és az ikon frissítése a modálban
+            // Aktualisiert die Kategorienummer und das Icon im Modal
             const count = await db.getEntryCountForCategory(currentCategory);
-            const isEmpty = count === 0; // Meghatározza, hogy a kategória üres-e
+            const isEmpty = count === 0; // Feststellen, ob die Kategorie leer ist
 
             const iconColor = isEmpty ? '%236c757d' : '%230056b3';
-            // Módosított SVG ikon és inline stílus a megegyező magasság érdekében
-            const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
+            // Geänderter SVG-Icon und Inline-Stil für passende Höhe
+            const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
             
             categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
             categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
 
-            input.value = ''; // Törli az input mező tartalmát
+            input.value = ''; // Leert das Eingabefeld
             promptModal.style.display = 'flex';
             document.body.classList.add('modal-open');
-            input.focus(); // Fókusz az input mezőre
+            input.focus(); // Setzt den Fokus auf das Eingabefeld
 
-            // OK gomb színének és árnyékának dinamikus beállítása
+            // Dynamische Anpassung der Farbe und des Schattens des OK-Buttons
             const updateOkButtonStyles = () => {
                 if (isEmpty) {
                     okBtn.style.background = 'var(--muted)';
@@ -1805,16 +1928,16 @@ const db = (() => {
                     okBtn.style.boxShadow = 'var(--shadow-soft)';
                 }
             };
-            updateOkButtonStyles(); // Első beállítás
+            updateOkButtonStyles(); // Erste Einstellung
 
-            // Hover és active állapotok kezelése dinamikusan
+            // Behandelt Hover- und Active-Zustände dynamisch
             okBtn.onmouseover = () => {
                 if (isEmpty) okBtn.style.background = '#888';
                 else okBtn.style.background = 'var(--primary-dark)';
                 okBtn.style.boxShadow = 'var(--shadow-medium)';
             };
             okBtn.onmouseout = () => {
-                updateOkButtonStyles(); // Visszaáll az alapállapotra
+                updateOkButtonStyles(); // Setzt auf Standard zurück
             };
             okBtn.onmousedown = () => {
                 okBtn.style.transform = 'scale(0.98)';
@@ -1822,12 +1945,12 @@ const db = (() => {
             };
             okBtn.onmouseup = () => {
                 okBtn.style.transform = 'scale(1)';
-                updateOkButtonStyles(); // Visszaáll az alapállapotra
+                updateOkButtonStyles(); // Setzt auf Standard zurück
             };
 
 
             const processAndResolve = (value) => {
-                // Specifikus üzleti logika: eltávolítja a tizedesjegyeket, ha vannak
+                // Spezifische Geschäftslogik: Entfernt Dezimalstellen, falls vorhanden
                 if (value && value.includes('.')) {
                     value = value.split('.')[0];
                 }
@@ -1855,7 +1978,7 @@ const db = (() => {
                 }
             };
 
-            // Eseménykezelők hozzáadása és eltávolítása a memóriaszivárgás elkerülése érdekében
+            // Ereignis-Listener hinzufügen und entfernen, um Speicherlecks zu vermeiden
             const closeAndResolve = (value) => {
                 promptModal.style.display = 'none';
                 document.body.classList.remove('modal-open');
@@ -1863,7 +1986,7 @@ const db = (() => {
                 cancelBtn.removeEventListener('click', cancelHandler);
                 promptModal.removeEventListener('click', overlayHandler);
                 input.removeEventListener('keydown', keydownHandler);
-                // Eseménykezelők eltávolítása a gombokról is, hogy ne maradjanak meg
+                // Ereignis-Listener auch von den Buttons entfernen, damit sie nicht bestehen bleiben
                 okBtn.onmouseover = null;
                 okBtn.onmouseout = null;
                 okBtn.onmousedown = null;
@@ -1878,7 +2001,7 @@ const db = (() => {
         });
     }
 
-    // Modál bezárása
+    // Schließt ein Modal
     function closeModal(modal) {
         if (modal) {
             modal.style.display = 'none';
@@ -1886,7 +2009,7 @@ const db = (() => {
         document.body.classList.remove('modal-open');
     }
 
-    // Fő eseménykezelők inicializálása
+    // Haupt-Ereignis-Listener initialisieren
     manualEntryBtn.addEventListener('click', handleManualEntry);
     noteModalSaveBtn.addEventListener('click', saveNoteFromModal);
     deleteImageBtn.addEventListener('click', deleteCurrentImage);
@@ -1896,65 +2019,68 @@ const db = (() => {
     document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
     document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
     
-    // Kép nagyítása/kicsinyítése
+    // Bild vergrößern/verkleinern
     modalImage.addEventListener('click', () => {
         imageModal.classList.toggle('image-zoomed-in');
     });
 
-    // Képmodál bezárása overlay kattintásra
+    // Bild-Modal bei Klick auf Overlay schließen
     imageModal.addEventListener('click', (e) => {
         if (e.target === imageModal) {
             imageModal.style.display = 'none';
             document.body.classList.remove('modal-open');
         }
     });
-    // Jegyzetmodál bezárása overlay kattintásra
+    // Notiz-Modal bei Klick auf Overlay schließen
     noteModal.addEventListener('click', (e) => {
         if (e.target === noteModal) {
             noteModal.style.display = 'none'; document.body.classList.remove('modal-open');
         }
     });
 
-    // Kategória törlése gomb eseménykezelője
+    // Ereignis-Handler für den Kategorie löschen-Button
     clearCategoryBtn.addEventListener('click', async () => {
-        // Ellenőrzi, hogy minden bejegyzés FA/NA-val kezdődik-e (ehhez igazítja a megerősítő üzenetet és a PDF exportálási opciót)
+        // Überprüft, ob alle Einträge mit FA/NA beginnen (passt Bestätigungsmeldung und PDF-Export-Option an)
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
-        const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null; // "dummy" bejegyzés a checkbox állapotának inicializálásához
+        const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null; // "Dummy"-Eintrag zur Initialisierung des Checkbox-Status
         
-        const result = await showCustomConfirm(`Biztosan törölni szeretné a(z) "${dummyEntryForCheckbox ? 'FA/NA' : 'összes'}" bejegyzést?`, 'Megerősítés', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
+            showLoading("Kategorie wird gelöscht...");
             try {
                 if (result.exportPdf && entries.length > 0) {
-                    // Ha exportálni kell PDF-be, akkor az összes bejegyzést exportálja
+                    // Wenn in PDF exportiert werden soll, alle Einträge exportieren
                     for (const entry of entries) {
                         await generatePdfForEntry(entry);
                     }
                 }
                 
-                await db.clearCategory(currentCategory); // Törli a kategória összes bejegyzését az adatbázisból
-                entries = []; // Ürítii a helyi bejegyzés tömböt
-                renderTable(); // Újra rendereli a táblázatot (most már üres lesz)
-                await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit (visszaáll üresre)
+                await db.clearCategory(currentCategory); // Alle Einträge der Kategorie aus der Datenbank löschen
+                entries = []; // Lokales Eintrag-Array leeren
+                renderTable(); // Tabelle neu zeichnen (ist jetzt leer)
+                await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren (auf leer zurücksetzen)
                 
-                updateTraverseHeader(); // Frissíti a fejlécet törlés után
-                categoryLabelLeft.style.color = 'var(--muted)'; // Visszaállítja a kategória címke színét
-                updateControlButtonsColor(true); // Visszaállítja a vezérlőgomb színét üres állapotra
+                updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
+                categoryLabelLeft.style.color = 'var(--muted)'; // Farbe des Kategorie-Labels zurücksetzen
+                updateControlButtonsColor(true); // Farbe des Steuerungsbuttons auf leeren Zustand zurücksetzen
 
             } catch (error) {
-                console.error("Hiba történt a kategória törlése vagy exportálása során.", error);
-                showCustomAlert('Hiba történt a törlés vagy exportálás során.', 'Hiba');
+                console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
+                showCustomAlert('Fehler beim Löschen oder Exportieren der Kategorie.', 'Fehler');
+            } finally {
+                hideLoading();
             }
         }
     });
 
-    // Figyelmeztetés az oldal elhagyása előtt ( IndexedDB miatt )
+    // Warnung vor dem Verlassen der Seite (wegen IndexedDB)
     window.addEventListener('beforeunload', function (e) {
         e.preventDefault();
-        e.returnValue = ''; // Ez szükséges ahhoz, hogy a böngésző figyelmeztetést jelenítsen meg
+        e.returnValue = ''; // Dies ist notwendig, damit der Browser eine Warnung anzeigt
     });
 
-    // Az oldal betöltésekor frissíti a kategóriagombok színeit
+    // Aktualisiert die Farben der Kategorie-Buttons beim Laden der Seite
     window.onload = updateCategoryButtonColors;
 
 })();
