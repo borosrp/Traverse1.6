@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="hu">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -247,7 +247,7 @@
             color: white;
             border: 1px solid var(--danger);
             box-shadow: var(--shadow-soft);
-            animation: blink-red-white 1.5s infinite alternate;
+            animation: blink-red-white 1.5s infinite alternate; /* Ugyanaz az animáció, mint a táblázat jegyzet gombján */
         }
         .grid button .note-status-indicator i {
             text-shadow: none; /* A belső ikon árnyékát eltávolítjuk */
@@ -617,6 +617,8 @@
             border: none;
             background: var(--primary);
             color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
             backdrop-filter: none;
             box-shadow: var(--shadow-soft);
         }
@@ -970,7 +972,7 @@ const db = (() => {
                 const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
                 // Erstellt einen "category" Index für Abfragen basierend auf der Kategorie.
                 objectStore.createIndex('category', 'category', { unique: false });
-                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.
+                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.<br>
                 objectStore.createIndex('category_code', ['category', 'code'], { unique: true });
             };
         });
@@ -979,7 +981,7 @@ const db = (() => {
     async function performTransaction(storeName, mode, action) {
         const db = await openDB();
         const transaction = db.transaction(storeName, mode);
-        const store = transaction.objectStore(storeName);
+        const store = transaction.objectStore(storeName); // FIX: Changed objectObjectStore to objectStore
         return new Promise((resolve, reject) => {
             const request = action(store);
             request.onsuccess = () => resolve(request.result);
@@ -1028,6 +1030,8 @@ const db = (() => {
     const imageUploadInput = document.getElementById('imageUploadInput');
     const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
     const loadingOverlay = document.getElementById('loadingOverlay'); // Hozzáadva: loadingOverlay elem
+    const customPromptInput = document.getElementById('customPromptInput');
+
 
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
@@ -1049,6 +1053,17 @@ const db = (() => {
     let laserScannerBuffer = [];
     let laserScannerTimer = null;
 
+    // Globális változó a fókuszban lévő kategóriagomb tárolására
+    let focusedCategoryButton = null;
+
+    // Grid konstansok a navigációhoz
+    const GRID1_COLS = 8;
+    const GRID2_COLS = 12;
+    const GRID1_SIZE = 16; 
+    const GRID2_SIZE = 12; 
+    const TOTAL_BUTTONS = GRID1_SIZE + GRID2_SIZE; 
+
+
     // Loading Overlay Steuerungen
     function showLoading(message = "Laden...") {
         loadingOverlay.querySelector('span').textContent = message;
@@ -1061,169 +1076,158 @@ const db = (() => {
         document.body.classList.remove('modal-open');
     }
 
+    // Függvény a gombok fókuszálásához
+    function setButtonFocus(button) {
+        if (!button) return; // Ne próbáljunk nem létező gombot fókuszálni
+
+        // Eltávolítja a fókuszt az előzőleg fókuszált gombról
+        if (focusedCategoryButton && focusedCategoryButton !== button) {
+            focusedCategoryButton.classList.remove('focused');
+        }
+
+        // Hozzáadja a fókuszt az új gombhoz
+        button.classList.add('focused');
+        focusedCategoryButton = button;
+
+        // Gondoskodik róla, hogy a gomb látható legyen
+        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        
+        // Valódi böngészőfókuszt is beállítja az Enter billentyű kezeléséhez
+        button.focus(); 
+    }
+
+
     // Tastaturereignis-Handler für Scannereingabe und Esc-Taste
     window.addEventListener('keydown', (e) => {
-        // Esc-Taste zum Schließen von Modalen
+        // 1. Modális ablakok bezárása Esc billentyűvel
         if (e.key === 'Escape') {
             if (imageModal.style.display === 'flex') {
                 closeModal(imageModal);
+                return;
             } else if (noteModal.style.display === 'flex') {
                 closeModal(noteModal);
+                return;
             } else if (customPromptModal.style.display === 'flex') {
                 closeModal(customPromptModal);
+                return;
             } else if (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') {
-                // Ha a customAlertModal látható, szimuláljuk az OK gomb kattintását
                 document.getElementById('customAlertModal').querySelector('#customAlertCloseBtn').click();
-            }
-            return; // Beendet, wenn ein Modal geschlossen wurde
-        }
-
-        // Handle Scanner Input (always prioritized if characters are buffered)
-        if (e.key === 'Enter' && laserScannerBuffer.length > 0) {
-            e.preventDefault();
-            const scannedCode = laserScannerBuffer.join('');
-            
-            // Close any open modal before processing scanner input
-            // Ellenőrizzük, hogy a customAlertModal nyitva van-e
-            if (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') {
-                document.getElementById('customAlertModal').querySelector('#customAlertCloseBtn').click();
-            }
-            if (customPromptModal.style.display === 'flex') {
-                closeModal(customPromptModal);
-            }
-            if (noteModal.style.display === 'flex') {
-                closeModal(noteModal);
-            }
-            if (imageModal.style.display === 'flex') {
-                closeModal(imageModal);
-            }
-
-            addNewEntry(scannedCode, null, 'laser');
-            laserScannerBuffer = [];
-            clearTimeout(laserScannerTimer);
-            return;
-        }
-
-        // Only proceed if no other modal is currently open AND the customPromptInput is NOT the active element
-        // The customPromptModal's internal keydown listener on 'input' will handle Enter for manual entry.
-        if (document.activeElement === customPromptInput) {
-            return; // Let the customPromptInput's specific handler deal with Enter
-        }
-
-        // If any modal is open (excluding the prompt modal input which is handled above)
-        const isAnyModalOpen = (
-            imageModal.style.display === 'flex' ||
-            noteModal.style.display === 'flex' ||
-            customPromptModal.style.display === 'flex' ||
-            (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') // Hozzáadva a customAlertModal ellenőrzése
-        );
-        if (isAnyModalOpen) {
-            return; // Don't process other keydowns if a modal is open
-        }
-
-        // Billentyűnyíl navigáció
-        if (currentCategory) { // Csak akkor navigáljunk, ha van kiválasztott kategória
-            let targetCategory = currentCategory;
-            const minCategory = 1;
-            const maxCategory = 28;
-            const grid1Cols = 8; // Kategóriák 1-16 (8 oszlop)
-            const grid2Cols = 12; // Kategóriák 17-28 (12 oszlop)
-
-            switch (e.key) {
-                case 'ArrowLeft':
-                    targetCategory = currentCategory - 1;
-                    if (targetCategory < minCategory) {
-                        targetCategory = maxCategory; // Körbejárás az utolsó kategóriára
-                    }
-                    break;
-                case 'ArrowRight':
-                    targetCategory = currentCategory + 1;
-                    if (targetCategory > maxCategory) {
-                        targetCategory = minCategory; // Körbejárás az első kategóriára
-                    }
-                    break;
-                case 'ArrowUp':
-                    if (currentCategory >= 1 && currentCategory <= 16) { // Az első rácsban (1-16)
-                        targetCategory = currentCategory - grid1Cols;
-                        if (targetCategory < 1) { // Átlépés az első rácsból a másodikba (felülről)
-                            const posInRow = (currentCategory % grid1Cols === 0) ? grid1Cols : (currentCategory % grid1Cols);
-                            targetCategory = maxCategory - (grid2Cols - posInRow);
-                        }
-                    } else if (currentCategory >= 17 && currentCategory <= 28) { // A második rácsban (17-28)
-                        targetCategory = currentCategory - grid2Cols;
-                        if (targetCategory < 17) { // Átlépés a második rácsból az elsőbe (felülről)
-                            // Nincs szükség speciális leképzésre, az eredmény közvetlenül az első rácsban lévő kategória
-                        }
-                    }
-                    break;
-                case 'ArrowDown':
-                    if (currentCategory >= 1 && currentCategory <= 16) { // Az első rácsban (1-16)
-                        targetCategory = currentCategory + grid1Cols;
-                        if (targetCategory > 16) { // Átlépés az első rácsból a másodikba (alulról)
-                            // Nincs szükség speciális leképzésre, az eredmény közvetlenül a második rácsban lévő kategória
-                        }
-                    } else if (currentCategory >= 17 && currentCategory <= 28) { // A második rácsban (17-28)
-                        targetCategory = currentCategory + grid2Cols;
-                        if (targetCategory > maxCategory) { // Átlépés a második rácsból az elsőbe (alulról)
-                            const posInRow = (currentCategory - 17) % grid2Cols + 1; // 1-től induló pozíció a második rács sorában
-                            targetCategory = posInRow; // Leképezés az első rács megfelelő pozíciójára
-                        }
-                    }
-                    break;
-                default:
-                    return; // Más billentyűket figyelmen kívül hagyunk
-            }
-
-            // Megakadályozzuk az alapértelmezett görgetési viselkedést
-            e.preventDefault();
-
-            // Megkeressük a cél gombot és kiválasztjuk
-            const allCategoryButtons = document.querySelectorAll('#categoryGrid1 button, #categoryGrid2 button');
-            let foundButton = null;
-            for (const btn of allCategoryButtons) {
-                if (parseInt(btn.textContent) === targetCategory) {
-                    foundButton = btn;
-                    break;
-                }
-            }
-
-            if (foundButton) {
-                selectCategory(targetCategory, foundButton);
-            }
-            return; // Befejezzük a billentyűzetkezelést, ha nyíl billentyűt dolgoztunk fel
-        }
-
-
-        // Handle Enter key for focused category buttons OR manual entry
-        if (e.key === 'Enter' && laserScannerBuffer.length === 0) {
-            const focusedElement = document.activeElement;
-            // Ellenőrizzük, hogy a fókuszált elem valamelyik kategória gombunk-e
-            const isCategoryButton = focusedElement && 
-                                     (focusedElement.closest('#categoryGrid1 button') || 
-                                      focusedElement.closest('#categoryGrid2 button'));
-
-            if (isCategoryButton) {
-                e.preventDefault(); // Megakadályozzuk az alapértelmezett műveletet
-                // Szimuláljuk a kattintást a fókuszált gombon, hogy elindítsuk a meglévő kattintáskezelőjét
-                focusedElement.click(); 
-                return; // Leállítjuk a további feldolgozást
-            } else if (currentCategory && focusedElement !== customPromptInput) { 
-                // Ha nincs gomb fókuszban, de van kiválasztott kategória, és az input mező sem aktív, engedélyezzük a kézi bevitelt
-                e.preventDefault();
-                handleManualEntry();
                 return;
             }
         }
 
-        // Buffer characters for scanner input (only if the active element is NOT the customPromptInput)
-        if (e.key.length === 1) { // Removed check for document.activeElement !== customPromptInput
+        // Ellenőrizzük, hogy van-e megnyitott modális ablak, kivéve a customPromptInput-ot, ha abban gépelnek.
+        const isAnyModalOpenAndNotPromptInputFocused = (
+            imageModal.style.display === 'flex' ||
+            noteModal.style.display === 'flex' ||
+            (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') ||
+            (customPromptModal.style.display === 'flex' && document.activeElement !== customPromptInput)
+        );
+
+        // Ha van megnyitott modális ablak (és nem a prompt inputban gépelnek), ne dolgozzuk fel a további billentyűket.
+        if (isAnyModalOpenAndNotPromptInputFocused) {
+            return;
+        }
+
+        // Ha a customPromptInput a fókuszban lévő elem, akkor az Enter billentyűt a saját kezelője dolgozza fel.
+        if (document.activeElement === customPromptInput) {
+            // Itt nem kell semmit tenni, mert a customPromptInput saját keydown kezelője van.
+            return;
+        }
+
+        // 2. Enter billentyű kezelése fókuszált kategóriagomb esetén (manuális bevitel megnyitása)
+        if (e.key === 'Enter' && focusedCategoryButton) {
+            e.preventDefault(); // Megakadályozza az alapértelmezett böngésző viselkedést (pl. űrlap elküldése)
+            const focusedCategoryNum = parseInt(focusedCategoryButton.textContent);
+            if (currentCategory !== focusedCategoryNum) {
+                // Ha a fókuszált gomb nem az aktuálisan kiválasztott, válassza ki először
+                selectCategory(focusedCategoryNum, focusedCategoryButton);
+            } else {
+                // Ha már ki van választva, csak nyissa meg a manuális bevitelt
+                handleManualEntry();
+            }
+            return; // Esemény feldolgozva
+        }
+
+        // 3. Nyílbillentyűk navigációja a kategóriagombok között
+        if (e.key.startsWith('Arrow')) {
+            e.preventDefault(); // Megakadályozza az alapértelmezett görgetési viselkedést
+            const allCategoryButtons = Array.from(document.querySelectorAll('.grid button'));
+            let currentIdx = -1;
+
+            if (focusedCategoryButton) {
+                currentIdx = allCategoryButtons.indexOf(focusedCategoryButton);
+            } else if (currentCategory) {
+                const selectedButton = allCategoryButtons.find(btn => parseInt(btn.textContent) === currentCategory);
+                if (selectedButton) {
+                    currentIdx = allCategoryButtons.indexOf(selectedButton);
+                }
+            }
+            
+            if (currentIdx === -1) {
+                setButtonFocus(allCategoryButtons[0]);
+                return;
+            }
+
+            let nextIdx = currentIdx;
+
+            if (e.key === 'ArrowLeft') {
+                nextIdx = (currentIdx - 1 + TOTAL_BUTTONS) % TOTAL_BUTTONS;
+            } else if (e.key === 'ArrowRight') {
+                nextIdx = (currentIdx + 1) % TOTAL_BUTTONS;
+            } else if (e.key === 'ArrowUp') {
+                let colsToUse = (currentIdx < GRID1_SIZE) ? GRID1_COLS : GRID2_COLS;
+                nextIdx = currentIdx - colsToUse;
+                if (nextIdx < 0) { 
+                    if (currentIdx < GRID1_SIZE) {
+                        nextIdx = TOTAL_BUTTONS - 1;
+                    } else {
+                        nextIdx = GRID1_SIZE - 1;
+                    }
+                }
+            } else if (e.key === 'ArrowDown') {
+                let colsToUse = (currentIdx < GRID1_SIZE) ? GRID1_COLS : GRID2_COLS;
+                nextIdx = currentIdx + colsToUse;
+                if (nextIdx >= TOTAL_BUTTONS) { 
+                    if (currentIdx >= GRID1_SIZE) {
+                        nextIdx = 0;
+                    } else {
+                        nextIdx = GRID1_SIZE;
+                    }
+                }
+            }
+
+            nextIdx = Math.max(0, Math.min(nextIdx, TOTAL_BUTTONS - 1));
+            
+            if (allCategoryButtons[nextIdx]) {
+                setButtonFocus(allCategoryButtons[nextIdx]);
+            }
+            return; // Nyílbillentyű feldolgozva
+        }
+
+        // 4. Szkenner bemenet (csak akkor, ha nincs fókuszban kategóriagomb, és nem input/textarea)
+        // Ez a kulcsfontosságú változás: csak akkor pufferel karaktereket, ha NINCS kategóriagomb fókuszban.
+        if (e.key.length === 1 && e.key !== ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && !focusedCategoryButton) {
             laserScannerBuffer.push(e.key);
             clearTimeout(laserScannerTimer);
             laserScannerTimer = setTimeout(() => {
-                laserScannerBuffer = [];
+                if (laserScannerBuffer.length > 0) {
+                    const scannedCode = laserScannerBuffer.join('');
+                    addNewEntry(scannedCode, null, 'laser');
+                    laserScannerBuffer = [];
+                }
             }, 100);
+            return; // Karakter feldolgozva
+        }
+
+        // Ha egy kategóriagomb fókuszban van, és egy karakter billentyűt nyomnak meg (és nem nyíl vagy Enter),
+        // akkor ne csináljon semmit, megakadályozva, hogy szkenner bemenetként kezelje.
+        if (focusedCategoryButton && e.key.length === 1) {
+            e.preventDefault(); // Megakadályozza a böngésző alapértelmezett viselkedését
+            return;
         }
     });
+
 
     // Erstellt und initialisiert Kategorie-Buttons
     for(let i=1; i<=16; i++){
@@ -1353,7 +1357,6 @@ const db = (() => {
         if(prevActive) prevActive.classList.remove('active');
         
         btn.classList.add('active'); // Fügt die "active"-Klasse zum aktuellen Button hinzu
-        btn.focus(); // *** ÚJ: Fókuszálja az újonnan aktív gombot ***
         currentCategory = num; // Setzt die aktuelle Kategorie
         
         try {
@@ -1369,6 +1372,7 @@ const db = (() => {
             renderTable(); // Zeichnet die Tabelle mit den Einträgen neu
             await updateCategoryButtonColors(); // Aktualisiert die Farben der Kategorie-Buttons
             updateControlButtonsColor(isEmpty); // Aktualisiert die Farbe des manuellen Eingabe-Buttons
+            setButtonFocus(btn); // Setzi a fókuszt a kiválasztott gombra
         }
         catch (e) {
             console.error("Fehler beim Lesen der Datenbank:", e);
@@ -1418,7 +1422,7 @@ const db = (() => {
         traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
         traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
         traverseHeader.style.fontWeight = 'bold';
-        traverseHeader.style.fontSize = '1.5em'; /* Erhöht die Schriftgröße für die Kopfzeilennummer */
+        traverseHeader.style.fontSize = '1.5em'; /* Erhözi a Schriftgröße für die Kopfzeilennummer */
     }
 
     // Zeigt ein benutzerdefiniertes Alert-Modal an
@@ -1452,7 +1456,7 @@ const db = (() => {
 
         // Hozzáadunk egy keydown eseménykezelőt közvetlenül a modálhoz
         alertModal.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { // CSAK az ESC billentyűvel zárható be
+            if (e.key === 'Enter' || e.key === 'Escape') { // OK vagy ESC billentyűvel zárható be
                 e.preventDefault(); // Megakadályozzuk az alapértelmezett viselkedést
                 closeAlertModal();
             }
@@ -1776,7 +1780,7 @@ const db = (() => {
                 openImageModal(allImageSources, clickedImageIndex, entryId);
             }
         }));
-        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.
+        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.<br>
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
         
         // Fő jelölőnégyzet eseménykezelője
@@ -1797,10 +1801,10 @@ const db = (() => {
             img.crossOrigin = 'Anonymous'; // Wichtig für Cross-Origin-Bilder (falls vorhanden)
             img.onload = () => resolve(img);
             img.onerror = () => {
-                console.warn(`Fehler beim Laden des Bildes für PDF: ${src.substring(0, 50)}...`);
+                console.warn(`Fehler beim Bereinigen des Bildes: ${imageDataUrl.substring(0, 50)}...`);
                 reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
-            img.src = imageDataUrl;
+            img.src = src;
         });
     }
 
@@ -1965,6 +1969,7 @@ const db = (() => {
             noteModalTextarea.value = entry.note || ''; // Lädt die Notiz oder einen leeren String
             noteModal.style.display = 'flex';
             document.body.classList.add('modal-open');
+            noteModalTextarea.focus(); // Fokusálás a szövegmezőre
         }
     }
 
@@ -2035,7 +2040,7 @@ const db = (() => {
 
                 if (checkedUploadCheckboxes.length > 0) {
                     // If any checkboxes are checked, use those
-                    checkedUploadCheckboxes.forEach(checkbox => {
+                    checkedUploadCheckboxes.forEach(checkbox => { // FIX: Changed checkedEntryIds to checkedUploadCheckboxes
                         targetEntryIds.push(parseInt(checkbox.dataset.id));
                     });
                 } else {
@@ -2062,7 +2067,7 @@ const db = (() => {
 
             } catch (error) {
                 console.error("Bildverarbeitung fehlgeschlagen:", error);
-                showCustomAlert('Das Bild konnte nem verarbeitet werden. Es könnte beschädigt sein.', 'Fehler');
+                showCustomAlert('Das Bild konnte nem processed. It might be corrupted.', 'Fehler');
             } finally {
                 hideLoading();
                 // Reset all checkboxes after upload
@@ -2092,6 +2097,7 @@ const db = (() => {
         }
 
         const newEntry = {
+            // id: null, // Az ID-t az IndexedDB adja hozzá - EZT ELTÁVOLÍTVA A HIBA JAVÍTÁSÁHOZ
             code: code,
             date: new Date().toISOString(), // Aktuelles Datum und Uhrzeit im ISO-Format
             note: '',
@@ -2101,7 +2107,7 @@ const db = (() => {
             source: source // Quelle: 'scanner', 'manual', 'laser'
         };
 
-        showLoading("Eintrag wird hinzugefügt...");
+        showLoading("Eintrag wird hinzugefült...");
         try {
             const wasEmpty = entries.length === 0; // Überprüft, ob die Kategorie vor dem Hinzufügen leer war
             const newId = await db.addEntry(newEntry); // Eintrag zu IndexedDB hinzufügen
@@ -2134,7 +2140,7 @@ const db = (() => {
                 showCustomAlert(`Diese Kennung ("${newEntry.code}") existiert bereits in dieser Kategorie (${newEntry.category}). Bitte verwenden Sie eine eindeutige Kennung.`, 'Doppelter Eintrag');
             } else {
                 console.error('Fehler beim lokalen Speichern:', e);
-                showCustomAlert('Fehler beim lokalen Speichern! Daten wurden nem gespeichert.', 'Fehler');
+                showCustomAlert('Fehler beim lokalen Speichern! Daten wurden nicht gespeichert.', 'Fehler');
             }
         } finally {
             hideLoading();
@@ -2154,7 +2160,6 @@ const db = (() => {
     function showCustomPrompt(message, title = 'Eingabe') {
         return new Promise(async resolve => {
             const promptModal = document.getElementById('customPromptModal');
-            const input = document.getElementById('customPromptInput');
             const okBtn = document.getElementById('customPromptOkBtn');
             const cancelBtn = document.getElementById('customPromptCancelBtn');
             const categoryNumberSpan = document.getElementById('promptCategoryNumber');
@@ -2170,10 +2175,10 @@ const db = (() => {
             categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
             categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
 
-            input.value = ''; // Leert das Eingabefeld
+            customPromptInput.value = ''; // Leert das Eingabefeld
             promptModal.style.display = 'flex';
             document.body.classList.add('modal-open');
-            input.focus(); // Setzt den Fokus auf das Eingabefeld
+            customPromptInput.focus(); // Setzt den Fokus auf das Eingabefeld
 
             // Dynamische Anpassung der Farbe und des Schattens des OK-Buttons
             const updateOkButtonStyles = () => {
@@ -2189,7 +2194,7 @@ const db = (() => {
             };
             updateOkButtonStyles(); // Erste Einstellung
 
-            // Behandelt Hover- und Active-Zustände dynamikusan
+            // Behandelt Hover- és Active-Zustände dynamisch
             okBtn.onmouseover = () => {
                 if (isEmpty) okBtn.style.background = '#888';
                 else okBtn.style.background = 'var(--primary-dark)';
@@ -2217,7 +2222,7 @@ const db = (() => {
             };
 
             const okHandler = () => {
-                processAndResolve(input.value);
+                processAndResolve(customPromptInput.value);
             };
 
             const cancelHandler = () => {
@@ -2228,8 +2233,8 @@ const db = (() => {
             const inputKeydownHandler = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (input.value.trim() !== '') {
-                        processAndResolve(input.value);
+                    if (customPromptInput.value.trim() !== '') {
+                        processAndResolve(customPromptInput.value);
                     }
                 }
             };
@@ -2247,7 +2252,7 @@ const db = (() => {
                 okBtn.removeEventListener('click', okHandler);
                 cancelBtn.removeEventListener('click', cancelHandler);
                 promptModal.removeEventListener('click', overlayHandler);
-                input.removeEventListener('keydown', inputKeydownHandler); // Remove the input's keydown listener
+                customPromptInput.removeEventListener('keydown', inputKeydownHandler); // Remove the input's keydown listener
                 
                 okBtn.onmouseover = null;
                 okBtn.onmouseout = null;
@@ -2259,7 +2264,7 @@ const db = (() => {
             okBtn.addEventListener('click', okHandler);
             cancelBtn.addEventListener('click', cancelHandler);
             promptModal.addEventListener('click', overlayHandler);
-            input.addEventListener('keydown', inputKeydownHandler); // Attach keydown to the input itself
+            customPromptInput.addEventListener('keydown', inputKeydownHandler); // Attach keydown to the input itself
         });
     }
 
@@ -2311,15 +2316,12 @@ const db = (() => {
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
             try {
-                // IMPORTANT: The `entryToDelete` variable is not defined here in the `clearCategoryBtn`'s click handler.
-                // It was used in `handleDelete` where a single entry was being deleted.
-                // When clearing a category, you would typically generate PDFs for *all* entries in that category.
-                // If PDF export is desired for clearing categories, this logic needs to be extended.
-                // For now, I'm commenting out the PDF generation for category clearing to avoid an error.
-                // If you need PDF export for category clearing, please specify.
-                // if (result.exportPdf) {
-                //     await generatePdfForEntry(entryToDelete); // This would cause an error as entryToDelete is not defined
-                // }
+                if (result.exportPdf) {
+                    // Generálja a PDF-eket az összes bejegyzésről a kategóriában
+                    for (const entry of entries) {
+                        await generatePdfForEntry(entry);
+                    }
+                }
                 
                 await db.clearCategory(currentCategory); // Alle Einträge der Kategorie aus der Datenbank löschen
                 entries = []; // Lokales Eintrag-Array leeren
@@ -2346,7 +2348,14 @@ const db = (() => {
     });
 
     // Aktualisiert die Farben der Kategorie-Buttons beim Laden der Seite
-    window.onload = updateCategoryButtonColors;
+    window.onload = async function() {
+        await updateCategoryButtonColors();
+        // Set initial focus to the first category button
+        const firstCategoryButton = document.querySelector('#categoryGrid1 button:first-child');
+        if (firstCategoryButton) {
+            setButtonFocus(firstCategoryButton);
+        }
+    };
 
 })();
 </script>
