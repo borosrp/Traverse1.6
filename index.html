@@ -547,26 +547,76 @@
             pointer-events: none;
         }
         
-        /* A mappa ikon stílusa */
+        /* A mappa ikon alapértelmezett stílusa (szürke, ha nincs adat a kategóriában) */
         .master-upload-container .fas.fa-folder {
             font-size: 1.5em; /* Növelt ikon méret */
-            color: var(--primary); /* Kék szín a mappa ikonhoz */
+            color: var(--muted); /* Alapértelmezett szürke szín */
             transition: color 0.2s ease-in-out, filter 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
         }
-        /* Hover effektus az ikonon */
+        /* Mappa ikon színe, ha van adat a kategóriában */
+        .master-upload-container.has-data .fas.fa-folder {
+            color: var(--primary); /* Kék szín, ha van adat */
+        }
+        /* Hover effektus az ikonon (mindig kék, ha van adat, egyébként sötétszürke) */
         .master-upload-container:hover .fas.fa-folder {
             color: var(--primary-dark);
         }
+         .master-upload-container.has-data:hover .fas.fa-folder {
+             color: var(--primary-dark); /* Keep blueish hover if data present */
+         }
         /* Kijelölt állapot: a jelölőnégyzet `checked` állapotának tükrözése a mappa ikonon */
         .master-upload-container input[type="checkbox"]:checked + .fas.fa-folder {
-            color: var(--primary); /* Kék marad kijelölve */
             filter: brightness(1.2); /* Kicsit fényesebb, ha be van jelölve */
             text-shadow: 0 0 8px rgba(0, 86, 179, 0.7); /* Halvány ragyogás */
         }
-        /* Egyéb ikonok a fejlécben */
-        .master-upload-container .fas.fa-trash-alt {
-            font-size: 1.5em;
+
+        /* ÚJ: Fejléc törlés gombja */
+        .header-delete-btn {
+            background: var(--muted); /* Alapértelmezett szürke, ha nincs adat */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: none;
+            cursor: not-allowed;
+            width: 40px; /* Méret beállítása */
+            height: 40px; /* Méret beállítása */
         }
+
+        .header-delete-btn i {
+            font-size: 1.5em; /* Ikon méretének igazítása */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Fejléc törlés gombjának színe, ha van adat a kategóriában */
+        .header-delete-btn.has-data {
+            background: var(--danger); /* Piros, ha van adat */
+            cursor: pointer;
+        }
+
+        .header-delete-btn.has-data:hover {
+            background: #c82333; /* Sötétebb piros hoverre */
+            box-shadow: var(--shadow-soft);
+        }
+
+        .header-delete-btn.has-data:active {
+            transform: scale(0.95);
+            box-shadow: var(--shadow-active);
+        }
+
+        .header-delete-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
 
         .addExtraPhotoBtn, .uploadPhotoBtn {
             display: inline-flex;
@@ -924,7 +974,11 @@
                                 <i class="fas fa-folder" title="Bild hochladen"></i>
                             </div>
                         </th>
-                        <th width="8%"><i class="fas fa-trash-alt" title="Löschen"></i></th>
+                        <th width="8%">
+                            <button class="header-delete-btn" id="headerDeleteBtn" title="Kategória törlése">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="logBody"></tbody>
@@ -1001,7 +1055,7 @@ const db = (() => {
                 const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
                 // Erstellt einen "category" Index für Abfragen basierend auf der Kategorie.
                 objectStore.createIndex('category', 'category', { unique: false });
-                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.<br>
+                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.
                 objectStore.createIndex('category_code', ['category', 'code'], { unique: true });
             };
         });
@@ -1061,12 +1115,15 @@ const db = (() => {
     const loadingOverlay = document.getElementById('loadingOverlay'); // Hozzáadva: loadingOverlay elem
     const customPromptInput = document.getElementById('customPromptInput');
 
-
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
     const clearCategoryBtn = document.getElementById('clearCategoryBtn');
     // selectAllUploadsToggle most a rejtett jelölőnégyzet
     const selectAllUploadsToggle = document.getElementById('selectAllUploadsToggle'); 
+    // NEU: Header Delete Button
+    const headerDeleteBtn = document.getElementById('headerDeleteBtn');
+    // NEU: masterUploadContainer is defined here
+    const masterUploadContainer = document.querySelector('.master-upload-container'); // Move this declaration here
 
     // Anwendungsstatus
     let currentCategory = null; // A jelenleg kiválasztott kategória száma
@@ -1369,6 +1426,39 @@ const db = (() => {
         }
     }
 
+    // NEU: Globális fejléc ikonjainak frissítése
+    async function updateGlobalHeaderIcons() {
+        if (!currentCategory) {
+            if (masterUploadContainer) masterUploadContainer.classList.remove('has-data');
+            if (headerDeleteBtn) {
+                headerDeleteBtn.classList.remove('has-data');
+                headerDeleteBtn.disabled = true;
+            }
+            return;
+        }
+
+        const count = await db.getEntryCountForCategory(currentCategory);
+        const hasData = count > 0;
+
+        if (masterUploadContainer) {
+            if (hasData) {
+                masterUploadContainer.classList.add('has-data');
+            } else {
+                masterUploadContainer.classList.remove('has-data');
+            }
+        }
+        
+        if (headerDeleteBtn) {
+            if (hasData) {
+                headerDeleteBtn.classList.add('has-data');
+                headerDeleteBtn.disabled = false;
+            } else {
+                headerDeleteBtn.classList.remove('has-data');
+                headerDeleteBtn.disabled = true;
+            }
+        }
+    }
+
     // Aktualisiert die Farbe der unteren Steuerungsbuttons (manuelle Eingabe)
     function updateControlButtonsColor(isEmpty) {
         if (isEmpty) {
@@ -1396,6 +1486,7 @@ const db = (() => {
             
             updateHeaderAndControls(); // Aktualisiert das Label der unteren Steuerleiste
             updateTraverseHeader(); // Aktualisiert den Tabellenkopf
+            await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait
             
             mainControls.style.display = 'block'; // Zeigt die untere Steuerleiste an
             listSection.style.display = 'block'; // Zeigt die Datenliste an
@@ -1810,7 +1901,7 @@ const db = (() => {
                 openImageModal(allImageSources, clickedImageIndex, entryId);
             }
         }));
-        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.<br>
+        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
         
         // Fő jelölőnégyzet eseménykezelője
@@ -1827,6 +1918,12 @@ const db = (() => {
             // Eltávolítjuk az eredeti kattintáskezelőt, ha volt ilyen
             masterUploadContainer.removeEventListener('click', handleMasterContainerClick);
             masterUploadContainer.addEventListener('click', handleMasterContainerClick);
+        }
+        
+        // NEU: Fejléc törlés gomb eseménykezelője
+        if (headerDeleteBtn) {
+            headerDeleteBtn.removeEventListener('click', handleHeaderDeleteClick);
+            headerDeleteBtn.addEventListener('click', handleHeaderDeleteClick);
         }
     }
 
@@ -1845,6 +1942,47 @@ const db = (() => {
             selectAllUploadsToggle.checked = !selectAllUploadsToggle.checked;
             // Manuálisan kiváltjuk a change eseményt, mert a .checked módosítása nem teszi meg automatikusan
             selectAllUploadsToggle.dispatchEvent(new Event('change'));
+        }
+    }
+    
+    // NEU: Fejléc törlés gomb kattintáskezelője
+    async function handleHeaderDeleteClick() {
+        if (!currentCategory) {
+            showCustomAlert('Nincs kiválasztott kategória a törléshez.', 'Hiba');
+            return;
+        }
+        
+        // Ugyanaz a logika, mint a clearCategoryBtn-nél
+        const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
+        const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
+        
+        const result = await showCustomConfirm(`Biztosan törölni szeretné ${dummyEntryForCheckbox ? 'az összes FA/NA bejegyzést' : 'az összes bejegyzést'} ebből a kategóriából?`, 'Megerősítés', dummyEntryForCheckbox);
+        
+        if (result.confirmed) {
+            showLoading("Kategória törlése...");
+            try {
+                if (result.exportPdf) {
+                    for (const entry of entries) {
+                        await generatePdfForEntry(entry);
+                    }
+                }
+                
+                await db.clearCategory(currentCategory); // Alle Einträge der Kategorie aus der Datenbank löschen
+                entries = []; // Lokales Eintrag-Array leeren
+                renderTable(); // Tabelle neu zeichnen (ist jetzt leer)
+                await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren (auf leer zurücksetzen)
+                
+                updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
+                categoryLabelLeft.style.color = 'var(--muted)'; // Farbe des Kategorie-Labels zurücksetzen
+                updateControlButtonsColor(true); // Farbe des Steuerungsbuttons auf leeren Zustand zurücksetzen
+                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
+
+            } catch (error) {
+                console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
+            } finally {
+                hideLoading();
+            }
         }
     }
     
@@ -1925,7 +2063,7 @@ const db = (() => {
         });
 
         if (failedImageCount > 0) {
-            showCustomAlert(`${failedImageCount} Bilder konnten nicht für den PDF-Export geladen werden és wurden übersprungen.`, 'Warnung');
+            showCustomAlert(`${failedImageCount} Bilder konnten nem für den PDF-Export geladen werden és wurden übersprungen.`, 'Warnung');
         }
 
         for (let i = 0; i < loadedImages.length; i++) {
@@ -1970,7 +2108,7 @@ const db = (() => {
             } catch (e) {
                 console.error("Fehler beim Hinzufügen des Bildes zum PDF:", e);
                 if (yPos > 280) { doc.addPage(); yPos = 10; } // Neue Seite, wenn zu viele Fehlermeldungen vorhanden sind
-                doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos); // Fehlermeldung ins PDF
+                doc.text(`[Bild ${i + 1} konnte nem verarbeitet werden]`, 10, yPos); // Fehlermeldung ins PDF
                 yPos += 15;
             }
         }
@@ -2009,6 +2147,7 @@ const db = (() => {
                     categoryLabelLeft.style.color = 'var(--muted)';
                     updateControlButtonsColor(true); // Farbe des manuellen Eingabe-Buttons aktualisieren
                 }
+                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren.", error);
                 showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
@@ -2172,6 +2311,7 @@ const db = (() => {
             entries.push(newEntry); // Eintrag zum lokalen Array hinzufügen
             renderTable(); // Tabelle neu zeichnen
             await updateCategoryButtonColors(); // Farben der Kategorie-Buttons aktualisieren
+            await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait
 
             if (wasEmpty) { // Wenn die Kategorie zuvor leer war
                 updateControlButtonsColor(false); // Farbe der Steuerungsbuttons aktualisieren (nicht leer)
@@ -2388,6 +2528,7 @@ const db = (() => {
                 updateTraverseHeader(); // Kopfzeile nach dem Löschen aktualisieren
                 categoryLabelLeft.style.color = 'var(--muted)'; // Farbe des Kategorie-Labels zurücksetzen
                 updateControlButtonsColor(true); // Farbe des Steuerungsbuttons auf leeren Zustand zurücksetzen
+                await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
@@ -2412,6 +2553,8 @@ const db = (() => {
         if (firstCategoryButton) {
             setButtonFocus(firstCategoryButton);
         }
+        // Initialize global header icons (they won't have data on initial load unless a category is pre-selected)
+        await updateGlobalHeaderIcons();
     };
 
 })();
