@@ -186,7 +186,7 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Dunklerer, prominenterer Schatten */
             animation-name: pulse-primary-dark; /* Standardmäßiges dunkelblaues Pulsieren */
         }
-        /* GEÄNDERT: Mittlerer blauer Hintergrund és Pulsation im aktiven Zustand, wenn Daten vorhanden */
+        /* GEÄNDERT: Mittlerer blauer Hintergrund és Pulsation im aktív állapotban, ha adatok vannak */
         #categoryGrid2 button.active:not(.empty-category) {
             background: var(--medium-primary);
             animation-name: pulse-medium-primary;
@@ -282,7 +282,7 @@
 
         .controls {
             display: flex;
-            justify-content: center;
+            justify-content: space-between; /* A középre igazítás miatt a space-between a megfelelő */
             align-items: center;
             padding: 10px;
             background: var(--card-bg);
@@ -294,6 +294,15 @@
             margin: 10px 0;
             flex-wrap: nowrap;
         }
+        
+        .centered-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1; /* Hogy kitöltse a rendelkezésre álló helyet, így a tartalom középre kerül */
+            gap: 15px;
+        }
+
         .controls .category-display-label {
             font-weight: bold;
             font-size: 2.2em;
@@ -402,6 +411,31 @@
         #searchBtn:active {
             transform: scale(0.96);
             box-shadow: var(--shadow-active);
+        }
+
+        /* NEW: Static time icons container */
+        .static-time-icons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px; /* Space between sun and moon */
+            margin-right: auto; /* This will push it to the left edge */
+            padding: 5px; /* Some padding around them */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .static-time-icons .fas {
+            font-size: 1.8em; /* Match control button icon size */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Match 3D effect */
+        }
+
+        .static-sun-icon {
+            color: yellow; /* Yellow for sun */
+        }
+
+        .static-moon-icon {
+            color: #F9E79F; /* Light yellow for moon */
         }
 
 
@@ -589,7 +623,7 @@
         .master-upload-container:hover .fas.fa-folder {
             color: var(--primary-dark);
         }
-         .master-upload-container.has-data:hover .fas.fa-folder {
+        .master-upload-container.has-data:hover .fas.fa-folder {
             color: var(--primary-dark);
         }
         .master-upload-container input[type="checkbox"]:checked + .fas.fa-folder {
@@ -1087,12 +1121,20 @@
 
     <div id="mainControls">
         <div class="controls">
-                <div id="categoryLabelLeft" class="category-display-label"></div>
-                <div class="control-buttons">
-                    <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
-                    <button id="clearCategoryBtn" title="Kategorie löschen"><i class="fas fa-trash-alt"></i></button>
-                    <!-- NEU: Suchtaste -->
-                    <button id="searchBtn" title="Suche"><i class="fas fa-search"></i></button>
+                <!-- NEW: Static time icons container -->
+                <div class="static-time-icons">
+                    <i class="fas fa-sun static-sun-icon"></i>
+                    <i class="fas fa-moon static-moon-icon"></i>
+                </div>
+                <!-- ÚJ: Középre igazítandó elemek konténere -->
+                <div class="centered-controls">
+                    <div id="categoryLabelLeft" class="category-display-label"></div>
+                    <div class="control-buttons">
+                        <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
+                        <button id="clearCategoryBtn" title="Kategorie löschen"><i class="fas fa-trash-alt"></i></button>
+                        <!-- NEU: Suchtaste -->
+                        <button id="searchBtn" title="Suche"><i class="fas fa-search"></i></button>
+                    </div>
                 </div>
         </div>
     </div>
@@ -1456,7 +1498,7 @@ const db = (() => {
             return; // Zeichen verarbeitet
         }
 
-        // Wenn eine Kategorietaste fokussiert ist und eine Zeichentaste gedrückt wird (und nicht Pfeil oder Enter),
+        // Wenn eine Kategorietaste fokussiert ist und eine Zeichentaste gedrückt wird (és nem nyíl vagy Enter),
         // dann nichts tun, um die Behandlung als Scannereingabe zu verhindern.
         if (focusedCategoryButton && e.key.length === 1) {
             e.preventDefault(); // Verhindert das Standardverhalten des Browsers
@@ -1531,12 +1573,12 @@ const db = (() => {
                 const entryDate = new Date(latestEntry.date);
                 const entryHour = entryDate.getHours();
 
+                const icon = document.createElement('i');
+                icon.classList.add('fas', 'time-icon');
                 const today = new Date();
                 today.setHours(0, 0, 0, 0); // Setzt den Beginn des heutigen Tages
                 const isPreviousDay = entryDate < today; // Überprüft, ob es sich um den Vortag handelt
 
-                const icon = document.createElement('i');
-                icon.classList.add('fas', 'time-icon');
                 if (entryHour < 14) { // Wenn vor 14 Uhr (vormittags)
                     icon.classList.add('fa-sun');
                     icon.style.color = isPreviousDay ? '#666666' : 'yellow'; // Grau, wenn Vortag; Gelb, wenn heute
@@ -1696,7 +1738,7 @@ const db = (() => {
             traverseHeader.innerHTML = '#'; /* Den HTML-Inhalt festlegen */
             traverseHeader.style.color = 'var(--muted)';
             traverseHeader.style.fontWeight = 'bold';
-            traverseHeader.style.fontSize = '0.9em'; /* Setzt die Größe auf Standard zurück, wenn nichts ausgewählt ist */
+            traverseHeader.style.fontSize = '0.9em'; // Setzt die Größe auf Standard zurück, wenn nichts ausgewählt ist
             return;
         }
 
@@ -1710,7 +1752,7 @@ const db = (() => {
         traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
         traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
         traverseHeader.style.fontWeight = 'bold';
-        traverseHeader.style.fontSize = '1.5em'; /* Erhöht die Schriftgröße für die Kopfzeilennummer */
+        traverseHeader.style.fontSize = '1.5em'; // Erhöht die Schriftgröße für die Kopfzeilennummer
     }
 
     // Zeigt ein benutzerdefiniertes Alert-Modal an
@@ -1916,6 +1958,7 @@ const db = (() => {
             nextBtn.style.display = 'none';
         } else {
             prevBtn.style.display = 'inline-flex';
+            nextBtn.style.display = 'inline-flex'; // Re-added this line
             prevBtn.disabled = (currentModalImageIndex === 0); // Deaktiviert den vorherigen Button, wenn es das erste Bild ist
             nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1); // Deaktiviert den nächsten Button, wenn es das letzte Bild ist
         }
@@ -2127,7 +2170,7 @@ const db = (() => {
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
         
-        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} aus dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
@@ -2149,7 +2192,7 @@ const db = (() => {
                 await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
 
             } catch (error) {
-                console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
+                console.error("Fehler beim Löschen oder Exportieren.", error);
                 showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
@@ -2175,7 +2218,7 @@ const db = (() => {
     async function generatePdfForEntry(entry) {
         if (typeof window.jspdf === 'undefined') {
             console.error('jsPDF ist nicht geladen!');
-            showCustomAlert('PDF-Export fehlgeschlagen: jsPDF Bibliothek nicht geladen.', 'Fehler');
+            showCustomAlert('PDF-Export fehlgeschlagen: jsPDF Bibliothek nem geladen.', 'Fehler');
             return;
         }
         showLoading("PDF wird generiert...");
@@ -2217,7 +2260,7 @@ const db = (() => {
             yPos += (splitText.length * 10); // Höhe der Notiz hinzufügen
         }
 
-        // Bilder laden und hinzufügen
+        // Bilder laden és hozzáadása
         const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
         // Paralleles Laden von Bildern mit Promise.allSettled zur Fehlerbehandlung
         const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
@@ -2423,7 +2466,7 @@ const db = (() => {
                         entry.kepek.push(sanitizedImageDataUrl);
                         await db.updateEntry(entry); // Update each entry in DB
                     } else {
-                        console.warn(`Eintrag mit ID ${id} zum Aktualisieren nicht gefunden.`);
+                        console.warn(`Eintrag mit ID ${id} zum Aktualisieren nem található.`);
                     }
                 }
                 
@@ -2649,7 +2692,7 @@ const db = (() => {
     // QR-Code-Modal anzeigen
     function showQrCodeModal(code) {
         if (typeof QRCode === 'undefined') {
-            showCustomAlert('QR-Code-Generierungsbibliothek nicht gefunden.', 'Fehler');
+            showCustomAlert('QR-Code-Generierungsbibliothek nem található.', 'Fehler');
             return;
         }
         qrCodeContainer.innerHTML = ''; // Vorherigen QR-Code löschen
@@ -2714,7 +2757,15 @@ const db = (() => {
             square.textContent = number;
             // Optional: Add click listener to select category or show more details
             square.addEventListener('click', () => {
-                selectCategory(number, document.querySelector(`.grid button:nth-child(${number})`)); // Select the category button
+                // Find the actual button element for the category based on its text content
+                const categoryButton = Array.from(document.querySelectorAll('.grid button')).find(btn => parseInt(btn.textContent) === number);
+                if (categoryButton) {
+                    selectCategory(number, categoryButton); // Select the category button
+                } else {
+                    // If the category button is not found (e.g., category number is outside 1-28 range)
+                    // You might want to handle this case, e.g., show an alert or just close the modal.
+                    showCustomAlert(`A(z) ${number}. traverz kategória gombja nem található.`, 'Hiba');
+                }
                 closeModal(searchModal); // Close the search modal
             });
             searchResultsContainer.appendChild(square);
@@ -2759,6 +2810,7 @@ const db = (() => {
     });
     // NEU: Such-Modal bei Klick auf Overlay schließen
     searchModal.addEventListener('click', (e) => {
+        // Only close if the click is directly on the overlay, not on the content
         if (e.target === searchModal) {
             closeModal(searchModal);
         }
@@ -2793,7 +2845,7 @@ const db = (() => {
                 await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
 
             } catch (error) {
-                console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
+                console.error("Fehler beim Löschen oder Exportieren.", error);
                 showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
@@ -2803,12 +2855,6 @@ const db = (() => {
 
     // NEU: Ereignis-Handler für den Suchbutton
     searchBtn.addEventListener('click', openSearchModal);
-
-    // NEU: Ereignis-Handler für den Suchmodal-Suchbutton (removed from HTML, but keeping for reference if user changes mind)
-    // searchModalSearchBtn.addEventListener('click', performSearch);
-
-    // NEU: Ereignis-Handler für den Suchmodal-Schließen-Button (removed from HTML, but keeping for reference if user changes mind)
-    // searchModalCloseBtn.addEventListener('click', () => closeModal(searchModal));
 
     // NEU: Keydown-Handler für die Such-Inputs im Suchmodal
     searchAuftragInput.addEventListener('input', () => { // Changed from 'keydown' to 'input'
@@ -2830,7 +2876,7 @@ const db = (() => {
         if (firstCategoryButton) {
             setButtonFocus(firstCategoryButton);
         }
-        // Initialisiert globale Header-Icons (sie haben beim ersten Laden keine Daten, es sei denn, eine Kategorie ist vorausgewählt)
+        // Initialisiert globale Header-Icons (sie haben beim ersten Laden keine Daten, es seiért, ha egy kategória előre kiválasztott)
         await updateGlobalHeaderIcons();
     };
 
