@@ -278,9 +278,6 @@
             border-top: none; /* Für den Container entfernt */
             box-shadow: none; /* Für den Container entfernt */
             flex-shrink: 0;
-            display: flex; /* Added to make space-between work */
-            justify-content: space-between; /* Added to push search to the right */
-            align-items: flex-end; /* Align items to the bottom */
         }
 
         .controls {
@@ -380,6 +377,29 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
         }
         #clearCategoryBtn:active {
+            transform: scale(0.96);
+            box-shadow: var(--shadow-active);
+        }
+
+        /* NEU: Suchtaste Styles */
+        #searchBtn {
+            padding: 14px 22px; /* Gleiche Polsterung wie bei anderen Tasten */
+            font-size: 1.1em;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        #searchBtn:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-medium);
+        }
+
+        #searchBtn:active {
             transform: scale(0.96);
             box-shadow: var(--shadow-active);
         }
@@ -670,7 +690,7 @@
             align-items: flex-start;
         }
 
-        #customPromptModal, #noteModal {
+        #customPromptModal, #noteModal, #searchModal { /* Added #searchModal */
             padding-top: 0; 
         }
         #customConfirmModal {
@@ -870,21 +890,21 @@
             box-shadow: var(--shadow-medium);
         }
         
-        #customPromptModal .note-modal-content {
+        #customPromptModal .note-modal-content, #searchModal .note-modal-content { /* Added #searchModal */
             max-width: 456px;
             align-items: center;
             gap: 20px;
             background-color: white !important;
         }
 
-        #customAlertModal h2, #customConfirmModal h2, #customPromptModal h2 {
+        #customAlertModal h2, #customConfirmModal h2, #customPromptModal h2, #searchModal h2 { /* Added #searchModal */
             display: none;
         }
         #customPromptMessage {
             display: none;
         }
 
-        #customPromptInput {
+        #customPromptInput, #searchAuftragInput { /* Removed #searchTraverseInput */
             background: var(--bg);
             border: 1px solid var(--border-color);
             color: var(--text);
@@ -902,6 +922,43 @@
             background: #bbbbbb !important;
         }
 
+        /* Search Results Container for squares */
+        #searchResultsContainer {
+            width: 100%;
+            margin-top: 20px;
+            max-height: 300px; /* Limit height for scrollability */
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px; /* Add padding for the squares */
+            display: flex; /* Use flexbox for horizontal alignment */
+            flex-wrap: wrap; /* Allow squares to wrap to the next line */
+            gap: 10px; /* Space between squares */
+            justify-content: center; /* Center the squares */
+        }
+
+        /* NEW: Style for the blue squares */
+        .search-result-square {
+            width: 60px; /* Fixed width for the square */
+            height: 60px; /* Fixed height for the square */
+            background-color: var(--primary); /* Blue background */
+            color: white; /* White text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em; /* Larger font size for the number */
+            font-weight: bold;
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: var(--shadow-soft); /* Soft shadow */
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            cursor: pointer; /* Indicate it's clickable */
+        }
+
+        .search-result-square:hover {
+            transform: translateY(-2px); /* Slight lift on hover */
+            box-shadow: var(--shadow-medium); /* More prominent shadow on hover */
+        }
+
 
         @media (max-width: 700px) {
             body { padding: 0 15px 30px; }
@@ -914,15 +971,6 @@
             th:last-child { border-top-right-radius: 8px; }
             .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
             .app-title { font-size: 1.2em; }
-            /* Adjust mainControls for smaller screens */
-            #mainControls {
-                flex-direction: column;
-                align-items: center;
-            }
-            #searchContainer {
-                width: 100%;
-                margin-top: 10px;
-            }
         }
 
         #loadingOverlay {
@@ -1001,75 +1049,6 @@
         .qr-code-icon:hover {
             color: var(--primary-dark);
         }
-
-        /* Search Container Styles */
-        #searchContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* Align search elements to the right */
-            gap: 10px;
-            padding: 10px;
-            background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--border-color);
-            box-sizing: border-box;
-            max-width: 300px; /* Limit width for search container */
-            margin: 10px 0; /* Add margin to separate from other controls */
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            box-sizing: border-box;
-            color: var(--text);
-            background: var(--bg);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        #searchResults {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            justify-content: flex-end; /* Align results to the right */
-            max-height: 150px; /* Limit height and make it scrollable */
-            overflow-y: auto;
-            padding-right: 5px; /* Padding for scrollbar */
-        }
-
-        #searchResults .search-result-button {
-            padding: 8px 12px;
-            font-size: 0.9em;
-            border-radius: 5px;
-            border: 1px solid var(--primary);
-            background: var(--primary);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            box-shadow: var(--shadow-soft);
-        }
-
-        #searchResults .search-result-button:hover {
-            background: var(--primary-dark);
-            box-shadow: var(--shadow-medium);
-        }
-
-        #searchResults .search-result-button:active {
-            transform: scale(0.96);
-            box-shadow: var(--shadow-active);
-        }
-
-        #searchResults .no-results {
-            color: var(--muted);
-            font-style: italic;
-            width: 100%;
-            text-align: right;
-            font-size: 0.9em;
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -1112,12 +1091,9 @@
                 <div class="control-buttons">
                     <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
                     <button id="clearCategoryBtn" title="Kategorie löschen"><i class="fas fa-trash-alt"></i></button>
+                    <!-- NEU: Suchtaste -->
+                    <button id="searchBtn" title="Suche"><i class="fas fa-search"></i></button>
                 </div>
-        </div>
-        <!-- Search Functionality -->
-        <div id="searchContainer" class="controls">
-            <input type="text" id="searchInput" placeholder="Auftrag suchen..." title="Auftragsnummer suchen">
-            <div id="searchResults"></div>
         </div>
     </div>
 
@@ -1159,6 +1135,16 @@
             <h2>QR-Code</h2> <!-- This H2 is now hidden by CSS -->
             <div id="qrCodeContainer"></div>
             <button id="qrCodeCloseBtn" class="modal-close-btn">Schließen</button>
+        </div>
+    </div>
+
+    <!-- NEU: Search Modal -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="note-modal-content">
+            <h2>Suche</h2>
+            <input type="text" id="searchAuftragInput" placeholder="Auftrag eingeben" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+            <!-- Removed searchTraverseInput -->
+            <div id="searchResultsContainer"></div>
         </div>
     </div>
     
@@ -1211,7 +1197,6 @@ const db = (() => {
         updateEntry: (entry) => performTransaction('entries', 'readwrite', store => store.put(entry)),
         deleteEntry: (id) => performTransaction('entries', 'readwrite', store => store.delete(id)),
         getEntryCountForCategory: (category) => performTransaction('entries', 'readonly', store => store.index('category').count(category)),
-        getAllEntries: () => performTransaction('entries', 'readonly', store => store.getAll()), // Added for search
         clearCategory: async (category) => {
             const db = await openDB();
             const transaction = db.transaction('entries', 'readwrite');
@@ -1223,7 +1208,9 @@ const db = (() => {
                 if (cursor) { store.delete(cursor.primaryKey); cursor.continue(); }
             };
             return new Promise((resolve, reject) => { transaction.oncomplete = () => resolve(); transaction.onerror = (event) => reject(event.target.error); });
-        }
+        },
+        // NEU: Funktion zum Abrufen aller Einträge
+        getAllEntries: () => performTransaction('entries', 'readonly', store => store.getAll()),
     };
 })();
 
@@ -1237,8 +1224,6 @@ const db = (() => {
     const mainControls = document.getElementById('mainControls');
     const listSection = document.getElementById('listSection');
     const logBody = document.getElementById('logBody');
-    const searchInput = document.getElementById('searchInput'); // New search input
-    const searchResults = document.getElementById('searchResults'); // New search results div
 
     // Modale Elemente
     const imageModal = document.getElementById('imageModal');
@@ -1253,6 +1238,14 @@ const db = (() => {
     const customPromptInput = document.getElementById('customPromptInput');
     const qrCodeModal = document.getElementById('qrCodeModal');
     const qrCodeContainer = document.getElementById('qrCodeContainer');
+    // NEU: Search Modal Elemente
+    const searchModal = document.getElementById('searchModal');
+    const searchAuftragInput = document.getElementById('searchAuftragInput');
+    // const searchTraverseInput = document.getElementById('searchTraverseInput'); // Removed
+    const searchModalSearchBtn = document.getElementById('searchModalSearchBtn'); // This button is removed in HTML, but keeping reference for consistency if needed elsewhere
+    const searchModalCloseBtn = document.getElementById('searchModalCloseBtn'); // This button is removed in HTML, but keeping reference for consistency if needed elsewhere
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+
 
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
@@ -1263,10 +1256,13 @@ const db = (() => {
     const headerDeleteBtn = document.getElementById('headerDeleteBtn');
     // NEU: masterUploadContainer ist hier definiert
     const masterUploadContainer = document.querySelector('.master-upload-container');
+    // NEU: Suchtaste
+    const searchBtn = document.getElementById('searchBtn');
 
     // Anwendungsstatus
     let currentCategory = null; // Die Nummer der aktuell ausgewählten Kategorie
     let entries = []; // Die Einträge der aktuell ausgewählten Kategorie
+    let allEntriesData = []; // NEU: Alle Einträge für die globale Suche
     let entryIdToUpdate = null; // Die ID des für den Bildupload ausgewählten Eintrags
     let noteEntryIdToUpdate = null; // Die ID des für die Notizbearbeitung ausgewählten Eintrags
 
@@ -1339,7 +1335,11 @@ const db = (() => {
             } else if (qrCodeModal.style.display === 'flex') { // QR-Code-Modal
                 closeModal(qrCodeModal);
                 return;
-            } else if (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') {
+            } else if (searchModal.style.display === 'flex') { // NEU: Search Modal
+                closeModal(searchModal);
+                return;
+            }
+            else if (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') {
                 document.getElementById('customAlertModal').querySelector('#customAlertCloseBtn').click();
                 return;
             }
@@ -1350,18 +1350,24 @@ const db = (() => {
             imageModal.style.display === 'flex' ||
             noteModal.style.display === 'flex' ||
             qrCodeModal.style.display === 'flex' || // QR-Code-Modal
+            searchModal.style.display === 'flex' || // NEU: Search Modal
             (document.getElementById('customAlertModal') && document.getElementById('customAlertModal').style.display === 'flex') ||
             (customPromptModal.style.display === 'flex' && document.activeElement !== customPromptInput)
         );
 
-        // Wenn ein Modal geöffnet ist (und nicht im Prompt-Input getippt wird), verarbeiten Sie keine weiteren Tasten.
+        // Wenn ein Modal geöffnet ist (és nem az Prompt-Inputban gépelünk), verarbeiten Sie keine weiteren Tasten.
         if (isAnyModalOpenAndNotPromptInputFocused) {
+            // NEU: Wenn das Suchmodal geöffnet ist und der Fokus nicht auf den Such-Inputs liegt, behandeln Sie die Enter-Taste als Suchauslöser
+            if (searchModal.style.display === 'flex' && e.key === 'Enter' && document.activeElement !== searchAuftragInput) { // Removed searchTraverseInput check
+                e.preventDefault();
+                // searchModalSearchBtn.click(); // No longer needed as search is real-time
+            }
             return;
         }
 
         // Wenn der customPromptInput das fokussierte Element ist, verarbeitet seine eigene Keydown-Behandlung die Enter-Taste.
-        if (document.activeElement === customPromptInput || document.activeElement === searchInput) {
-            // Hier muss nichts getan werden, da der customPromptInput/searchInput eigene Keydown-Behandlung hat.
+        if (document.activeElement === customPromptInput || document.activeElement === searchAuftragInput) { // Removed searchTraverseInput check
+            // Hier muss nichts getan werden, da die Inputs eine eigene Keydown-Behandlung haben.
             return;
         }
 
@@ -1435,7 +1441,8 @@ const db = (() => {
             return; // Pfeiltaste verarbeitet
         }
 
-        // 4. Scanner-Eingabe (nur wenn keine Kategorietaste fokussiert ist und nicht input/textarea)
+        // 4. Scanner-Eingabe (nur wenn keine Kategorietaste fokussiert ist und nicht in Input/Textarea)
+        // Dies ist die entscheidende Änderung: Es werden nur Zeichen gepuffert, wenn KEINE Kategorietaste fokussiert ist.
         if (e.key.length === 1 && e.key !== ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && !focusedCategoryButton) {
             laserScannerBuffer.push(e.key);
             clearTimeout(laserScannerTimer);
@@ -1648,7 +1655,7 @@ const db = (() => {
             updateTraverseHeader(); // Aktualisiert den Tabellenkopf
             await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons
             
-            mainControls.style.display = 'flex'; // Zeigt die untere Steuerleiste an (changed from block to flex)
+            mainControls.style.display = 'block'; // Zeigt die untere Steuerleiste an
             listSection.style.display = 'block'; // Zeigt die Datenliste an
             renderTable(); // Zeichnet die Tabelle mit den Einträgen neu
             await updateCategoryButtonColors(); // Aktualisiert die Farben der Kategorie-Buttons
@@ -1756,7 +1763,7 @@ const db = (() => {
 
     // Einfaches Bestätigungs-Modal zum Löschen von Bildern
     function showSimpleConfirm(message, title = 'Bestätigung') {
-        return new Promise((resolve) => { // Changed to arrow function
+        return new Promise(resolve => {
             const existingModal = document.getElementById('customConfirmModal');
             if (existingModal) existingModal.remove(); // Entfernt das vorherige Modal, falls vorhanden
 
@@ -1802,7 +1809,7 @@ const db = (() => {
                 }
             });
 
-            // Fokussiert die OK-Taste
+            // Fokussiert die OK-Taste, damit Enter sofort funktioniert
             okBtn.focus();
 
             confirmModal.addEventListener('click', (e) => {
@@ -1815,7 +1822,7 @@ const db = (() => {
 
     // Komplexeres Bestätigungs-Modal mit PDF-Export-Option
     function showCustomConfirm(message, title = 'Bestätigung', entry = null) {
-        return new Promise((resolve) => { // Changed to arrow function
+        return new Promise(resolve => {
             const existingModal = document.getElementById('customConfirmModal');
             if (existingModal) existingModal.remove();
 
@@ -1909,7 +1916,6 @@ const db = (() => {
             nextBtn.style.display = 'none';
         } else {
             prevBtn.style.display = 'inline-flex';
-            nextBtn.style.display = 'inline-flex';
             prevBtn.disabled = (currentModalImageIndex === 0); // Deaktiviert den vorherigen Button, wenn es das erste Bild ist
             nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1); // Deaktiviert den nächsten Button, wenn es das letzte Bild ist
         }
@@ -2312,6 +2318,7 @@ const db = (() => {
                     updateControlButtonsColor(true); // Farbe des manuellen Eingabe-Buttons aktualisieren
                 }
                 await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
+                updateHeaderAndControls(); // Ensure the category label color updates
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren.", error);
@@ -2521,7 +2528,7 @@ const db = (() => {
 
     // Zeigt ein benutzerdefiniertes Prompt-Modal an
     function showCustomPrompt(message, title = 'Eingabe') {
-        return new Promise(async (resolve) => { // Changed to arrow function
+        return new Promise(async resolve => {
             const promptModal = document.getElementById('customPromptModal');
             const okBtn = document.getElementById('customPromptOkBtn');
             const cancelBtn = document.getElementById('customPromptCancelBtn');
@@ -2658,6 +2665,63 @@ const db = (() => {
         document.body.classList.add('modal-open');
     }
 
+    // NEU: Funktion zum Öffnen des Suchmodals
+    async function openSearchModal() {
+        searchAuftragInput.value = '';
+        searchResultsContainer.innerHTML = ''; // Vorherige Ergebnisse löschen
+        searchModal.style.display = 'flex';
+        document.body.classList.add('modal-open');
+        searchAuftragInput.focus(); // Fokus auf das erste Suchfeld
+        
+        showLoading("Lade alle Einträge für die Suche...");
+        try {
+            allEntriesData = await db.getAllEntries(); // Alle Einträge aus der DB laden
+        } catch (error) {
+            console.error("Fehler beim Laden aller Einträge für die Suche:", error);
+            showCustomAlert('Fehler beim Laden der Daten für die Suche.', 'Fehler');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // NEU: Funktion zum Durchführen der Suche
+    function performSearch() {
+        const auftragTerm = searchAuftragInput.value.trim().toLowerCase();
+
+        let filteredResults = allEntriesData.filter(entry => {
+            const matchesAuftrag = auftragTerm === '' || (entry.code && entry.code.toLowerCase().includes(auftragTerm));
+            return matchesAuftrag;
+        });
+
+        // Unique traverse numbers
+        const uniqueTraverseNumbers = [...new Set(filteredResults.map(entry => entry.category))].sort((a,b) => a - b);
+
+        renderSearchResults(uniqueTraverseNumbers);
+    }
+
+    // NEU: Funktion zum Anzeigen der Suchergebnisse
+    function renderSearchResults(traverseNumbers) {
+        searchResultsContainer.innerHTML = ''; // Vorherige Ergebnisse löschen
+
+        if (traverseNumbers.length === 0) {
+            searchResultsContainer.innerHTML = '<p style="text-align: center; color: var(--muted); padding: 20px;">Nincs találat.</p>'; // Updated text
+            return;
+        }
+
+        traverseNumbers.forEach(number => {
+            const square = document.createElement('div');
+            square.classList.add('search-result-square');
+            square.textContent = number;
+            // Optional: Add click listener to select category or show more details
+            square.addEventListener('click', () => {
+                selectCategory(number, document.querySelector(`.grid button:nth-child(${number})`)); // Select the category button
+                closeModal(searchModal); // Close the search modal
+            });
+            searchResultsContainer.appendChild(square);
+        });
+    }
+
+
     // Haupt-Ereignis-Listener initialisieren
     manualEntryBtn.addEventListener('click', handleManualEntry);
     noteModalSaveBtn.addEventListener('click', saveNoteFromModal);
@@ -2693,6 +2757,13 @@ const db = (() => {
             closeModal(qrCodeModal);
         }
     });
+    // NEU: Such-Modal bei Klick auf Overlay schließen
+    searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) {
+            closeModal(searchModal);
+        }
+    });
+
 
     // Ereignis-Handler für den Kategorie löschen-Button
     clearCategoryBtn.addEventListener('click', async () => {
@@ -2730,69 +2801,26 @@ const db = (() => {
         }
     });
 
+    // NEU: Ereignis-Handler für den Suchbutton
+    searchBtn.addEventListener('click', openSearchModal);
+
+    // NEU: Ereignis-Handler für den Suchmodal-Suchbutton (removed from HTML, but keeping for reference if user changes mind)
+    // searchModalSearchBtn.addEventListener('click', performSearch);
+
+    // NEU: Ereignis-Handler für den Suchmodal-Schließen-Button (removed from HTML, but keeping for reference if user changes mind)
+    // searchModalCloseBtn.addEventListener('click', () => closeModal(searchModal));
+
+    // NEU: Keydown-Handler für die Such-Inputs im Suchmodal
+    searchAuftragInput.addEventListener('input', () => { // Changed from 'keydown' to 'input'
+        performSearch();
+    });
+
+
     // Warnung vor dem Verlassen der Seite (wegen IndexedDB)
     window.addEventListener('beforeunload', function (e) {
         e.preventDefault();
         e.returnValue = ''; // Dies ist notwendig, damit der Browser eine Warnung anzeigt
     });
-
-    // Search Functionality
-    let searchTimeout = null;
-    searchInput.addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            performSearch(searchInput.value.trim());
-        }, 300); // Debounce search to prevent excessive calls
-    });
-
-    async function performSearch(searchTerm) {
-        searchResults.innerHTML = ''; // Clear previous results
-        if (searchTerm.length < 2) { // Only search if at least 2 characters are entered
-            return;
-        }
-
-        showLoading("Suche läuft...");
-        try {
-            const allEntries = await db.getAllEntries();
-            const foundCategories = new Set(); // Use a Set to store unique category numbers
-
-            allEntries.forEach(entry => {
-                if (entry.code && entry.code.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    foundCategories.add(entry.category);
-                }
-            });
-
-            if (foundCategories.size > 0) {
-                const sortedCategories = Array.from(foundCategories).sort((a, b) => a - b);
-                sortedCategories.forEach(categoryNum => {
-                    const resultButton = document.createElement('button');
-                    resultButton.classList.add('search-result-button');
-                    resultButton.textContent = `${categoryNum}`; // Only show the number
-                    resultButton.addEventListener('click', async () => {
-                        // Find the corresponding category button and click it
-                        const categoryButton = document.querySelector(`.grid button:nth-child(${categoryNum})`);
-                        if (categoryButton) {
-                            await selectCategory(categoryNum, categoryButton);
-                            // Optionally clear search after selection
-                            searchInput.value = '';
-                            searchResults.innerHTML = '';
-                        }
-                    });
-                    searchResults.appendChild(resultButton);
-                });
-            } else {
-                const noResultsDiv = document.createElement('div');
-                noResultsDiv.classList.add('no-results');
-                noResultsDiv.textContent = 'Keine Ergebnisse gefunden.';
-                searchResults.appendChild(noResultsDiv);
-            }
-        } catch (error) {
-            console.error("Fehler bei der Suche:", error);
-            showCustomAlert('Fehler bei der Suche.', 'Fehler');
-        } finally {
-            hideLoading();
-        }
-    }
 
     // Aktualisiert die Farben der Kategorie-Buttons beim Laden der Seite
     window.onload = async function() {
