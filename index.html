@@ -210,6 +210,16 @@
             height: 1.2em; /* Méret beállítása */
             z-index: 10; /* Hogy a többi elem fölött legyen */
         }
+        /* ÚJ: Ikon a gomb bal felső sarkában (nem FA/NA adat esetén) */
+        .grid button .non-fa-na-icon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 1.2em; /* Méret beállítása */
+            height: 1.2em; /* Méret beállítása */
+            z-index: 10; /* Hogy a többi elem fölött legyen */
+        }
+
 
         /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
         .header-traverse-icon {
@@ -557,7 +567,7 @@
         .master-upload-container.has-data .fas.fa-folder {
             color: var(--primary); /* Kék szín, ha van adat */
         }
-        /* Hover effektus az ikonon (mindig kék, ha van adat, egyébként sötétszürke) */
+        /* Hover effektus az ikonon (mindig kék, ha van adat, egyébként sötétkék) */
         .master-upload-container:hover .fas.fa-folder {
             color: var(--primary-dark);
         }
@@ -1030,7 +1040,7 @@
     
     <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
 
-<div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png"></div>
+<div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png" data-non-fa-na-icon-url="https://i.imgur.com/hg8TnYW.png"></div>
 
 <!-- NEU: Loading Overlay Element -->
 <div id="loadingOverlay" style="display: none;">
@@ -1335,6 +1345,7 @@ const db = (() => {
         const allCategoryButtons = document.querySelectorAll('.grid button');
         // Icon-URL aus dem versteckten HTML-Element extrahieren
         const iconUrl = document.getElementById('iconDataLoader').dataset.iconUrl;
+        const nonFaNaIconUrl = document.getElementById('iconDataLoader').dataset.nonFaNaIconUrl; // ÚJ: Nem FA/NA ikon URL
 
         for (const button of allCategoryButtons) {
             const categoryNum = parseInt(button.textContent);
@@ -1357,6 +1368,11 @@ const db = (() => {
             if (existingFaNaIcon) {
                 existingFaNaIcon.remove();
             }
+            // ÚJ: Nem FA/NA ikon eltávolítása
+            const existingNonFaNaIcon = button.querySelector('.non-fa-na-icon');
+            if (existingNonFaNaIcon) {
+                existingNonFaNaIcon.remove();
+            }
 
             // NEU: Notiz-Status-Indikator entfernen
             const existingNoteIndicator = button.querySelector('.note-status-indicator');
@@ -1365,7 +1381,9 @@ const db = (() => {
             }
 
             let hasFaNaEntry = false;
+            let hasNonFaNaEntry = false; // ÚJ: Flag nem FA/NA bejegyzéshez
             let hasNoteInAnyEntry = false; // NEU: Flag für Notiz in Kategorie
+
             if (entriesForCategory.length > 0) {
                 button.classList.remove('empty-category'); // Wenn Daten vorhanden sind, ist es keine leere Kategorie
                 
@@ -1398,6 +1416,8 @@ const db = (() => {
 
                 // Überprüfen, ob ein Eintrag mit FA oder NA beginnt
                 hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
+                // ÚJ: Ellenőrizze, hogy van-e nem FA/NA kezdetű bejegyzés
+                hasNonFaNaEntry = entriesForCategory.some(entry => entry.code && !(entry.code.startsWith('FA') || entry.code.startsWith('NA')));
                 // NEU: Überprüfen, ob ein Eintrag eine Notiz hat
                 hasNoteInAnyEntry = entriesForCategory.some(entry => entry.note && entry.note.trim() !== '');
 
@@ -1412,6 +1432,14 @@ const db = (() => {
                 faNaIcon.alt = 'Traversen-Status-Icon';
                 faNaIcon.classList.add('fa-na-icon');
                 button.appendChild(faNaIcon);
+            }
+            // ÚJ: Nem FA/NA ikon hozzáadása, ha van ilyen bejegyzés
+            if (hasNonFaNaEntry) {
+                const nonFaNaIcon = document.createElement('img');
+                nonFaNaIcon.src = nonFaNaIconUrl;
+                nonFaNaIcon.alt = 'Nem FA/NA státusz ikon';
+                nonFaNaIcon.classList.add('non-fa-na-icon');
+                button.appendChild(nonFaNaIcon);
             }
 
             // NEU: Notiz-Status-Indikator hinzufügen, falls eine Notiz vorhanden ist
@@ -2130,7 +2158,6 @@ const db = (() => {
             showLoading("Eintrag wird gelöscht...");
             try {
                 if (result.exportPdf) {
-                    // Generálja a PDF-eket az összes bejegyzésről a kategóriában
                     for (const entry of entries) {
                         await generatePdfForEntry(entry);
                     }
@@ -2514,7 +2541,6 @@ const db = (() => {
             showLoading("Kategorie wird gelöscht...");
             try {
                 if (result.exportPdf) {
-                    // Generálja a PDF-eket az összes bejegyzésről a kategóriában
                     for (const entry of entries) {
                         await generatePdfForEntry(entry);
                     }
