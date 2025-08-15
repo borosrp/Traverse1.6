@@ -186,7 +186,7 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Dunklerer, prominenterer Schatten */
             animation-name: pulse-primary-dark; /* Standardmäßiges dunkelblaues Pulsieren */
         }
-        /* GEÄNDERT: Mittlerer blauer Hintergrund und Pulsation im aktiven Zustand, wenn Daten vorhanden */
+        /* GEÄNDERT: Mittlerer blauer Hintergrund és Pulsation im aktiven Zustand, wenn Daten vorhanden */
         #categoryGrid2 button.active:not(.empty-category) {
             background: var(--medium-primary);
             animation-name: pulse-medium-primary;
@@ -278,6 +278,9 @@
             border-top: none; /* Für den Container entfernt */
             box-shadow: none; /* Für den Container entfernt */
             flex-shrink: 0;
+            display: flex; /* Added to make space-between work */
+            justify-content: space-between; /* Added to push search to the right */
+            align-items: flex-end; /* Align items to the bottom */
         }
 
         .controls {
@@ -911,6 +914,15 @@
             th:last-child { border-top-right-radius: 8px; }
             .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
             .app-title { font-size: 1.2em; }
+            /* Adjust mainControls for smaller screens */
+            #mainControls {
+                flex-direction: column;
+                align-items: center;
+            }
+            #searchContainer {
+                width: 100%;
+                margin-top: 10px;
+            }
         }
 
         #loadingOverlay {
@@ -989,6 +1001,75 @@
         .qr-code-icon:hover {
             color: var(--primary-dark);
         }
+
+        /* Search Container Styles */
+        #searchContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align search elements to the right */
+            gap: 10px;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+            max-width: 300px; /* Limit width for search container */
+            margin: 10px 0; /* Add margin to separate from other controls */
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            color: var(--text);
+            background: var(--bg);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #searchResults {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: flex-end; /* Align results to the right */
+            max-height: 150px; /* Limit height and make it scrollable */
+            overflow-y: auto;
+            padding-right: 5px; /* Padding for scrollbar */
+        }
+
+        #searchResults .search-result-button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border-radius: 5px;
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: var(--shadow-soft);
+        }
+
+        #searchResults .search-result-button:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-medium);
+        }
+
+        #searchResults .search-result-button:active {
+            transform: scale(0.96);
+            box-shadow: var(--shadow-active);
+        }
+
+        #searchResults .no-results {
+            color: var(--muted);
+            font-style: italic;
+            width: 100%;
+            text-align: right;
+            font-size: 0.9em;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -1032,6 +1113,11 @@
                     <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
                     <button id="clearCategoryBtn" title="Kategorie löschen"><i class="fas fa-trash-alt"></i></button>
                 </div>
+        </div>
+        <!-- Search Functionality -->
+        <div id="searchContainer" class="controls">
+            <input type="text" id="searchInput" placeholder="Auftrag suchen..." title="Auftragsnummer suchen">
+            <div id="searchResults"></div>
         </div>
     </div>
 
@@ -1125,6 +1211,7 @@ const db = (() => {
         updateEntry: (entry) => performTransaction('entries', 'readwrite', store => store.put(entry)),
         deleteEntry: (id) => performTransaction('entries', 'readwrite', store => store.delete(id)),
         getEntryCountForCategory: (category) => performTransaction('entries', 'readonly', store => store.index('category').count(category)),
+        getAllEntries: () => performTransaction('entries', 'readonly', store => store.getAll()), // Added for search
         clearCategory: async (category) => {
             const db = await openDB();
             const transaction = db.transaction('entries', 'readwrite');
@@ -1150,6 +1237,8 @@ const db = (() => {
     const mainControls = document.getElementById('mainControls');
     const listSection = document.getElementById('listSection');
     const logBody = document.getElementById('logBody');
+    const searchInput = document.getElementById('searchInput'); // New search input
+    const searchResults = document.getElementById('searchResults'); // New search results div
 
     // Modale Elemente
     const imageModal = document.getElementById('imageModal');
@@ -1271,8 +1360,8 @@ const db = (() => {
         }
 
         // Wenn der customPromptInput das fokussierte Element ist, verarbeitet seine eigene Keydown-Behandlung die Enter-Taste.
-        if (document.activeElement === customPromptInput) {
-            // Hier muss nichts getan werden, da der customPromptInput eine eigene Keydown-Behandlung hat.
+        if (document.activeElement === customPromptInput || document.activeElement === searchInput) {
+            // Hier muss nichts getan werden, da der customPromptInput/searchInput eigene Keydown-Behandlung hat.
             return;
         }
 
@@ -1346,8 +1435,7 @@ const db = (() => {
             return; // Pfeiltaste verarbeitet
         }
 
-        // 4. Scanner-Eingabe (nur wenn keine Kategorietaste fokussiert ist und nicht in Input/Textarea)
-        // Dies ist die entscheidende Änderung: Es werden nur Zeichen gepuffert, wenn KEINE Kategorietaste fokussiert ist.
+        // 4. Scanner-Eingabe (nur wenn keine Kategorietaste fokussiert ist und nicht input/textarea)
         if (e.key.length === 1 && e.key !== ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && !focusedCategoryButton) {
             laserScannerBuffer.push(e.key);
             clearTimeout(laserScannerTimer);
@@ -1560,7 +1648,7 @@ const db = (() => {
             updateTraverseHeader(); // Aktualisiert den Tabellenkopf
             await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons
             
-            mainControls.style.display = 'block'; // Zeigt die untere Steuerleiste an
+            mainControls.style.display = 'flex'; // Zeigt die untere Steuerleiste an (changed from block to flex)
             listSection.style.display = 'block'; // Zeigt die Datenliste an
             renderTable(); // Zeichnet die Tabelle mit den Einträgen neu
             await updateCategoryButtonColors(); // Aktualisiert die Farben der Kategorie-Buttons
@@ -1668,7 +1756,7 @@ const db = (() => {
 
     // Einfaches Bestätigungs-Modal zum Löschen von Bildern
     function showSimpleConfirm(message, title = 'Bestätigung') {
-        return new Promise(resolve => {
+        return new Promise((resolve) => { // Changed to arrow function
             const existingModal = document.getElementById('customConfirmModal');
             if (existingModal) existingModal.remove(); // Entfernt das vorherige Modal, falls vorhanden
 
@@ -1727,7 +1815,7 @@ const db = (() => {
 
     // Komplexeres Bestätigungs-Modal mit PDF-Export-Option
     function showCustomConfirm(message, title = 'Bestätigung', entry = null) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => { // Changed to arrow function
             const existingModal = document.getElementById('customConfirmModal');
             if (existingModal) existingModal.remove();
 
@@ -2033,7 +2121,7 @@ const db = (() => {
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
         
-        const result = await showCustomConfirm(`Möchten Sie wirklich ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} aus dieser Kategorie löschen?`, 'Bestätigung', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} aus dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
@@ -2224,7 +2312,6 @@ const db = (() => {
                     updateControlButtonsColor(true); // Farbe des manuellen Eingabe-Buttons aktualisieren
                 }
                 await updateGlobalHeaderIcons(); // NEU: Aktualisiert die globalen Header-Icons nach dem Löschen
-                updateHeaderAndControls(); // Ensure the category label color updates
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren.", error);
@@ -2434,7 +2521,7 @@ const db = (() => {
 
     // Zeigt ein benutzerdefiniertes Prompt-Modal an
     function showCustomPrompt(message, title = 'Eingabe') {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve) => { // Changed to arrow function
             const promptModal = document.getElementById('customPromptModal');
             const okBtn = document.getElementById('customPromptOkBtn');
             const cancelBtn = document.getElementById('customPromptCancelBtn');
@@ -2648,6 +2735,64 @@ const db = (() => {
         e.preventDefault();
         e.returnValue = ''; // Dies ist notwendig, damit der Browser eine Warnung anzeigt
     });
+
+    // Search Functionality
+    let searchTimeout = null;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(searchInput.value.trim());
+        }, 300); // Debounce search to prevent excessive calls
+    });
+
+    async function performSearch(searchTerm) {
+        searchResults.innerHTML = ''; // Clear previous results
+        if (searchTerm.length < 2) { // Only search if at least 2 characters are entered
+            return;
+        }
+
+        showLoading("Suche läuft...");
+        try {
+            const allEntries = await db.getAllEntries();
+            const foundCategories = new Set(); // Use a Set to store unique category numbers
+
+            allEntries.forEach(entry => {
+                if (entry.code && entry.code.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    foundCategories.add(entry.category);
+                }
+            });
+
+            if (foundCategories.size > 0) {
+                const sortedCategories = Array.from(foundCategories).sort((a, b) => a - b);
+                sortedCategories.forEach(categoryNum => {
+                    const resultButton = document.createElement('button');
+                    resultButton.classList.add('search-result-button');
+                    resultButton.textContent = `${categoryNum}`; // Only show the number
+                    resultButton.addEventListener('click', async () => {
+                        // Find the corresponding category button and click it
+                        const categoryButton = document.querySelector(`.grid button:nth-child(${categoryNum})`);
+                        if (categoryButton) {
+                            await selectCategory(categoryNum, categoryButton);
+                            // Optionally clear search after selection
+                            searchInput.value = '';
+                            searchResults.innerHTML = '';
+                        }
+                    });
+                    searchResults.appendChild(resultButton);
+                });
+            } else {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.classList.add('no-results');
+                noResultsDiv.textContent = 'Keine Ergebnisse gefunden.';
+                searchResults.appendChild(noResultsDiv);
+            }
+        } catch (error) {
+            console.error("Fehler bei der Suche:", error);
+            showCustomAlert('Fehler bei der Suche.', 'Fehler');
+        } finally {
+            hideLoading();
+        }
+    }
 
     // Aktualisiert die Farben der Kategorie-Buttons beim Laden der Seite
     window.onload = async function() {
