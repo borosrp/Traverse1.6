@@ -148,7 +148,7 @@
         
         @keyframes pulse-primary-dark { /* Umbenannt zur Klarheit */
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
-            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Erhöhte Streuung, reduzierte Intensität */
+            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Erhözte Streuung, reduzierte Intensität */
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
         }
 
@@ -158,7 +158,7 @@
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
         }
 
-        /* NEUE ANIMATION: Mittlere blaue Pulsation */
+        /* NEUE ANIMATION: Mittleres blaue Pulsation */
         @keyframes pulse-medium-primary {
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
             70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(44, 107, 176, 0); } /* Mittlerer blauer Schatten */
@@ -167,7 +167,7 @@
 
         @keyframes pulse-grey-less-intense { /* Neue Animation für weniger intensive graue Pulsation */
             0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
-            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Erhöhte Streuung, reduzierte Intensität */
+            70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Erhözte Streuung, reduzierte Intensität */
             100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
         }
 
@@ -186,7 +186,7 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Dunklerer, prominenterer Schatten */
             animation-name: pulse-primary-dark; /* Standardmäßiges dunkelblaues Pulsieren */
         }
-        /* GEÄNDERT: Mittlerer blauer Hintergrund és Pulsation im aktív állapotban, ha adatok vannak */
+        /* GEÄNDERT: Mittleres Blau für Kategorietasten 17-28, wenn Daten vorhanden */
         #categoryGrid2 button.active:not(.empty-category) {
             background: var(--medium-primary);
             animation-name: pulse-medium-primary;
@@ -200,7 +200,7 @@
             font-weight: bold; /* Setzt die Zahl auf fett */
         }
         .grid button.active:not(.empty-category) .day-letter {
-            font-weight: bold; /* Setzt den Tagesbuchstaben für aktive, nicht leere Kategorie auf fett */
+            font-weight: bold; /* Setzt den Tagesbuchstaben für aktive, nem leere Kategorie auf fett */
         }
 
         /* NEUE REGEL: Icon in der oberen linken Ecke der Schaltfläche (L-Buchstabe) */
@@ -247,8 +247,8 @@
             position: absolute;
             top: 5px;
             right: 5px;
-            width: 24px; /* Erhöhte Größe */
-            height: 24px; /* Erhöhte Größe */
+            width: 24px; /* Erhözte Größe */
+            height: 24px; /* Erhözte Größe */
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -413,29 +413,38 @@
             box-shadow: var(--shadow-active);
         }
 
-        /* NEW: Static time icons container */
-        .static-time-icons {
+        /* NEW: Chart button container */
+        .chart-button-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px; /* Space between sun and moon */
-            margin-right: auto; /* This will push it to the left edge */
             padding: 5px; /* Some padding around them */
             flex-shrink: 0; /* Prevent shrinking */
+            margin-right: auto; /* This will push it to the left edge */
         }
 
-        .static-time-icons .fas {
+        #chartBtn {
             font-size: 1.8em; /* Match control button icon size */
+            padding: 14px 18px; /* Adjust padding for better visual balance */
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Match 3D effect */
         }
 
-        .static-sun-icon {
-            color: yellow; /* Yellow for sun */
+        #chartBtn:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-medium);
         }
 
-        .static-moon-icon {
-            color: #F9E79F; /* Light yellow for moon */
+        #chartBtn:active {
+            transform: scale(0.96);
+            box-shadow: var(--shadow-active);
         }
 
 
@@ -1121,10 +1130,9 @@
 
     <div id="mainControls">
         <div class="controls">
-                <!-- NEW: Static time icons container -->
-                <div class="static-time-icons">
-                    <i class="fas fa-sun static-sun-icon"></i>
-                    <i class="fas fa-moon static-moon-icon"></i>
+                <!-- NEW: Chart button container instead of static time icons -->
+                <div class="chart-button-container">
+                    <button id="chartBtn" title="Diagramm anzeigen"><i class="fas fa-chart-line"></i></button>
                 </div>
                 <!-- ÚJ: Középre igazítandó elemek konténere -->
                 <div class="centered-controls">
@@ -1300,6 +1308,8 @@ const db = (() => {
     const masterUploadContainer = document.querySelector('.master-upload-container');
     // NEU: Suchtaste
     const searchBtn = document.getElementById('searchBtn');
+    // NEU: Chart button
+    const chartBtn = document.getElementById('chartBtn');
 
     // Anwendungsstatus
     let currentCategory = null; // Die Nummer der aktuell ausgewählten Kategorie
@@ -1491,6 +1501,12 @@ const db = (() => {
             laserScannerTimer = setTimeout(() => {
                 if (laserScannerBuffer.length > 0) {
                     const scannedCode = laserScannerBuffer.join('');
+                    // MÓDOSÍTÁS: Ellenőrizze, hogy van-e kiválasztott kategória
+                    if (currentCategory === null) {
+                        showCustomAlert('Kérjük, válasszon ki egy kategóriát, mielőtt szkennelne!', 'Kategória hiányzik');
+                        laserScannerBuffer = []; // Törölje a puffert a hiba után
+                        return;
+                    }
                     addNewEntry(scannedCode, null, 'laser');
                     laserScannerBuffer = [];
                 }
@@ -1752,7 +1768,7 @@ const db = (() => {
         traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
         traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
         traverseHeader.style.fontWeight = 'bold';
-        traverseHeader.style.fontSize = '1.5em'; // Erhöht die Schriftgröße für die Kopfzeilennummer
+        traverseHeader.style.fontSize = '1.5em'; // Erhözi a betűméretet a fejlécszámhoz
     }
 
     // Zeigt ein benutzerdefiniertes Alert-Modal an
@@ -1991,7 +2007,7 @@ const db = (() => {
             return;
         }
 
-        const confirmed = await showSimpleConfirm('Sind Sie sicher, dass Sie dieses Bild löschen möchten?', 'Bild löschen');
+        const confirmed = await showSimpleConfirm('Sind Sie sicher, hogy Sie dieses Bild löschen möchten?', 'Bild löschen');
         if (!confirmed) {
             return;
         }
@@ -2170,7 +2186,7 @@ const db = (() => {
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
         
-        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, hogy Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
@@ -2318,7 +2334,7 @@ const db = (() => {
                 }
 
                 doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight); // Bild hinzufügen
-                yPos += imgHeight + 5; // Höhe des Bildes und einen kleinen Rand hinzufügen
+                yPos += imgHeight + 5; // Höhe des Bildes és egy kis margó hozzáadása
             } catch (e) {
                 console.error("Fehler beim Hinzufügen des Bildes zum PDF:", e);
                 if (yPos > 280) { doc.addPage(); yPos = 10; } // Neue Seite, wenn zu viele Fehlermeldungen vorhanden sind
@@ -2338,7 +2354,7 @@ const db = (() => {
         if (!entryToDelete) return; // Wenn der Eintrag nicht gefunden wird, beenden
 
         // Bestätigung mit PDF-Export-Option anfordern
-        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie den Eintrag "${entryToDelete.code}" löschen möchten?`, 'Bestätigung', entryToDelete);
+        const result = await showCustomConfirm(`Sind Sie sicher, hogy Sie den Eintrag "${entryToDelete.code}" löschen möchten?`, 'Bestätigung', entryToDelete);
         
         if (result.confirmed) {
             showLoading("Eintrag wird gelöscht...");
@@ -2498,6 +2514,12 @@ const db = (() => {
 
     // Neuen Eintrag hinzufügen
     async function addNewEntry(code, image, source) {
+        // MÓDOSÍTÁS: Ellenőrizze, hogy van-e kiválasztott kategória
+        if (currentCategory === null) {
+            showCustomAlert('Kérjük, válasszon ki egy kategóriát, mielőtt bejegyzést adna hozzá!', 'Kategória hiányzik');
+            return;
+        }
+
         if (!code) return; // Wenn kein Code vorhanden ist, beenden
         
         // Überprüfen, ob dieser Code bereits in der Kategorie existiert (für UX-Zwecke)
@@ -2518,7 +2540,7 @@ const db = (() => {
             source: source // Quelle: 'scanner', 'manual', 'laser'
         };
 
-        showLoading("Eintrag wird hinzugefügt...");
+        showLoading("Eintrag wird hinzugefürt...");
         try {
             const wasEmpty = entries.length === 0; // Überprüft, ob die Kategorie vor dem Hinzufügen leer war
             const newId = await db.addEntry(newEntry); // Eintrag zu IndexedDB hinzufügen
@@ -2562,6 +2584,12 @@ const db = (() => {
 
     // Ereignis-Handler für den Button zur manuellen Eingabe
     function handleManualEntry() {
+        // MÓDOSÍTÁS: Ellenőrizze, hogy van-e kiválasztott kategória
+        if (currentCategory === null) {
+            showCustomAlert('Kérjük, válasszon ki egy kategóriát, mielőtt manuálisan bejegyzést adna hozzá!', 'Kategória hiányzik');
+            return;
+        }
+
         showCustomPrompt('Bitte geben Sie den Produktnamen oder die Kennung ein:', 'Manuelle Eingabe').then(manualCode => {
             if (manualCode && manualCode.trim() !== '') {
                 addNewEntry(manualCode.trim(), null, 'manual'); // Neuen Eintrag hinzufügen
@@ -2737,7 +2765,8 @@ const db = (() => {
         });
 
         // Unique traverse numbers
-        const uniqueTraverseNumbers = [...new Set(filteredResults.map(entry => entry.category))].sort((a,b) => a - b);
+        // MÓDOSÍTÁS: Szűrjük ki a nem szám kategóriákat
+        const uniqueTraverseNumbers = [...new Set(filteredResults.map(entry => entry.category).filter(cat => typeof cat === 'number' && !isNaN(cat)))].sort((a,b) => a - b);
 
         renderSearchResults(uniqueTraverseNumbers);
     }
@@ -2762,9 +2791,8 @@ const db = (() => {
                 if (categoryButton) {
                     selectCategory(number, categoryButton); // Select the category button
                 } else {
-                    // If the category button is not found (e.g., category number is outside 1-28 range)
-                    // You might want to handle this case, e.g., show an alert or just close the modal.
-                    showCustomAlert(`A(z) ${number}. traverz kategória gombja nem található.`, 'Hiba');
+                    // MÓDOSÍTÁS: Pontosabb hibaüzenet
+                    showCustomAlert(`A(z) ${number}. traverz kategória gombja nem található. Kérjük, ellenőrizze, hogy a kategória létezik-e (1-28).`, 'Hiba');
                 }
                 closeModal(searchModal); // Close the search modal
             });
@@ -2823,7 +2851,7 @@ const db = (() => {
         const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
         const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null; // "Dummy"-Eintrag zur Initialisierung des Checkbox-Status
         
-        const result = await showCustomConfirm(`Sind Sie sicher, dass Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
+        const result = await showCustomConfirm(`Sind Sie sicher, hogy Sie ${dummyEntryForCheckbox ? 'alle FA/NA-Einträge' : 'alle Einträge'} dieser Kategorie löschen möchten?`, 'Bestätigung', dummyEntryForCheckbox);
         
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
@@ -2861,6 +2889,11 @@ const db = (() => {
         performSearch();
     });
 
+    // NEU: Chart button event listener (dummy function for now)
+    chartBtn.addEventListener('click', () => {
+        showCustomAlert('Diagramm funkció még nem elérhető.', 'Információ');
+    });
+
 
     // Warnung vor dem Verlassen der Seite (wegen IndexedDB)
     window.addEventListener('beforeunload', function (e) {
@@ -2874,7 +2907,8 @@ const db = (() => {
         // Setzt den anfänglichen Fokus auf die erste Kategorietaste
         const firstCategoryButton = document.querySelector('#categoryGrid1 button:first-child');
         if (firstCategoryButton) {
-            setButtonFocus(firstCategoryButton);
+            // MÓDOSÍTÁS: Válassza ki az első kategóriát betöltéskor
+            selectCategory(parseInt(firstCategoryButton.textContent), firstCategoryButton);
         }
         // Initialisiert globale Header-Icons (sie haben beim ersten Laden keine Daten, es seiért, ha egy kategória előre kiválasztott)
         await updateGlobalHeaderIcons();
