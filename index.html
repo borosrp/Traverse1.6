@@ -265,6 +265,16 @@
             text-shadow: none; /* Der Schatten des inneren Icons wird entfernt */
         }
 
+        /* NEW: Blinking for the traverse number on the button itself */
+        .grid button .category-number-display.note-number-blinking {
+            animation: blink-red-white-text 1.5s infinite alternate; /* New animation for text only */
+        }
+
+        @keyframes blink-red-white-text { /* Modified to only affect color */
+            from { color: var(--danger); }
+            to { color: #ffffff; }
+        }
+
         #mainControls {
             position: fixed;
             bottom: 0;
@@ -1418,15 +1428,15 @@ const db = (() => {
         }
 
         // Wenn der customPromptInput das fokussierte Element ist, verarbeitet seine eigene Keydown-Behandlung die Enter-Taste.
-        if (document.activeElement === customPromptInput || document.activeElement === searchAuftragInput) { // Removed searchTraverseInput check
-            // Hier muss nichts getan werden, da die Inputs eine eigene Keydown-Behandlung haben.
+        if (document.activeElement === customPromptInput || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') { // Also check for generic INPUT/TEXTAREA
+            // Here nothing needs to be done, as the inputs have their own keydown handling.
             return;
         }
 
         // 2. Behandlung der Enter-Taste bei fokussierter Kategorietaste (manuelle Eingabe öffnen)
         if (e.key === 'Enter' && focusedCategoryButton) {
             e.preventDefault(); // Verhindert das Standard-Browserverhalten (z.B. Formular senden)
-            const focusedCategoryNum = parseInt(focusedCategoryButton.textContent);
+            const focusedCategoryNum = parseInt(focusedCategoryButton.querySelector('.category-number-display').textContent); // Get number from span
             if (currentCategory !== focusedCategoryNum) {
                 // Wenn die fokussierte Schaltfläche nicht die aktuell ausgewählte ist, wählen Sie sie zuerst aus
                 selectCategory(focusedCategoryNum, focusedCategoryButton);
@@ -1446,7 +1456,7 @@ const db = (() => {
             if (focusedCategoryButton) {
                 currentIdx = allCategoryButtons.indexOf(focusedCategoryButton);
             } else if (currentCategory) {
-                const selectedButton = allCategoryButtons.find(btn => parseInt(btn.textContent) === currentCategory);
+                const selectedButton = allCategoryButtons.find(btn => parseInt(btn.querySelector('.category-number-display').textContent) === currentCategory); // Get number from span
                 if (selectedButton) {
                     currentIdx = allCategoryButtons.indexOf(selectedButton);
                 }
@@ -1526,13 +1536,19 @@ const db = (() => {
     // Erstellt und initialisiert Kategorie-Buttons
     for(let i=1; i<=16; i++){
         const btn = document.createElement('button');
-        btn.textContent = i;
+        const numberSpan = document.createElement('span'); // Create span for number
+        numberSpan.textContent = i; // Set number text
+        numberSpan.classList.add('category-number-display'); // Add class for styling
+        btn.appendChild(numberSpan); // Append span to button
         btn.addEventListener('click', () => selectCategory(i, btn));
         categoryGrid1.appendChild(btn);
     }
     for(let i=17; i<=28; i++){
         const btn = document.createElement('button');
-        btn.textContent = i;
+        const numberSpan = document.createElement('span'); // Create span for number
+        numberSpan.textContent = i; // Set number text
+        numberSpan.classList.add('category-number-display'); // Add class for styling
+        btn.appendChild(numberSpan); // Append span to button
         btn.addEventListener('click', () => selectCategory(i, btn));
         categoryGrid2.appendChild(btn);
     }
@@ -1545,44 +1561,24 @@ const db = (() => {
         const nonFaNaIconUrl = document.getElementById('iconDataLoader').dataset.nonFaNaIconUrl; // NEU: Nicht-FA/NA-Icon URL
 
         for (const button of allCategoryButtons) {
-            const categoryNum = parseInt(button.textContent);
+            const categoryNum = parseInt(button.querySelector('.category-number-display').textContent); // Get number from span
+            const numberSpan = button.querySelector('.category-number-display'); // Get the number span
+
+            // Remove old dynamic elements before re-adding, except the number span
+            button.querySelectorAll('.time-icon, .day-letter, .fa-na-icon, .non-fa-na-icon, .note-status-indicator').forEach(el => el.remove());
+
             const entriesForCategory = await db.getEntriesForCategory(categoryNum);
-            
-            // Entfernt das Zeitsymbol, falls es bereits existiert
-            const existingTimeIcon = button.querySelector('.time-icon');
-            if (existingTimeIcon) {
-                existingTimeIcon.remove();
-            }
+            let hasNoteInAnyEntry = entriesForCategory.some(entry => entry.note && entry.note.trim() !== '');
 
-            // Entfernt den Tagesbuchstaben, falls er bereits existiert
-            const existingDayLetter = button.querySelector('.day-letter');
-            if(existingDayLetter) {
-                existingDayLetter.remove();
-            }
+            // Ensure the button itself does not blink based on note
+            button.classList.remove('note-number-blinking'); // Remove from button itself
 
-            // FA/NA-Icon vor jedem Update entfernen
-            const existingFaNaIcon = button.querySelector('.fa-na-icon');
-            if (existingFaNaIcon) {
-                existingFaNaIcon.remove();
-            }
-            // NEU: Nicht-FA/NA-Icon entfernen
-            const existingNonFaNaIcon = button.querySelector('.non-fa-na-icon');
-            if (existingNonFaNaIcon) {
-                existingNonFaNaIcon.remove();
-            }
-
-            // NEU: Notiz-Statusindikator entfernen
-            const existingNoteIndicator = button.querySelector('.note-status-indicator');
-            if (existingNoteIndicator) {
-                existingNoteIndicator.remove();
-            }
-
+            // MÓDOSÍTÁS: Deklarálja a hasFaNaEntry és hasNonFaNaEntry változókat itt
             let hasFaNaEntry = false;
-            let hasNonFaNaEntry = false; // NEU: Flag für Nicht-FA/NA-Eintrag
-            let hasNoteInAnyEntry = false; // NEU: Flag für Notiz in Kategorie
+            let hasNonFaNaEntry = false;
 
             if (entriesForCategory.length > 0) {
-                button.classList.remove('empty-category'); // Wenn Daten vorhanden sind, ist es keine leere Kategorie
+                button.classList.remove('empty-category');
                 
                 // Neuesten Eintrag für Zeit- und Tagessymbol finden
                 const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
@@ -1615,8 +1611,7 @@ const db = (() => {
                 hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
                 // NEU: Überprüfen, ob ein Eintrag mit Nicht-FA/NA beginnt
                 hasNonFaNaEntry = entriesForCategory.some(entry => entry.code && !(entry.code.startsWith('FA') || entry.code.startsWith('NA')));
-                // NEU: Überprüfen, ob ein Eintrag eine Notiz hat
-                hasNoteInAnyEntry = entriesForCategory.some(entry => entry.note && entry.note.trim() !== '');
+                // hasNoteInAnyEntry already determined above
 
             } else {
                 button.classList.add('empty-category'); // Wenn keine Daten vorhanden sind, ist es eine leere Kategorie
@@ -1647,6 +1642,11 @@ const db = (() => {
                 noteIcon.classList.add('fas', 'fa-sticky-note'); // Oder fa-clipboard, fa-book
                 noteIndicator.appendChild(noteIcon);
                 button.appendChild(noteIndicator);
+
+                // MÓDOSÍTÁS: A traverz szám villogása a gombon
+                numberSpan.classList.add('note-number-blinking');
+            } else {
+                numberSpan.classList.remove('note-number-blinking');
             }
         }
     }
@@ -2467,12 +2467,24 @@ const db = (() => {
 
                 if (checkedUploadCheckboxes.length > 0) {
                     // If any checkboxes are checked, use those
+                    // MÓDOSÍTÁS: Ellenőrizze, hogy a kategória létezik-e (1-28)
                     checkedUploadCheckboxes.forEach(checkbox => {
-                        targetEntryIds.push(parseInt(checkbox.dataset.id));
+                        const categoryNum = parseInt(checkbox.dataset.id);
+                        if (categoryNum >= 1 && categoryNum <= 28) { // Ellenőrzés hozzáadva
+                            targetEntryIds.push(categoryNum);
+                        } else {
+                            console.warn(`Érvénytelen kategóriaszám a checkbox-ból: ${checkbox.dataset.id}`);
+                        }
                     });
                 } else {
                     // If no checkboxes are checked, default to the entry whose button was clicked
-                    targetEntryIds.push(entryIdToUpdate);
+                    // MÓDOSÍTÁS: Ellenőrizze, hogy a kategória létezik-e (1-28)
+                    const categoryNum = parseInt(entryIdToUpdate);
+                    if (categoryNum >= 1 && categoryNum <= 28) { // Ellenőrzés hozzáadva
+                        targetEntryIds.push(categoryNum);
+                    } else {
+                        console.warn(`Érvénytelen kategóriaszám a kattintott gombról: ${entryIdToUpdate}`);
+                    }
                 }
 
                 for (const id of targetEntryIds) {
@@ -2787,7 +2799,7 @@ const db = (() => {
             // Optional: Add click listener to select category or show more details
             square.addEventListener('click', () => {
                 // Find the actual button element for the category based on its text content
-                const categoryButton = Array.from(document.querySelectorAll('.grid button')).find(btn => parseInt(btn.textContent) === number);
+                const categoryButton = Array.from(document.querySelectorAll('.grid button')).find(btn => parseInt(btn.querySelector('.category-number-display').textContent) === number); // Get number from span
                 if (categoryButton) {
                     selectCategory(number, categoryButton); // Select the category button
                 } else {
@@ -2908,7 +2920,7 @@ const db = (() => {
         const firstCategoryButton = document.querySelector('#categoryGrid1 button:first-child');
         if (firstCategoryButton) {
             // MÓDOSÍTÁS: Válassza ki az első kategóriát betöltéskor
-            selectCategory(parseInt(firstCategoryButton.textContent), firstCategoryButton);
+            selectCategory(parseInt(firstCategoryButton.querySelector('.category-number-display').textContent), firstCategoryButton); // Get number from span
         }
         // Initialisiert globale Header-Icons (sie haben beim ersten Laden keine Daten, es seiért, ha egy kategória előre kiválasztott)
         await updateGlobalHeaderIcons();
