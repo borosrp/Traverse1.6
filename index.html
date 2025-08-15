@@ -213,8 +213,8 @@
 
     /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
     .header-traverse-icon {
-        width: 40px; /* Az ikon szélessége - KÉTSZER NAGYOBB */
-        height: 40px; /* Az ikon magassága - KÉTSZER NAGYOBB */
+        width: 1.5em; /* Az ikon szélessége - egyforma a szám magasságával */
+        height: 1.5em; /* Az ikon magassága - egyforma a szám magasságával */
         vertical-align: middle; /* Függőleges igazítás a szöveghez */
         margin-right: 5px; /* Távolság a szövegtől */
         display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
@@ -494,6 +494,7 @@
         justify-content: center;
         gap: 5px;
         margin-bottom: 5px;
+        flex-wrap: wrap; /* Képek tördelése új sorba, ha nem férnek el */
     }
     .photoRow:last-child {
         margin-bottom: 0;
@@ -852,13 +853,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th id="traverse-header">#</th>
-                        <th>Auftrag</th>
-                        <th>Datum</th>
-                        <th>Notiz</th>
-                        <th>Bilder</th>
-                        <th><i class="fas fa-folder" title="Bild hochladen"></i></th>
-                        <th><i class="fas fa-trash-alt" title="Löschen"></i></th>
+                        <th id="traverse-header" width="6%">#</th>
+                        <th width="29%">Auftrag</th>
+                        <th width="15%">Datum</th>
+                        <th width="8%">Notiz</th>
+                        <th width="26%">Bilder</th>
+                        <th width="8%"><i class="fas fa-folder" title="Bild hochladen"></i></th>
+                        <th width="8%"><i class="fas fa-trash-alt" title="Löschen"></i></th>
                     </tr>
                 </thead>
                 <tbody id="logBody"></tbody>
@@ -1514,7 +1515,7 @@ const db = (() => {
             // Sammelt alle Bilder (Hauptbild + zusätzliche Bilder)
             const allImageSources = [e.image, ...(e.kepek || [])].filter(Boolean);
             let photosCellHtml = '';
-            // Bilder in Gruppen von 3 pro Zeile anzeigen
+            // Képek megjelenítése 3-as csoportokban egy sorban
             for (let j = 0; j < allImageSources.length; j += 3) {
                 photosCellHtml += `<div class="photoRow">${allImageSources.slice(j, j + 3).map(src => `<img src="${src}" alt="Bild">`).join('')}</div>`;
             }
@@ -1627,7 +1628,7 @@ const db = (() => {
             yPos += (splitText.length * 10); // Höhe der Notiz hinzufügen
         }
 
-        // Bilder laden und hinzufügen
+        // Bilder laden és hinzufügen
         const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
         // Paralleles Laden von Bildern mit Promise.allSettled zur Fehlerbehandlung
         const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
@@ -1988,7 +1989,7 @@ const db = (() => {
                 cancelBtn.removeEventListener('click', cancelHandler);
                 promptModal.removeEventListener('click', overlayHandler);
                 input.removeEventListener('keydown', keydownHandler);
-                // Ereignis-Listener auch von den Buttons entfernen, damit sie nicht bestehen bleiben
+                // Ereignis-Listener auch von den Buttons entfernen, damit sie nem bestehen bleiben
                 okBtn.onmouseover = null;
                 okBtn.onmouseout = null;
                 okBtn.onmousedown = null;
