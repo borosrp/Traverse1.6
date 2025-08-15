@@ -288,8 +288,8 @@
             box-shadow: var(--shadow-soft);
             border: 1px solid var(--border-color);
             box-sizing: border-box;
-            width: 100%; /* Megváltoztatva max-width: fit-content-ről width: 100%-ra */
-            margin: 10px 0; /* Megváltoztatva margin: 10px auto-ról margin: 10px 0-ra */
+            width: 100%;
+            margin: 10px 0;
             flex-wrap: nowrap;
         }
         .controls .category-display-label {
@@ -305,11 +305,11 @@
             flex-shrink: 1;
             flex-basis: auto;
             margin: 0 10px;
-            line-height: 1; /* Hozzáadva, hogy a szöveg magassága pontosan a font-size legyen */
+            line-height: 1;
         }
 
         #categoryLabelRight {
-            display: none; /* Ez az elem nem használt a jelenlegi felületen */
+            display: none;
         }
 
         .controls .control-buttons {
@@ -335,7 +335,7 @@
 
         .controls button.empty-category-control {
             background: var(--muted) !important;
-            color: var(--text) !important; /* Szöveg színe is muted legyen */
+            color: var(--text) !important;
             box-shadow: none !important;
         }
 
@@ -354,8 +354,8 @@
 
         .controls button i {
             margin: 0 4px;
-            font-size: 1.8em; /* Megnöveltem a vonalkód ikon méretét */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Árnyék a jobb láthatóságért */
+            font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         #manualEntryBtn {
@@ -395,7 +395,7 @@
             overflow: hidden;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-soft);
-            table-layout: fixed; /* Fixálja a cellaszélességeket */
+            table-layout: fixed;
         }
         th, td {
             border-bottom: 1px solid var(--border-color);
@@ -403,9 +403,9 @@
             text-align: center;
             vertical-align: middle;
             color: var(--text);
-            text-overflow: ellipsis; /* ... ha túl hosszú a szöveg */
-            white-space: normal; /* Engedélyezi a sortörést */
-            word-wrap: break-word; /* Sortörés, ha szükséges */
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-wrap: break-word;
         }
         th {
             background: #f0f0f0;
@@ -425,13 +425,13 @@
         .auftrag-colored {
             color: var(--primary);
             font-weight: bold;
-            font-size: 1.3em; /* 30%-kal nagyobb méret */
+            font-size: 1.3em;
         }
 
         .auftrag-manual-bold {
             color: var(--text);
             font-weight: bold;
-            font-size: 1.3em; /* 30%-kal nagyobb méret */
+            font-size: 1.3em;
         }
 
         button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
@@ -468,7 +468,6 @@
             transition: transform 0.15s ease, color 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             display: inline-block;
             margin: 0 auto;
-            box-shadow: none;
             border-radius: 6px;
             padding: 8px 8px;
             font-size: 1.5em;
@@ -504,7 +503,7 @@
             justify-content: center;
             gap: 5px;
             margin-bottom: 5px;
-            flex-wrap: wrap; /* Képek tördelése új sorba, ha nem férnek el */
+            flex-wrap: wrap;
         }
         .photoRow:last-child {
             margin-bottom: 0;
@@ -520,26 +519,23 @@
             box-shadow: var(--shadow-soft);
         }
 
-        /* ÚJ: Stílus a jelölőnégyzetnek a feltöltő gomb mellett */
         .upload-checkbox {
-            margin-right: 5px; /* Távolság a jelölőnégyzet és az ikon között */
+            margin-right: 5px;
             width: 18px;
             height: 18px;
-            vertical-align: middle; /* Igazítás az ikonhoz */
-            transform: scale(1.2); /* Kicsit nagyobb méret */
+            vertical-align: middle;
+            transform: scale(1.2);
             cursor: pointer;
         }
 
-        /* A feltöltő gomb elrendezésének igazítása, hogy elférjen a jelölőnégyzet */
         td .uploadPhotoBtn {
-            display: flex; /* Flexbox használata a jelölőnégyzet és az ikon igazításához */
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px; /* Szükség szerint állítsa be a paddinget */
-            width: auto; /* Engedélyezi a szélesség beállítását */
+            padding: 8px;
+            width: auto;
         }
 
-        /* Frissítve: A fő jelölőnégyzet elrejtése és a mappa ikon stílusa a fejlécben */
         .master-upload-container {
             position: relative;
             display: flex;
@@ -550,39 +546,33 @@
             height: 100%;
         }
 
-        /* Elrejti a tényleges jelölőnégyzetet */
         .master-upload-container input[type="checkbox"] {
             position: absolute;
             opacity: 0;
             pointer-events: none;
         }
         
-        /* A mappa ikon alapértelmezett stílusa (szürke, ha nincs adat a kategóriában) */
         .master-upload-container .fas.fa-folder {
-            font-size: 1.5em; /* Növelt ikon méret */
-            color: var(--muted); /* Alapértelmezett szürke szín */
+            font-size: 1.5em;
+            color: var(--muted);
             transition: color 0.2s ease-in-out, filter 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
         }
-        /* Mappa ikon színe, ha van adat a kategóriában */
         .master-upload-container.has-data .fas.fa-folder {
-            color: var(--primary); /* Kék szín, ha van adat */
+            color: var(--primary);
         }
-        /* Hover effektus az ikonon (mindig kék, ha van adat, egyébként sötétkék) */
         .master-upload-container:hover .fas.fa-folder {
             color: var(--primary-dark);
         }
          .master-upload-container.has-data:hover .fas.fa-folder {
-             color: var(--primary-dark); /* Keep blueish hover if data present */
+             color: var(--primary-dark);
          }
-        /* Kijelölt állapot: a jelölőnégyzet `checked` állapotának tükrözése a mappa ikonon */
         .master-upload-container input[type="checkbox"]:checked + .fas.fa-folder {
-            filter: brightness(1.2); /* Kicsit fényesebb, ha be van jelölve */
-            text-shadow: 0 0 8px rgba(0, 86, 179, 0.7); /* Halvány ragyogás */
+            filter: brightness(1.2);
+            text-shadow: 0 0 8px rgba(0, 86, 179, 0.7);
         }
 
-        /* ÚJ: Fejléc törlés gombja */
         .header-delete-btn {
-            background: var(--muted); /* Alapértelmezett szürke, ha nincs adat */
+            background: var(--muted);
             color: white;
             border: none;
             border-radius: 5px;
@@ -596,23 +586,22 @@
             margin: 0 auto;
             box-shadow: none;
             cursor: not-allowed;
-            width: 40px; /* Méret beállítása */
-            height: 40px; /* Méret beállítása */
+            width: 40px;
+            height: 40px;
         }
 
         .header-delete-btn i {
-            font-size: 1.5em; /* Ikon méretének igazítása */
+            font-size: 1.5em;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
-        /* Fejléc törlés gombjának színe, ha van adat a kategóriában */
         .header-delete-btn.has-data {
-            background: var(--danger); /* Piros, ha van adat */
+            background: var(--danger);
             cursor: pointer;
         }
 
         .header-delete-btn.has-data:hover {
-            background: #c82333; /* Sötétebb piros hoverre */
+            background: #c82333;
             box-shadow: var(--shadow-soft);
         }
 
@@ -657,26 +646,24 @@
             position: fixed;
             top:0; left:0; right:0; bottom:0;
             background: rgba(0,0,0,0.6);
-            display: flex; /* Mindig flex a középre igazításhoz */
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
             box-sizing: border-box;
-            overflow: auto; /* Engedélyezi a görgetést mindkét irányba */
+            overflow: auto;
         }
-        /* Alapértelmezésben rejtve, JS jeleníti meg */
         .modal-overlay:not([style*="display: flex"]) {
             display: none;
         }
         
         #imageModal.image-zoomed-in {
-            justify-content: flex-start; /* Igazítás balra felülre görgetéshez */
+            justify-content: flex-start;
             align-items: flex-start;
         }
 
-        /* Eltávolítottam a padding-top-ot, hogy a flexbox középre igazítsa */
         #customPromptModal, #noteModal {
             padding-top: 0; 
         }
@@ -722,7 +709,7 @@
             display: flex;
             justify-content: space-between;
             padding: 0 20px;
-            pointer-events: none; /* Átengedik a kattintásokat az alatta lévő képre */
+            pointer-events: none;
         }
 
         #imageModal .modal-controls button {
@@ -734,7 +721,7 @@
             border: 2px solid rgba(255,255,255,0.5);
             backdrop-filter: blur(5px);
             cursor: pointer;
-            pointer-events: all; /* Visszaállítva, hogy kattintható legyen */
+            pointer-events: all;
             transition: background-color 0.2s ease, transform 0.2s ease;
             box-shadow: var(--shadow-soft);
         }
@@ -781,7 +768,7 @@
         }
 
 
-        #scannerDetectedCode { /* Ez az elem nincs használva a HTML-ben, de a stílusa megvan */
+        #scannerDetectedCode {
             margin-top: 18px;
             font-size: 1.2em;
             font-weight: 700;
@@ -807,7 +794,6 @@
             transition: max-width 0.3s ease, max-height 0.3s ease;
         }
 
-        /* FRISSÍTVE: Nagyított kép stílusa */
         #imageModal.image-zoomed-in #modalImage {
             max-width: none;
             max-height: none;
@@ -882,15 +868,14 @@
             max-width: 456px;
             align-items: center;
             gap: 20px;
-            /* Hozzáadva explicit háttér a prompt modál tartalmához */
-            background-color: white !important; /* Fehér háttér kényszerítése */
+            background-color: white !important;
         }
 
         #customAlertModal h2, #customConfirmModal h2, #customPromptModal h2 {
-            display: none; /* A címeket a tartalomba ágyazva jelenítjük meg, nem külön h2-ként */
+            display: none;
         }
         #customPromptMessage {
-            display: none; /* Az üzenet is a modál tartalmába van integrálva */
+            display: none;
         }
 
         #customPromptInput {
@@ -901,16 +886,14 @@
             font-size: 2em;
             font-weight: bold;
         }
-        /* Módosítva: OK gomb ikonjának mérete */
         #customPromptOkBtn i {
-            font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
+            font-size: 1.5em;
         }
-        /* MÓDOSÍTVA: Mégse gomb ikonjának mérete és hover árnyalata - Most egyforma az OK gomb ikonjával */
         #customPromptCancelBtn i {
-            font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
+            font-size: 1.5em;
         }
         #customPromptCancelBtn:hover {
-            background: #bbbbbb !important; /* Sötétebb árnyalat hoverre */
+            background: #bbbbbb !important;
         }
 
 
@@ -924,10 +907,9 @@
             th:first-child { border-top-left-radius: 8px; }
             th:last-child { border-top-right-radius: 8px; }
             .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
-            .app-title { font-size: 1.2em; /* Az eredeti kódban nincs ilyen elem, de ez egy általános stílus */ }
+            .app-title { font-size: 1.2em; }
         }
 
-        /* ÚJ: Loading overlay stílusok */
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -1040,7 +1022,7 @@
     
     <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
 
-<div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png" data-non-fa-na-icon-url="https://i.imgur.com/hg8TnYW.png"></div>
+<div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png" data-non-fa-na-icon-url="https://i.imgur.com/95LGztY.png"></div>
 
 <!-- NEU: Loading Overlay Element -->
 <div id="loadingOverlay" style="display: none;">
@@ -1562,8 +1544,8 @@ const db = (() => {
         }
 
         const isEmpty = entries.length === 0;
-        // SVG-Code des Icons, Farbe dynamisch gesetzt
-        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Grau oder Blau */
+        // SVG-Code des Icons, Farbe dynamikususan beállítva
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
         // NEU: SVG-Code des Icons mit Basen, angepasst für bessere visuelle Höhe
         const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" class="header-traverse-icon">`;
 
@@ -2007,7 +1989,7 @@ const db = (() => {
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
-                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
+                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
             } finally {
                 hideLoading();
             }
@@ -2177,7 +2159,7 @@ const db = (() => {
                 await updateGlobalHeaderIcons(); // NEU: Frissíti a globális fejléc ikonjait a törlés után
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren.", error);
-                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
+                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
             } finally {
                 hideLoading();
             }
@@ -2394,8 +2376,8 @@ const db = (() => {
 
             const iconColor = isEmpty ? '%236c757d' : '%230056b3';
             // Geänderter SVG-Icon und Inline-Stil für passende Höhe
-            const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
-            
+            const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traversen-Icon" class="category-label-icon">`;
+
             categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
             categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
 
@@ -2558,7 +2540,7 @@ const db = (() => {
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
-                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
+                showCustomAlert('Fehler beim Lölés vagy exportálás.', 'Hiba');
             } finally {
                 hideLoading();
             }
