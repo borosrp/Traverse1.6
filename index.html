@@ -86,7 +86,7 @@
     .grid button {
         position: relative;
         padding: 20px 10px;
-        font-size: 1.2em;
+        font-size: 1.44em; /* 20%-kal nagyobb méret */
         border-radius: 6px;
         border: 1px solid var(--text);
         cursor: pointer;
@@ -235,8 +235,8 @@
         position: absolute;
         top: 5px;
         right: 5px;
-        width: 20px;
-        height: 20px;
+        width: 24px; /* Növelt méret */
+        height: 24px; /* Növelt méret */
         border-radius: 50%;
         display: flex;
         justify-content: center;
@@ -508,6 +508,35 @@
         object-fit: cover;
         background: var(--card-bg);
         box-shadow: var(--shadow-soft);
+    }
+
+    /* ÚJ: Stílus a jelölőnégyzetnek a feltöltő gomb mellett */
+    .upload-checkbox {
+        margin-right: 5px; /* Távolság a jelölőnégyzet és az ikon között */
+        width: 18px;
+        height: 18px;
+        vertical-align: middle; /* Igazítás az ikonhoz */
+        transform: scale(1.2); /* Kicsit nagyobb méret */
+        cursor: pointer;
+    }
+
+    /* A feltöltő gomb elrendezésének igazítása, hogy elférjen a jelölőnégyzet */
+    td .uploadPhotoBtn {
+        display: flex; /* Flexbox használata a jelölőnégyzet és az ikon igazításához */
+        align-items: center;
+        justify-content: center;
+        padding: 8px; /* Szükség szerint állítsa be a paddinget */
+        width: auto; /* Engedélyezi a szélesség beállítását */
+    }
+
+    /* Stílus a fő jelölőnégyzetnek a fejlécben */
+    .master-upload-checkbox {
+        margin-left: 10px; /* Távolság a "Bilder" szövegtől */
+        width: 20px; /* Kicsit nagyobb a könnyebb érintésért */
+        height: 20px;
+        vertical-align: middle;
+        cursor: pointer;
+        transform: scale(1.2); /* Kiemeltebbé teszi */
     }
 
     .addExtraPhotoBtn, .uploadPhotoBtn {
@@ -858,7 +887,12 @@
                         <th width="15%">Datum</th>
                         <th width="8%">Notiz</th>
                         <th width="26%">Bilder</th>
-                        <th width="8%"><i class="fas fa-folder" title="Bild hochladen"></i></th>
+                        <th width="8%">
+                            <label style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                <input type="checkbox" id="selectAllUploadsToggle" class="master-upload-checkbox" title="Alle Bilder-Upload-Checkboxes auswählen/abwählen">
+                                <i class="fas fa-folder" title="Bild hochladen"></i>
+                            </label>
+                        </th>
                         <th width="8%"><i class="fas fa-trash-alt" title="Löschen"></i></th>
                     </tr>
                 </thead>
@@ -998,6 +1032,7 @@ const db = (() => {
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
     const clearCategoryBtn = document.getElementById('clearCategoryBtn');
+    const selectAllUploadsToggle = document.getElementById('selectAllUploadsToggle'); // Hozzáadva: Fő jelölőnégyzet
 
     // Anwendungsstatus
     let currentCategory = null; // A jelenleg kiválasztott kategória száma
@@ -1197,7 +1232,7 @@ const db = (() => {
         currentCategory = num; // Setzt die aktuelle Kategorie
         
         try {
-            showLoading("Traversendaten laden...");
+            // showLoading("Traversendaten laden..."); // Eltávolítva a kérés szerint
             // Einträge der ausgewählten Kategorie aus der Datenbank abrufen
             entries = await db.getEntriesForCategory(currentCategory);
             const isEmpty = entries.length === 0; // Feststellen, ob die Kategorie leer ist
@@ -1215,7 +1250,7 @@ const db = (() => {
             console.error("Fehler beim Lesen der Datenbank:", e);
             showCustomAlert('Fehler beim Laden der Traversendaten.', 'Fehler');
         } finally {
-            hideLoading();
+            // hideLoading(); // Eltávolítva a kérés szerint
         }
     }
 
@@ -1544,7 +1579,12 @@ const db = (() => {
                 </td>
                 <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-sticky-note' : 'fa-plus'}"></i></button></td>
                 <td class="photo-cell">${photosCellHtml}</td>
-                <td><button class="uploadPhotoBtn" data-id="${e.id}" title="Bild hochladen"><i class="fas fa-folder"></i></button></td>
+                <td>
+                    <label style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <input type="checkbox" class="upload-checkbox" data-id="${e.id}" title="Bild zu diesem Auftrag hinzufügen">
+                        <button class="uploadPhotoBtn" data-id="${e.id}" title="Bild hochladen"><i class="fas fa-folder"></i></button>
+                    </label>
+                </td>
                 <td><button class="deleteBtn" data-id="${e.id}" data-code="${e.code}" title="Löschen"><i class="fas fa-trash-alt"></i></button></td>
             </tr>`;
         }).join('');
@@ -1565,7 +1605,18 @@ const db = (() => {
                 openImageModal(allImageSources, clickedImageIndex, entryId);
             }
         }));
+        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
+        
+        // Fő jelölőnégyzet eseménykezelője
+        if (selectAllUploadsToggle) { // Check if element exists before adding listener
+            selectAllUploadsToggle.addEventListener('change', (event) => {
+                const isChecked = event.target.checked;
+                logBody.querySelectorAll('.upload-checkbox').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+            });
+        }
     }
     
     // Lädt ein Bild (gibt ein Promise mit einem Image-Objekt zurück)
@@ -1657,7 +1708,7 @@ const db = (() => {
             }
             doc.setFontSize(18);
             doc.text(`Bild ${i + 1}`, 10, yPos); // Bildbeschriftung
-            yPos += 8; // Rand zwischen Bildbeschriftung und Bild
+            yPos += 8; // Rand zwischen Bildbeschriftung és Bild
 
             try {
                 const imgProps = doc.getImageProperties(imageData);
@@ -1769,8 +1820,12 @@ const db = (() => {
 
     // Ereignis-Handler für den Bild-Upload-Button-Klick
     function handleUploadPhotoClick(event) {
-        entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
-        imageUploadInput.click(); // Aktiviert das versteckte Dateiauswahl-Input
+        // Find the closest ancestor <td> to get the row's data-id
+        const rowId = parseInt(event.currentTarget.closest('tr').dataset.id);
+        entryIdToUpdate = rowId; // Set this as the primary target if no checkboxes are checked
+
+        // Trigger the hidden file input
+        imageUploadInput.click(); 
     }
     
     // Bereinigt das Bild (Größenanpassung/Komprimierung in JPEG)
@@ -1787,7 +1842,7 @@ const db = (() => {
             };
             img.onerror = () => {
                 console.warn(`Fehler beim Bereinigen des Bildes: ${imageDataUrl.substring(0, 50)}...`);
-                reject(new Error('Fehler beim Laden des Bildes zur Bereinigung.'));
+                reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
             img.src = imageDataUrl;
         });
@@ -1796,32 +1851,62 @@ const db = (() => {
     // Ereignis-Handler für Dateiauswahl (für Bild-Upload)
     async function handleFileSelected(event) {
         const file = event.target.files[0];
-        if (!file || !entryIdToUpdate) return;
+        if (!file) return;
 
         showLoading("Bild wird verarbeitet...");
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                // Bild zur Größenreduzierung bereinigen
                 const sanitizedImageDataUrl = await sanitizeImage(e.target.result);
-                const entry = entries.find(entry => entry.id === entryIdToUpdate);
-                if (entry) {
-                    if (!entry.kepek) entry.kepek = [];
-                    entry.kepek.push(sanitizedImageDataUrl); // Zu den zusätzlichen Bildern hinzufügen
-                    await db.updateEntry(entry); // Datenbank aktualisieren
-                    renderTable(); // Tabelle neu zeichnen
-                    navigator.vibrate?.(100); // Vibrationsfeedback
+                
+                const checkedUploadCheckboxes = document.querySelectorAll('.upload-checkbox:checked');
+                let targetEntryIds = [];
+
+                if (checkedUploadCheckboxes.length > 0) {
+                    // If any checkboxes are checked, use those
+                    checkedUploadCheckboxes.forEach(checkbox => {
+                        targetEntryIds.push(parseInt(checkbox.dataset.id));
+                    });
+                } else {
+                    // If no checkboxes are checked, default to the entry whose button was clicked
+                    targetEntryIds.push(entryIdToUpdate);
                 }
+
+                for (const id of targetEntryIds) {
+                    let entry = entries.find(entry => entry.id === id);
+                    if (entry) {
+                        if (!entry.kepek) entry.kepek = [];
+                        entry.kepek.push(sanitizedImageDataUrl);
+                        await db.updateEntry(entry); // Update each entry in DB
+                    } else {
+                        console.warn(`Eintrag mit ID ${id} zum Aktualisieren nicht gefunden.`);
+                    }
+                }
+                
+                // Re-fetch entries to ensure local 'entries' array is up-to-date with all changes
+                entries = await db.getEntriesForCategory(currentCategory); 
+                renderTable();
+                // showCustomAlert('Bild(er) erfolgreich hinzugefügt.', 'Erfolg'); // Eltávolítva a kérés szerint
+                navigator.vibrate?.(100); // Vibrationsfeedback
+
             } catch (error) {
-                console.error("Bildbereinigung fehlgeschlagen:", error);
+                console.error("Bildverarbeitung fehlgeschlagen:", error);
                 showCustomAlert('Das Bild konnte nicht verarbeitet werden. Es könnte beschädigt sein.', 'Fehler');
             } finally {
                 hideLoading();
+                // Reset all checkboxes after upload
+                document.querySelectorAll('.upload-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                // Reset master checkbox as well
+                if (selectAllUploadsToggle) {
+                    selectAllUploadsToggle.checked = false;
+                }
             }
         };
-        reader.readAsDataURL(file); // Datei als Data URL lesen
+        reader.readAsDataURL(file);
 
-        event.target.value = null; // Wert des Inputs löschen, damit die gleiche Datei erneut hochgeladen werden kann
+        event.target.value = null; // Clear the input value to allow re-uploading the same file
     }
 
     // Neuen Eintrag hinzufügen
