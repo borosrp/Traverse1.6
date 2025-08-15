@@ -1075,26 +1075,54 @@ const db = (() => {
             return; // Beendet, wenn ein Modal geschlossen wurde
         }
 
-        // Wenn ein Modal geöffnet ist oder keine Kategorie ausgewählt wurde, Laserscanner-Eingabe nicht verarbeiten
-        if (document.querySelector('.modal-overlay[style*="display: flex"]') || !currentCategory) {
-            return;
-        }
-
-        // Enter-Taste nach Scannereingabe
+        // Handle Scanner Input (always prioritized if characters are buffered)
         if (e.key === 'Enter' && laserScannerBuffer.length > 0) {
-            e.preventDefault(); // Verhindert das Standardverhalten von Enter (z.B. Formular absenden)
-            const scannedCode = laserScannerBuffer.join(''); // Fügt die Zeichen zusammen
-            addNewEntry(scannedCode, null, 'laser'); // Fügt den neuen Eintrag hinzu
-            laserScannerBuffer = []; // Leert den Puffer
-            clearTimeout(laserScannerTimer); // Löscht den Timer
+            e.preventDefault();
+            const scannedCode = laserScannerBuffer.join('');
+            
+            // Close any open modal before processing scanner input
+            if (customPromptModal.style.display === 'flex') {
+                closeModal(customPromptModal);
+            }
+            if (noteModal.style.display === 'flex') {
+                closeModal(noteModal);
+            }
+            if (imageModal.style.display === 'flex') {
+                closeModal(imageModal);
+            }
+
+            addNewEntry(scannedCode, null, 'laser');
+            laserScannerBuffer = [];
+            clearTimeout(laserScannerTimer);
             return;
         }
 
-        // Zeichen zum Scanner-Puffer hinzufügen
-        if (e.key.length === 1) { // Verarbeitet nur einzelne Zeichentasten
+        // Only proceed if no other modal is currently open AND the customPromptInput is NOT the active element
+        // The customPromptModal's internal keydown listener on 'input' will handle Enter for manual entry.
+        if (document.activeElement === customPromptInput) {
+            return; // Let the customPromptInput's specific handler deal with Enter
+        }
+
+        // If any modal is open (excluding the prompt modal input which is handled above)
+        const isAnyModalOpen = (imageModal.style.display === 'flex' || noteModal.style.display === 'flex' || customPromptModal.style.display === 'flex');
+        if (isAnyModalOpen) {
+            return; // Don't process other keydowns if a modal is open
+        }
+
+
+        // Handle Manual Enter on active category (only if no scanner input is buffered and no other modal is open)
+        if (e.key === 'Enter' && laserScannerBuffer.length === 0) {
+            if (currentCategory) { // Only open if a category is selected
+                e.preventDefault();
+                handleManualEntry(); // This opens the customPromptModal
+                return;
+            }
+        }
+
+        // Buffer characters for scanner input (only if the active element is NOT the customPromptInput)
+        if (e.key.length === 1) { // Removed check for document.activeElement !== customPromptInput
             laserScannerBuffer.push(e.key);
-            clearTimeout(laserScannerTimer); // Setzt den Timer bei jedem Tastendruck zurück
-            // Der Timer leert den Puffer nach 100 ms, wenn keine weiteren Zeichen folgen
+            clearTimeout(laserScannerTimer);
             laserScannerTimer = setTimeout(() => {
                 laserScannerBuffer = [];
             }, 100);
@@ -1232,7 +1260,6 @@ const db = (() => {
         currentCategory = num; // Setzt die aktuelle Kategorie
         
         try {
-            // showLoading("Traversendaten laden..."); // Eltávolítva a kérés szerint
             // Einträge der ausgewählten Kategorie aus der Datenbank abrufen
             entries = await db.getEntriesForCategory(currentCategory);
             const isEmpty = entries.length === 0; // Feststellen, ob die Kategorie leer ist
@@ -1250,7 +1277,7 @@ const db = (() => {
             console.error("Fehler beim Lesen der Datenbank:", e);
             showCustomAlert('Fehler beim Laden der Traversendaten.', 'Fehler');
         } finally {
-            // hideLoading(); // Eltávolítva a kérés szerint
+            // No loading overlay here as per user request
         }
     }
 
@@ -2053,10 +2080,13 @@ const db = (() => {
                 closeAndResolve(null);
             };
             
-            const keydownHandler = (e) => {
+            // Keydown handler for the input field within the prompt modal
+            const inputKeydownHandler = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    processAndResolve(input.value);
+                    if (input.value.trim() !== '') {
+                        processAndResolve(input.value);
+                    }
                 }
             };
 
@@ -2073,8 +2103,8 @@ const db = (() => {
                 okBtn.removeEventListener('click', okHandler);
                 cancelBtn.removeEventListener('click', cancelHandler);
                 promptModal.removeEventListener('click', overlayHandler);
-                input.removeEventListener('keydown', keydownHandler);
-                // Ereignis-Listener auch von den Buttons entfernen, damit sie nem bestehen bleiben
+                input.removeEventListener('keydown', inputKeydownHandler); // Remove the input's keydown listener
+                
                 okBtn.onmouseover = null;
                 okBtn.onmouseout = null;
                 okBtn.onmousedown = null;
@@ -2085,7 +2115,7 @@ const db = (() => {
             okBtn.addEventListener('click', okHandler);
             cancelBtn.addEventListener('click', cancelHandler);
             promptModal.addEventListener('click', overlayHandler);
-            input.addEventListener('keydown', keydownHandler);
+            input.addEventListener('keydown', inputKeydownHandler); // Attach keydown to the input itself
         });
     }
 
@@ -2137,11 +2167,8 @@ const db = (() => {
         if (result.confirmed) {
             showLoading("Kategorie wird gelöscht...");
             try {
-                if (result.exportPdf && entries.length > 0) {
-                    // Wenn in PDF exportiert werden soll, alle Einträge exportieren
-                    for (const entry of entries) {
-                        await generatePdfForEntry(entry);
-                    }
+                if (result.exportPdf) {
+                    await generatePdfForEntry(entryToDelete); // PDF generieren, wenn vom Benutzer angefordert
                 }
                 
                 await db.clearCategory(currentCategory); // Alle Einträge der Kategorie aus der Datenbank löschen
@@ -2155,7 +2182,7 @@ const db = (() => {
 
             } catch (error) {
                 console.error("Fehler beim Löschen oder Exportieren der Kategorie.", error);
-                showCustomAlert('Fehler beim Löschen oder Exportieren der Kategorie.', 'Fehler');
+                showCustomAlert('Fehler beim Löschen oder Exportieren.', 'Fehler');
             } finally {
                 hideLoading();
             }
