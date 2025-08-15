@@ -5,851 +5,851 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Traversendaten</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect fill="white" width="16" height="16"/><g fill="%230056b3"><path d="M1 3h1v10H1z"/><path d="M3 3h2v10H3z"/></g><g fill="black"><path d="M6 3h1v10H6z"/><path d="M8 3h2v10H8z"/><path d="M11 3h1v10h-1z"/><path d="M13 3h2v10h-2z"/></g></svg>'>
-<!-- Font Awesome for icons -->
+<!-- Font Awesome ikonokhoz -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  /* Otto Lehmann inspired design - Maximum 3D Effect */
-  :root {
-    --bg: #f5f5f5; /* Light gray background */
-    --text: #333333; /* Dark gray text */
-    --muted: #6c757d; /* Medium gray for muted elements */
-    --primary: #0056b3; /* Otto Lehmann's blue */
-    --primary-dark: #004085; /* Darker blue for hover */
-    --light-primary: #70A4D5; /* Világoskék a 17-28 kategóriákhoz */
-    --light-primary-dark: #5A8FC2; /* Sötétebb világoskék hoverhez */
-    --medium-primary: #2C6BB0; /* Új: köztes kék szín, kicsit sötétebb */
-    --medium-primary-dark: #23558A; /* Új: sötétebb köztes kék hoverhez */
-    --very-light-blue: #E0F2F7; /* Új: Nagyon halványkék az 1-16 kategóriák rácsához */
-    --accent: #28a745; /* A professional green for accent/success */
-    --success: #28a745; /* Green for success messages */
-    --danger: #dc3545; /* Red for danger/delete */
-    --warning: #ffc107; /* Yellow for warning states */
-    --border-color: #e0e0e0; /* Light gray border */
-    --card-bg: #ffffff; /* White card backgrounds */
-    --row-alt-bg: #f8f8f8; /* Very light gray for alternating table rows */
+    /* Otto Lehmann ihlette design - Maximális 3D hatás */
+    :root {
+        --bg: #f5f5f5; /* Világosszürke háttér */
+        --text: #333333; /* Sötétszürke szöveg */
+        --muted: #6c757d; /* Közepes szürke a visszafogott elemekhez */
+        --primary: #0056b3; /* Otto Lehmann kékje */
+        --primary-dark: #004085; /* Sötétebb kék hoverhez */
+        --light-primary: #70A4D5; /* Világoskék a 17-28 kategóriákhoz */
+        --light-primary-dark: #5A8FC2; /* Sötétebb világoskék hoverhez */
+        --medium-primary: #2C6BB0; /* Új: köztes kék szín, kicsit sötétebb */
+        --medium-primary-dark: #23558A; /* Új: sötétebb köztes kék hoverhez */
+        --very-light-blue: #E0F2F7; /* ÚJ: Nagyon halványkék az 1-16 kategóriák rácsához */
+        --accent: #28a745; /* Professzionális zöld az ékezet/sikerhez */
+        --success: #28a745; /* Zöld a sikerüzenetekhez */
+        --danger: #dc3545; /* Piros a veszélyhez/törléshez */
+        --warning: #ffc107; /* Sárga a figyelmeztetésekhez */
+        --border-color: #e0e0e0; /* Világosszürke szegély */
+        --card-bg: #ffffff; /* Fehér kártyahátterek */
+        --row-alt-bg: #f8f8f8; /* Nagyon világosszürke a váltakozó táblázatsorokhoz */
+        
+        --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
+        --shadow-medium: 0 15px 30px rgba(0, 0, 0, 0.35), 0 25px 50px rgba(0, 0, 0, 0.25);
+        --shadow-active: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.6;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 0 15px; /* Hozzáadva némi oldalsó margó */
+        box-sizing: border-box;
+    }
+    body.modal-open {
+        overflow: hidden; /* Megakadályozza a görgetést, amikor modál van nyitva */
+    }
+
+    #main-scrollable-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px 0 160px; /* Megnövelt alsó margó, hogy elférjen az alsó vezérlőpult */
+        box-sizing: border-box;
+    }
+
+    .grid {
+        display: grid;
+        gap: 15px;
+        margin-bottom: 10px;
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--text);
+    }
+    #categoryGrid2 {
+        background: #70A4D5; /* Megtartva a rács hátterét, de a gombok színe most felülírja */
+    }
+    /* ÚJ SZABÁLY: Nagyon halványkék háttér az 1-16 kategóriák rácsához */
+    #categoryGrid1 {
+        grid-template-columns: repeat(8, 1fr);
+        background: var(--very-light-blue);
+    }
+    #categoryGrid2 {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    .grid button {
+        position: relative;
+        padding: 20px 10px;
+        font-size: 1.2em;
+        border-radius: 6px;
+        border: 1px solid var(--text);
+        cursor: pointer;
+        background: var(--primary); /* Alapértelmezett sötétkék */
+        color: #ffffff;
+        user-select: none;
+        transition: all 0.1s ease;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
+        text-shadow: none;
+    }
+    /* MÓDOSÍTVA: Köztes kék a 17-28-as kategóriagombokhoz, ha van adat */
+    #categoryGrid2 button:not(.empty-category) {
+        background: var(--medium-primary);
+    }
+    /* MÓDOSÍTVA: Sötétebb köztes kék hover effekt a 17-28-as kategóriagombokhoz */
+    #categoryGrid2 button:not(.empty-category):hover {
+        background: var(--medium-primary-dark);
+        border-color: var(--medium-primary-dark); /* Frissített border-color hoverre */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .grid button .time-icon {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        font-size: 0.8em;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 3D hatás */
+    }
+    .grid button .day-letter {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        font-size: 0.8em;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    .grid button.empty-category {
+        background: var(--card-bg);
+        color: var(--text);
+        border-color: var(--text);
+        box-shadow: none;
+    }
+    .grid button:active {
+        transform: scale(0.96);
+        box-shadow: var(--shadow-active);
+    }
+    .grid button:hover {
+        background: var(--primary-dark);
+        box-shadow: var(--shadow-medium);
+    }
+    .grid button.empty-category:hover {
+        background: var(--row-alt-bg);
+        border-color: var(--muted);
+        box-shadow: none;
+    }
     
-    --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
-    --shadow-medium: 0 15px 30px rgba(0, 0, 0, 0.35), 0 25px 50px rgba(0, 0, 0, 0.25);
-    --shadow-active: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
+    @keyframes pulse-primary-dark { /* Átnevezve a tisztaság kedvéért */
+        0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
+        70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Megnövelt szórás, csökkentett intenzitás */
+        100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
+    }
 
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
+    @keyframes pulse-light-primary {
+        0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
+        70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(112, 164, 213, 0); }
+        100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
+    }
 
-  body {
-    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    color: var(--text);
-    background: var(--bg);
-    line-height: 1.6;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 0 15px; /* Add some padding to the sides */
-    box-sizing: border-box;
-  }
-  body.modal-open {
-    overflow: hidden;
-  }
+    /* ÚJ ANIMÁCIÓ: Köztes kék pulzálás */
+    @keyframes pulse-medium-primary {
+        0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
+        70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(44, 107, 176, 0); } /* Köztes kék árnyék */
+        100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
+    }
 
-  #main-scrollable-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px 0 160px; /* Increased bottom padding */
-    box-sizing: border-box;
-  }
+    @keyframes pulse-grey-less-intense { /* Új animáció kevésbé intenzív szürke pulzáláshoz */
+        0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
+        70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Megnövelt szórás, csökkentett intenzitás */
+        100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
+    }
 
-  .grid {
-    display: grid;
-    gap: 15px;
-    margin-bottom: 10px;
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid var(--text);
-  }
-  #categoryGrid2 {
-    background: #70A4D5; /* Megtartva a rács hátterét, de a gombok színe most felülírja */
-  }
-  /* ÚJ SZABÁLY: Nagyon halványkék háttér az 1-16 kategóriák rácsához */
-  #categoryGrid1 {
-    grid-template-columns: repeat(8, 1fr);
-    background: var(--very-light-blue);
-  }
-  #categoryGrid2 {
-    grid-template-columns: repeat(12, 1fr);
-  }
+    .grid button.active {
+        /* A betűtípust az aktív osztályok kezelik */
+        /* Alapértelmezett aktív szegély/árnyék, szükség esetén specifikusabb szabályok felülírják */
+        border: 4px solid var(--muted); /* Alapértelmezett szürke szegély aktívhoz */
+        box-shadow: var(--shadow-medium); /* Alapértelmezett közepes árnyék aktívhoz */
+        animation-duration: 3s; /* Lassabb animáció minden aktív gombhoz */
+        animation-iteration-count: infinite; /* Korlátlan animáció lejátszása */
+    }
+    .grid button.active:not(.empty-category) {
+        font-weight: bold; /* Félkövér a fehér számhoz */
+        color: #ffffff; /* Szöveg színe fehér */
+        border: 4px solid #ffffff; /* Fehér szegély aktív, nem üres kategóriához */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Sötétebb, kiemelkedőbb árnyék */
+        animation-name: pulse-primary-dark; /* Alapértelmezett sötétkék pulzálás */
+    }
+    /* MÓDOSÍTVA: Köztes kék háttér és pulzálás aktív állapotban, ha van adat */
+    #categoryGrid2 button.active:not(.empty-category) {
+        background: var(--medium-primary);
+        animation-name: pulse-medium-primary;
+    }
 
-  .grid button {
-    position: relative;
-    padding: 20px 10px;
-    font-size: 1.2em;
-    border-radius: 6px;
-    border: 1px solid var(--text);
-    cursor: pointer;
-    background: var(--primary); /* Alapértelmezett sötétkék */
-    color: #ffffff;
-    user-select: none;
-    transition: all 0.1s ease;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
-    text-shadow: none;
-  }
-  /* MÓDOSÍTVA: Köztes kék a 17-28-as kategóriagombokhoz, ha van adat */
-  #categoryGrid2 button:not(.empty-category) {
-    background: var(--medium-primary);
-  }
-  /* MÓDOSÍTVA: Sötétebb köztes kék hover effekt a 17-28-as kategóriagombokhoz */
-  #categoryGrid2 button:not(.empty-category):hover {
-    background: var(--medium-primary-dark);
-    border-color: var(--medium-primary-dark); /* Frissített border-color hoverre */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
+    .grid button.active.empty-category {
+        background: var(--card-bg);
+        color: var(--muted); /* Szürke szöveg */
+        animation-name: pulse-grey-less-intense; /* Alkalmazza az új, kevésbé intenzív szürke pulzálást */
+        border: 4px solid var(--muted); /* Javított szegély 44px-ről 4px-re */
+        font-weight: bold; /* Félkövérre állítja a számot */
+    }
+    .grid button.active:not(.empty-category) .day-letter {
+        font-weight: bold; /* Félkövérre állítja a nap betűjét aktív, nem üres kategóriához */
+    }
 
-  .grid button .time-icon {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    font-size: 0.8em;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 3D effect */
-  }
-  .grid button .day-letter {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 0.8em;
-    font-weight: bold;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-  }
-  .grid button.empty-category {
-    background: var(--card-bg);
-    color: var(--text);
-    border-color: var(--text);
-    box-shadow: none;
-  }
-  .grid button:active {
-    transform: scale(0.96);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  .grid button:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
-  .grid button.empty-category:hover {
-    background: var(--row-alt-bg);
-    border-color: var(--muted);
-    box-shadow: none;
-  }
-  
-  @keyframes pulse-primary-dark { /* Renamed for clarity */
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(0, 64, 133, 0); } /* Increased spread, reduced intensity */
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--primary-dark); }
-  }
+    /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában (L betű) */
+    .grid button .fa-na-icon { /* Átneveztem a class-t a pontosabb leírásért */
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 1.2em; /* Méret beállítása */
+        height: 1.2em; /* Méret beállítása */
+        z-index: 10; /* Hogy a többi elem fölött legyen */
+    }
 
-  @keyframes pulse-light-primary {
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(112, 164, 213, 0); }
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--light-primary); }
-  }
+    /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
+    .header-traverse-icon {
+        width: 40px; /* Az ikon szélessége - KÉTSZER NAGYOBB */
+        height: 40px; /* Az ikon magassága - KÉTSZER NAGYOBB */
+        vertical-align: middle; /* Függőleges igazítás a szöveghez */
+        margin-right: 5px; /* Távolság a szövegtől */
+        display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
+    }
 
-  /* ÚJ ANIMÁCIÓ: Köztes kék pulzálás */
-  @keyframes pulse-medium-primary {
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(44, 107, 176, 0); } /* Köztes kék árnyék */
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 var(--medium-primary); }
-  }
+    /* ÚJ SZABÁLY: Ikon a mainControls kategória címkéje mellett */
+    .category-label-icon {
+        /* A .controls .category-display-label font-size-a 2.2em, ehhez igazítjuk */
+        width: 1em; /* Az ikon szélessége a szám magasságához igazítva */
+        height: 1em; /* Az ikon magassága a szám magasságához igazítva */
+        vertical-align: middle; /* Függőleges igazítás a szöveghez */
+        margin-right: 10px; /* Távolság a számtól */
+        display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
+    }
 
-  @keyframes pulse-grey-less-intense { /* New animation for less intense grey pulse */
-    0% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0.7); }
-    70% { box-shadow: var(--shadow-medium), 0 0 0 10px rgba(108, 117, 125, 0); } /* Increased spread, reduced intensity */
-    100% { box-shadow: var(--shadow-medium), 0 0 0 0 rgba(108, 117, 125, 0); }
-  }
+    #mainControls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0; /* Megváltoztatva width: 100%-ról right: 0-ra */
+        z-index: 1000;
+        /* display: none; */ /* Maradjon kikommentelve, a JS vezérli a láthatóságot */
+        box-sizing: border-box;
+        padding: 0 15px; /* Hozzáadva vízszintes padding, hogy illeszkedjen a body-hoz */
+        background: transparent; /* Átlátszóra változtatva, lehetővé téve a belső div stílusát */
+        border-top: none; /* Eltávolítva a konténerhez */
+        box-shadow: none; /* Eltávolítva a konténerhez */
+        flex-shrink: 0;
+    }
 
-  .grid button.active {
-    /* Font weight is handled by specific active classes now */
-    /* Default active border/shadow, to be overridden by more specific rules if needed */
-    border: 4px solid var(--muted); /* Default grey border for active */
-    box-shadow: var(--shadow-medium); /* Default medium shadow for active */
-    animation-duration: 3s; /* Slower animation for all active buttons */
-    animation-iteration-count: infinite; /* Play animation indefinitely */
-  }
-  .grid button.active:not(.empty-category) {
-    font-weight: bold; /* Félkövér a fehér számhoz */
-    color: #ffffff; /* Text color is white */
-    border: 4px solid #ffffff; /* White border for active non-empty category */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3); /* Darker, more prominent shadow */
-    animation-name: pulse-primary-dark; /* Alapértelmezett sötétkék pulzálás */
-  }
-  /* MÓDOSÍTVA: Köztes kék háttér és pulzálás aktív állapotban, ha van adat */
-  #categoryGrid2 button.active:not(.empty-category) {
-    background: var(--medium-primary);
-    animation-name: pulse-medium-primary;
-  }
+    .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+        width: 100%; /* Megváltoztatva max-width: fit-content-ről width: 100%-ra */
+        margin: 10px 0; /* Megváltoztatva margin: 10px auto-ról margin: 10px 0-ra */
+        flex-wrap: nowrap;
+    }
+    .controls .category-display-label {
+        font-weight: bold;
+        font-size: 2.2em;
+        text-align: center;
+        background: none;
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        height: auto;
+        flex-shrink: 1;
+        flex-basis: auto;
+        margin: 0 10px;
+        line-height: 1; /* Hozzáadva, hogy a szöveg magassága pontosan a font-size legyen */
+    }
 
-  .grid button.active.empty-category {
-    background: var(--card-bg);
-    color: var(--muted); /* Grey text */
-    animation-name: pulse-grey-less-intense; /* Apply new less intense grey pulse */
-    border: 4px solid var(--muted); /* Corrected border from 44px to 4px */
-    font-weight: bold; /* Make the number bold */
-  }
-  .grid button.active:not(.empty-category) .day-letter {
-    font-weight: bold; /* Make day letter bold for active non-empty category */
-  }
+    #categoryLabelRight {
+        display: none; /* Ez az elem nem használt a jelenlegi felületen */
+    }
 
-  /* ÚJ SZABÁLY: Ikon a gomb bal felső sarkában (L betű) */
-  .grid button .fa-na-icon { /* Átneveztem a class-t a pontosabb leírásért */
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 1.2em; /* Méret beállítása */
-    height: 1.2em; /* Méret beállítása */
-    z-index: 10; /* Hogy a többi elem fölött legyen */
-  }
+    .controls .control-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+    }
 
-  /* ÚJ SZABÁLY: Ikon a táblázat fejlécében a traverz szám mellett */
-  .header-traverse-icon {
-    width: 40px; /* Az ikon szélessége - KÉTSZER NAGYOBB */
-    height: 40px; /* Az ikon magassága - KÉTSZER NAGYOBB */
-    vertical-align: middle; /* Függőleges igazítás a szöveghez */
-    margin-right: 5px; /* Távolság a szövegtől */
-    display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
-  }
+    .controls button {
+        font-size: 1.1em;
+        padding: 14px 22px;
+        border-radius: 6px;
+        border: none;
+        background: var(--primary);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
+        text-shadow: none;
+    }
 
-  /* ÚJ SZABÁLY: Ikon a mainControls kategória címkéje mellett */
-  .category-label-icon {
-    /* A .controls .category-display-label font-size-a 2.2em, ehhez igazítjuk */
-    width: 1em; /* Az ikon szélessége a szám magasságához igazítva */
-    height: 1em; /* Az ikon magassága a szám magasságához igazítva */
-    vertical-align: middle; /* Függőleges igazítás a szöveghez */
-    margin-right: 10px; /* Távolság a számtól */
-    display: inline-block; /* Fontos, hogy inline-block legyen a vertical-align miatt */
-  }
+    .controls button.empty-category-control {
+        background: var(--muted) !important;
+        color: var(--text) !important; /* Szöveg színe is muted legyen */
+        box-shadow: none !important;
+    }
 
-  #mainControls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0; /* Changed from width: 100% to right: 0 */
-    z-index: 1000;
-    /* display: none; */ /* Keeping this commented as JS controls visibility */
-    box-sizing: border-box;
-    padding: 0 15px; /* Added horizontal padding to match body */
-    background: transparent; /* Changed to transparent, allowing inner div to style */
-    border-top: none; /* Removed for container */
-    box-shadow: none; /* Removed for container */
-    flex-shrink: 0;
-  }
+    .controls button:active {
+        transform: scale(0.96);
+        box-shadow: var(--shadow-active);
+    }
+    .controls button:hover {
+        background: var(--primary-dark);
+        box-shadow: var(--shadow-medium);
+    }
+    .controls button.empty-category-control:hover {
+        background: #888 !important;
+        box-shadow: none !important;
+    }
 
-  .controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid var(--border-color);
-    box-sizing: border-box;
-    width: 100%; /* Changed from max-width: fit-content to width: 100% */
-    margin: 10px 0; /* Changed from margin: 10px auto to margin: 10px 0 */
-    flex-wrap: nowrap;
-  }
-  .controls .category-display-label {
-    font-weight: bold;
-    font-size: 2.2em;
-    text-align: center;
-    background: none;
-    padding: 0;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
-    height: auto;
-    flex-shrink: 1;
-    flex-basis: auto;
-    margin: 0 10px;
-    line-height: 1; /* Hozzáadva, hogy a szöveg magassága pontosan a font-size legyen */
-  }
+    .controls button i {
+        margin: 0 4px;
+        font-size: 1.8em; /* Megnöveltem a vonalkód ikon méretét */
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Árnyék a jobb láthatóságért */
+    }
+    
+    #manualEntryBtn {
+        padding: 18px 44px;
+        font-size: 1.5em;
+    }
 
-  #categoryLabelRight {
-    display: none;
-  }
-
-  .controls .control-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .controls button {
-    font-size: 1.1em;
-    padding: 14px 22px;
-    border-radius: 6px;
-    border: none;
-    background: var(--primary);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.1s ease;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
-    text-shadow: none;
-  }
-
-  .controls button.empty-category-control {
-    background: var(--muted) !important;
-    color: var(--text) !important; /* Szöveg színe is muted legyen */
-    box-shadow: none !important;
-  }
-
-  .controls button:active {
-    transform: scale(0.96);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  .controls button:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
-  .controls button.empty-category-control:hover {
-    background: #888 !important;
-    box-shadow: none !important;
-  }
-
-  .controls button i {
-    margin: 0 4px;
-    font-size: 1.8em; /* Megnöveltem a vonalkód ikon méretét */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Árnyék a jobb láthatóságért */
-  }
-  
-  #manualEntryBtn {
-    padding: 18px 44px;
-    font-size: 1.5em;
-  }
-
-  #clearCategoryBtn {
-    background: var(--danger);
-    padding: 14px 22px;
-    font-size: 1.1em;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
-    color: #fff;
-  }
-  #clearCategoryBtn:hover {
-    background: #c82333;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
-  #clearCategoryBtn:active {
-    transform: scale(0.96);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
+    #clearCategoryBtn {
+        background: var(--danger);
+        padding: 14px 22px;
+        font-size: 1.1em;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 15px 30px rgba(0, 0, 0, 0.15);
+        color: #fff;
+    }
+    #clearCategoryBtn:hover {
+        background: #c82333;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+    #clearCategoryBtn:active {
+        transform: scale(0.96);
+        box-shadow: var(--shadow-active);
+    }
 
 
-  #listSection {
-    margin-top: 30px;
-    display: block;
-  }
+    #listSection {
+        margin-top: 30px;
+        display: block;
+    }
 
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-top: 20px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-soft);
-    table-layout: fixed;
-  }
-  th, td {
-    border-bottom: 1px solid var(--border-color);
-    padding: 15px 12px;
-    text-align: center;
-    vertical-align: middle;
-    color: var(--text);
-    text-overflow: ellipsis;
-    white-space: normal;
-    word-wrap: break-word;
-  }
-  th {
-    background: #f0f0f0;
-    font-weight: 700;
-    color: var(--muted);
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-shadow: none;
-  }
-  th:first-child { border-top-left-radius: 8px; }
-  th:last-child { border-top-right-radius: 8px; }
-  tr:last-child td { border-bottom: none; }
-
-  #logBody tr:nth-child(even) { background-color: var(--row-alt-bg); }
-
-  .auftrag-colored {
-    color: var(--primary);
-    font-weight: bold;
-  }
-
-  .auftrag-manual-bold {
-    color: var(--text);
-    font-weight: bold;
-  }
-
-  button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-  .deleteBtn {
-    background: #f8d7da;
-    color: var(--danger);
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-    padding: 8px 8px;
-    font-size: 0.85em;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    display: inline-block;
-    margin: 0 auto;
-    box-shadow: none;
-  }
-  .deleteBtn:hover {
-    background: var(--danger);
-    color: #fff;
-    box-shadow: var(--shadow-soft);
-  }
-  .deleteBtn:active {
-    transform: scale(0.95);
-    box-shadow: var(--shadow-active);
-  }
-
-
-  .noteToggleBtn {
-    background: none;
-    border: 1px solid transparent;
-    cursor: pointer;
-    color: var(--muted);
-    line-height: 1;
-    transition: transform 0.15s ease, color 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    display: inline-block;
-    margin: 0 auto;
-    box-shadow: none;
-    border-radius: 6px;
-    padding: 8px 8px;
-    font-size: 1.5em;
-  }
-  .noteToggleBtn:hover { transform: scale(1.15); color: var(--primary); }
-
-  .noteToggleBtn.note-filled {
-    background: var(--danger);
-    color: #fff;
-    border-color: var(--danger);
-    box-shadow: var(--shadow-soft);
-    animation: blink-red-white 1.5s infinite alternate;
-  }
-  .noteToggleBtn.note-filled:hover {
-    background: #c82333;
-    border-color: #c82333;
-    color: #fff;
-    box-shadow: var(--shadow-medium);
-    transform: scale(1.15);
-    animation: none;
-  }
-
-  @keyframes blink-red-white {
-    from { background-color: var(--danger); color: #fff; }
-    to { background-color: #ffffff; color: var(--danger); }
-  }
-
-  td.photo-cell {
-    padding: 10px;
-  }
-  .photoRow {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin-bottom: 5px;
-  }
-  .photoRow:last-child {
-    margin-bottom: 0;
-  }
-  .photoRow img {
-    width: 60px;
-    height: 60px;
-    border-radius: 5px;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    object-fit: cover;
-    background: var(--card-bg);
-    box-shadow: var(--shadow-soft);
-  }
-
-  .addExtraPhotoBtn, .uploadPhotoBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 8px;
-    font-size: 1.5em;
-    border-radius: 6px;
-    border: 1px solid var(--primary);
-    background: var(--primary);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin: 0 auto;
-    box-shadow: none;
-  }
-  .addExtraPhotoBtn:hover, .uploadPhotoBtn:hover {
-    background: var(--primary-dark);
-    border-color: var(--primary-dark);
-    box-shadow: var(--shadow-medium);
-  }
-  .addExtraPhotoBtn:active, .uploadPhotoBtn:active {
-    transform: scale(0.95);
-    box-shadow: var(--shadow-active);
-  }
-
-  .modal-overlay {
-    position: fixed;
-    top:0; left:0; right:0; bottom:0;
-    background: rgba(0,0,0,0.6);
-    display: flex; /* Always flex for centering */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow: auto; /* Allow scrolling in both directions */
-  }
-  /* Alapértelmezésben rejtve, JS jeleníti meg */
-  .modal-overlay:not([style*="display: flex"]) {
-    display: none;
-  }
-  
-  #imageModal.image-zoomed-in {
-    justify-content: flex-start; /* Align to top-left for scrolling */
-    align-items: flex-start;
-  }
-
-  /* Eltávolítottam a padding-top-ot, hogy a flexbox középre igazítsa */
-  #customPromptModal, #noteModal {
-    padding-top: 0; 
-  }
-  #customConfirmModal {
-    justify-content: center;
-    padding-top: 0;
-  }
-  .modal-overlay video {
-    width: 82vw;
-    max-width: 700px;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: var(--shadow-medium);
-    border: 1px solid var(--border-color);
-  }
-  .modal-controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .modal-controls button {
-    font-size: 1.05em;
-    padding: 12px 20px;
-    border-radius: 5px;
-    border: none;
-    background: var(--primary);
-    color: #fff;
-    backdrop-filter: none;
-    box-shadow: var(--shadow-soft);
-  }
-  .modal-controls button:hover { background: var(--primary-dark); box-shadow: var(--shadow-medium); }
-  .modal-controls button:active { transform: scale(0.98); }
-
-  #imageModal .modal-controls {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-    pointer-events: none;
-  }
-
-  #imageModal .modal-controls button {
-    font-size: 2em;
-    padding: 10px 15px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    border: 2px solid rgba(255,255,255,0.5);
-    backdrop-filter: blur(5px);
-    cursor: pointer;
-    pointer-events: all;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: var(--shadow-soft);
-  }
-  #imageModal .modal-controls button:hover {
-    background: rgba(0,0,0,0.5);
-    box-shadow: var(--shadow-medium);
-  }
-  #imageModal .modal-controls button:active {
-    transform: scale(0.9) translateY(-50%);
-  }
-  #imageModal .modal-controls button:disabled {
-    opacity: 0.3;
-    cursor: default;
-    box-shadow: none;
-  }
-
-  .delete-image-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10001;
-    background: var(--danger) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 50% !important;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    font-size: 1.2em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.2s ease;
-  }
-  .delete-image-btn:hover {
-    background: #c82333 !important;
-    box-shadow: var(--shadow-medium) !important;
-    transform: scale(1.1);
-  }
-  .delete-image-btn:active {
-    transform: scale(0.95);
-    box-shadow: var(--shadow-active);
-  }
-
-
-  #scannerDetectedCode {
-    margin-top: 18px;
-    font-size: 1.2em;
-    font-weight: 700;
-    color: var(--primary);
-    background: var(--card-bg);
-    padding: 10px 20px;
-    border-radius: 8px;
-    min-height: 2.5em;
-    text-align: center;
-    line-height: 2.5em;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid var(--border-color);
-  }
-
-  #imageModal img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 8px;
-    box-shadow: var(--shadow-medium);
-    background: #000;
-    border: 1px solid var(--border-color);
-    cursor: zoom-in;
-    transition: max-width 0.3s ease, max-height 0.3s ease;
-  }
-
-  /* UPDATED: Style for zoomed-in image */
-  #imageModal.image-zoomed-in #modalImage {
-    max-width: none;
-    max-height: none;
-    cursor: zoom-out;
-  }
-
-  .note-modal-content {
-    position: relative;
-    background: var(--card-bg);
-    padding: 25px;
-    border-radius: 8px;
-    width: 90vw;
-    max-width: 680px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    box-shadow: var(--shadow-medium);
-    border: 1px solid var(--border-color);
-  }
-  .note-modal-content h2 {
-    margin: 0 0 10px;
-    font-size: 1.8em;
-    color: var(--primary);
-  }
-  .note-modal-content p {
-    color: var(--text);
-  }
-  .note-modal-content textarea {
-    width: 100%;
-    height: 160px;
-    font-size: 1.5em;
-    padding: 12px;
-    box-sizing: border-box;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background: var(--bg);
-    color: var(--text);
-    resize: vertical;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    font-weight: bold;
-  }
-  .note-modal-content button {
-    font-size: 1.05em;
-    padding: 12px 20px;
-    border-radius: 5px;
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    align-self: flex-end;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.2s ease;
-  }
-  .note-modal-content button:hover { background: var(--primary-dark); box-shadow: var(--shadow-medium); }
-  .note-modal-content button:active { transform: scale(0.98); }
-
-  .modal-category-number {
-    position: static;
-    font-size: 6em;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--muted);
-  }
-
-  #customAlertModal .note-modal-content,
-  #customConfirmModal .note-modal-content {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-medium);
-  }
-  
-  #customPromptModal .note-modal-content {
-    max-width: 456px;
-    align-items: center;
-    gap: 20px;
-    /* Added explicit background for the prompt modal content */
-    background-color: white !important; /* Force white background */
-  }
-
-  #customAlertModal h2, #customConfirmModal h2, #customPromptModal h2 {
-    display: none;
-  }
-  #customPromptMessage {
-    display: none;
-  }
-
-  #customPromptInput {
-    background: var(--bg);
-    border: 1px solid var(--border-color);
-    color: var(--text);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 2em;
-    font-weight: bold;
-  }
-  /* Módosítva: OK gomb ikonjának mérete */
-  #customPromptOkBtn i {
-    font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
-  }
-  /* Módosítva: Mégse gomb ikonjának mérete és hover árnyalata */
-  #customPromptCancelBtn i {
-    font-size: 1.2em; /* Alapértelmezett méret az X ikonnak */
-  }
-  #customPromptCancelBtn:hover {
-    background: #bbbbbb !important; /* Sötétebb árnyalat hoverre */
-  }
-
-
-  @media (max-width: 700px) {
-    body { padding: 0 15px 30px; }
-    .grid { padding: 15px; gap: 10px; }
-    .grid button { padding: 16px 8px; font-size: 1.1em; }
-    .controls { padding: 15px; gap: 10px; }
-    .controls button { padding: 12px 18px; font-size: 1em; }
-    table { display: block; overflow-x: auto; white-space: nowrap; border-radius: 8px; }
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-soft);
+        table-layout: fixed; /* Fixálja a cellaszélességeket */
+    }
+    th, td {
+        border-bottom: 1px solid var(--border-color);
+        padding: 15px 12px;
+        text-align: center;
+        vertical-align: middle;
+        color: var(--text);
+        text-overflow: ellipsis; /* ... ha túl hosszú a szöveg */
+        white-space: normal; /* Engedélyezi a sortörést */
+        word-wrap: break-word; /* Sortörés, ha szükséges */
+    }
+    th {
+        background: #f0f0f0;
+        font-weight: 700;
+        color: var(--muted);
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-shadow: none;
+    }
     th:first-child { border-top-left-radius: 8px; }
     th:last-child { border-top-right-radius: 8px; }
-    .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
-    .app-title { font-size: 1.2em; }
-  }
+    tr:last-child td { border-bottom: none; }
+
+    #logBody tr:nth-child(even) { background-color: var(--row-alt-bg); }
+
+    .auftrag-colored {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .auftrag-manual-bold {
+        color: var(--text);
+        font-weight: bold;
+    }
+
+    button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+    .deleteBtn {
+        background: #f8d7da;
+        color: var(--danger);
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        padding: 8px 8px;
+        font-size: 0.85em;
+        font-weight: bold;
+        transition: all 0.2s ease;
+        display: inline-block;
+        margin: 0 auto;
+        box-shadow: none;
+    }
+    .deleteBtn:hover {
+        background: var(--danger);
+        color: #fff;
+        box-shadow: var(--shadow-soft);
+    }
+    .deleteBtn:active {
+        transform: scale(0.95);
+        box-shadow: var(--shadow-active);
+    }
+
+
+    .noteToggleBtn {
+        background: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        color: var(--muted);
+        line-height: 1;
+        transition: transform 0.15s ease, color 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        display: inline-block;
+        margin: 0 auto;
+        box-shadow: none;
+        border-radius: 6px;
+        padding: 8px 8px;
+        font-size: 1.5em;
+    }
+    .noteToggleBtn:hover { transform: scale(1.15); color: var(--primary); }
+
+    .noteToggleBtn.note-filled {
+        background: var(--danger);
+        color: #fff;
+        border-color: var(--danger);
+        box-shadow: var(--shadow-soft);
+        animation: blink-red-white 1.5s infinite alternate;
+    }
+    .noteToggleBtn.note-filled:hover {
+        background: #c82333;
+        border-color: #c82333;
+        color: #fff;
+        box-shadow: var(--shadow-medium);
+        transform: scale(1.15);
+        animation: none;
+    }
+
+    @keyframes blink-red-white {
+        from { background-color: var(--danger); color: #fff; }
+        to { background-color: #ffffff; color: var(--danger); }
+    }
+
+    td.photo-cell {
+        padding: 10px;
+    }
+    .photoRow {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+    .photoRow:last-child {
+        margin-bottom: 0;
+    }
+    .photoRow img {
+        width: 60px;
+        height: 60px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        object-fit: cover;
+        background: var(--card-bg);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .addExtraPhotoBtn, .uploadPhotoBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 8px;
+        font-size: 1.5em;
+        border-radius: 6px;
+        border: 1px solid var(--primary);
+        background: var(--primary);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0 auto;
+        box-shadow: none;
+    }
+    .addExtraPhotoBtn:hover, .uploadPhotoBtn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        box-shadow: var(--shadow-medium);
+    }
+    .addExtraPhotoBtn:active, .uploadPhotoBtn:active {
+        transform: scale(0.95);
+        box-shadow: var(--shadow-active);
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.6);
+        display: flex; /* Mindig flex a középre igazításhoz */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: auto; /* Engedélyezi a görgetést mindkét irányba */
+    }
+    /* Alapértelmezésben rejtve, JS jeleníti meg */
+    .modal-overlay:not([style*="display: flex"]) {
+        display: none;
+    }
+    
+    #imageModal.image-zoomed-in {
+        justify-content: flex-start; /* Igazítás balra felülre görgetéshez */
+        align-items: flex-start;
+    }
+
+    /* Eltávolítottam a padding-top-ot, hogy a flexbox középre igazítsa */
+    #customPromptModal, #noteModal {
+        padding-top: 0; 
+    }
+    #customConfirmModal {
+        justify-content: center;
+        padding-top: 0;
+    }
+    .modal-overlay video {
+        width: 82vw;
+        max-width: 700px;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: var(--shadow-medium);
+        border: 1px solid var(--border-color);
+    }
+    .modal-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .modal-controls button {
+        font-size: 1.05em;
+        padding: 12px 20px;
+        border-radius: 5px;
+        border: none;
+        background: var(--primary);
+        color: #fff;
+        backdrop-filter: none;
+        box-shadow: var(--shadow-soft);
+    }
+    .modal-controls button:hover { background: var(--primary-dark); box-shadow: var(--shadow-medium); }
+    .modal-controls button:active { transform: scale(0.98); }
+
+    #imageModal .modal-controls {
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        pointer-events: none; /* Átengedik a kattintásokat az alatta lévő képre */
+    }
+
+    #imageModal .modal-controls button {
+        font-size: 2em;
+        padding: 10px 15px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.3);
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.5);
+        backdrop-filter: blur(5px);
+        cursor: pointer;
+        pointer-events: all; /* Visszaállítva, hogy kattintható legyen */
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        box-shadow: var(--shadow-soft);
+    }
+    #imageModal .modal-controls button:hover {
+        background: rgba(0,0,0,0.5);
+        box-shadow: var(--shadow-medium);
+    }
+    #imageModal .modal-controls button:active {
+        transform: scale(0.9) translateY(-50%);
+    }
+    #imageModal .modal-controls button:disabled {
+        opacity: 0.3;
+        cursor: default;
+        box-shadow: none;
+    }
+
+    .delete-image-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10001;
+        background: var(--danger) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        font-size: 1.2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.2s ease;
+    }
+    .delete-image-btn:hover {
+        background: #c82333 !important;
+        box-shadow: var(--shadow-medium) !important;
+        transform: scale(1.1);
+    }
+    .delete-image-btn:active {
+        transform: scale(0.95);
+        box-shadow: var(--shadow-active);
+    }
+
+
+    #scannerDetectedCode { /* Ez az elem nincs használva a HTML-ben, de a stílusa megvan */
+        margin-top: 18px;
+        font-size: 1.2em;
+        font-weight: 700;
+        color: var(--primary);
+        background: var(--card-bg);
+        padding: 10px 20px;
+        border-radius: 8px;
+        min-height: 2.5em;
+        text-align: center;
+        line-height: 2.5em;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--border-color);
+    }
+
+    #imageModal img {
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 8px;
+        box-shadow: var(--shadow-medium);
+        background: #000;
+        border: 1px solid var(--border-color);
+        cursor: zoom-in;
+        transition: max-width 0.3s ease, max-height 0.3s ease;
+    }
+
+    /* FRISSÍTVE: Nagyított kép stílusa */
+    #imageModal.image-zoomed-in #modalImage {
+        max-width: none;
+        max-height: none;
+        cursor: zoom-out;
+    }
+
+    .note-modal-content {
+        position: relative;
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 8px;
+        width: 90vw;
+        max-width: 680px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        box-shadow: var(--shadow-medium);
+        border: 1px solid var(--border-color);
+    }
+    .note-modal-content h2 {
+        margin: 0 0 10px;
+        font-size: 1.8em;
+        color: var(--primary);
+    }
+    .note-modal-content p {
+        color: var(--text);
+    }
+    .note-modal-content textarea {
+        width: 100%;
+        height: 160px;
+        font-size: 1.5em;
+        padding: 12px;
+        box-sizing: border-box;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        background: var(--bg);
+        color: var(--text);
+        resize: vertical;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        font-weight: bold;
+    }
+    .note-modal-content button {
+        font-size: 1.05em;
+        padding: 12px 20px;
+        border-radius: 5px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        align-self: flex-end;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.2s ease;
+    }
+    .note-modal-content button:hover { background: var(--primary-dark); box-shadow: var(--shadow-medium); }
+    .note-modal-content button:active { transform: scale(0.98); }
+
+    .modal-category-number {
+        position: static;
+        font-size: 6em;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--muted);
+    }
+
+    #customAlertModal .note-modal-content,
+    #customConfirmModal .note-modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    #customPromptModal .note-modal-content {
+        max-width: 456px;
+        align-items: center;
+        gap: 20px;
+        /* Hozzáadva explicit háttér a prompt modál tartalmához */
+        background-color: white !important; /* Fehér háttér kényszerítése */
+    }
+
+    #customAlertModal h2, #customConfirmModal h2, #customPromptModal h2 {
+        display: none; /* A címeket a tartalomba ágyazva jelenítjük meg, nem külön h2-ként */
+    }
+    #customPromptMessage {
+        display: none; /* Az üzenet is a modál tartalmába van integrálva */
+    }
+
+    #customPromptInput {
+        background: var(--bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        font-size: 2em;
+        font-weight: bold;
+    }
+    /* Módosítva: OK gomb ikonjának mérete */
+    #customPromptOkBtn i {
+        font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
+    }
+    /* MÓDOSÍTVA: Mégse gomb ikonjának mérete és hover árnyalata - Most egyforma az OK gomb ikonjával */
+    #customPromptCancelBtn i {
+        font-size: 1.5em; /* Kicsit nagyobb pipa ikon */
+    }
+    #customPromptCancelBtn:hover {
+        background: #bbbbbb !important; /* Sötétebb árnyalat hoverre */
+    }
+
+
+    @media (max-width: 700px) {
+        body { padding: 0 15px 30px; }
+        .grid { padding: 15px; gap: 10px; }
+        .grid button { padding: 16px 8px; font-size: 1.1em; }
+        .controls { padding: 15px; gap: 10px; }
+        .controls button { padding: 12px 18px; font-size: 1em; }
+        table { display: block; overflow-x: auto; white-space: nowrap; border-radius: 8px; }
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        .photo-cell img { width: 50px; height: 50px; border-radius: 4px; }
+        .app-title { font-size: 1.2em; /* Az eredeti kódban nincs ilyen elem, de ez egy általános stílus */ }
+    }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-  <div id="main-scrollable-area">
-    <div class="grid" id="categoryGrid1"></div>
-    <div class="grid" id="categoryGrid2"></div>
+    <div id="main-scrollable-area">
+        <div class="grid" id="categoryGrid1"></div>
+        <div class="grid" id="categoryGrid2"></div>
 
-    <div id="listSection">
-      <table>
-        <thead>
-          <tr>
-            <th id="traverse-header">#</th>
-            <th>Auftrag</th>
-            <th>Datum</th>
-            <th>Notiz</th>
-            <th>Bilder</th>
-            <th><i class="fas fa-folder"></i></th>
-            <th><i class="fas fa-trash-alt"></i></th>
-          </tr>
-        </thead>
-        <tbody id="logBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="mainControls">
-    <div class="controls">
-        <div id="categoryLabelLeft" class="category-display-label"></div>
-        <div class="control-buttons">
-            <button id="manualEntryBtn"><i class="fas fa-barcode"></i></button>
-            <button id="clearCategoryBtn"><i class="fas fa-trash-alt"></i></button>
+        <div id="listSection">
+            <table>
+                <thead>
+                    <tr>
+                        <th id="traverse-header">#</th>
+                        <th>Auftrag</th>
+                        <th>Datum</th>
+                        <th>Notiz</th>
+                        <th>Bilder</th>
+                        <th><i class="fas fa-folder"></i></th>
+                        <th><i class="fas fa-trash-alt"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+            </table>
         </div>
     </div>
-  </div>
 
-  <div id="imageModal" class="modal-overlay">
-    <img id="modalImage" src="" alt="Bild vergrötes" />
-    <div class="modal-controls">
-      <button id="imageModalPrevBtn"><i class="fas fa-chevron-left"></i></button>
-      <button id="imageModalNextBtn"><i class="fas fa-chevron-right"></i></button>
+    <div id="mainControls">
+        <div class="controls">
+                <div id="categoryLabelLeft" class="category-display-label"></div>
+                <div class="control-buttons">
+                    <button id="manualEntryBtn" title="Manuelle Eingabe"><i class="fas fa-barcode"></i></button>
+                    <button id="clearCategoryBtn" title="Kategória törlése"><i class="fas fa-trash-alt"></i></button>
+                </div>
+        </div>
     </div>
-    <button id="deleteImageBtn" class="delete-image-btn"><i class="fas fa-trash-alt"></i></button>
-  </div>
 
-  <div id="noteModal" class="modal-overlay">
-    <div class="note-modal-content">
-      <h2>Notiz bearbeiten</h2>
-      <textarea id="noteModalTextarea"></textarea>
-      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
-        <button id="noteModalSaveBtn">Speichern & Schließen</button>
-      </div>
+    <div id="imageModal" class="modal-overlay">
+        <img id="modalImage" src="" alt="Bild vergrößert" />
+        <div class="modal-controls">
+            <button id="imageModalPrevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button id="imageModalNextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <button id="deleteImageBtn" class="delete-image-btn"><i class="fas fa-trash-alt"></i></button>
     </div>
-  </div>
 
-  <div id="customPromptModal" class="modal-overlay">
-    <div class="note-modal-content">
-      <span id="promptCategoryNumber" class="modal-category-number"></span>
-      <h2 id="customPromptTitle">Manuelle Eingabe</h2>
-      <p id="customPromptMessage">Bitte geben Sie den Produktnamen vagy a Kennung-ot:</p>
-      <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
-      <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
-        <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-times"></i></button>
-        <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;"><i class="fas fa-check"></i></button>
-      </div>
+    <div id="noteModal" class="modal-overlay">
+        <div class="note-modal-content">
+            <h2>Notiz bearbeiten</h2>
+            <textarea id="noteModalTextarea"></textarea>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
+                <button id="noteModalSaveBtn">Speichern & Schließen</button>
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+
+    <div id="customPromptModal" class="modal-overlay">
+        <div class="note-modal-content">
+            <span id="promptCategoryNumber" class="modal-category-number"></span>
+            <h2 id="customPromptTitle">Manuelle Eingabe</h2>
+            <p id="customPromptMessage">Bitte geben Sie den Produktnamen oder die Kennung ein:</p>
+            <input type="text" id="customPromptInput" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;">
+            <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
+                <button id="customPromptCancelBtn" style="background: #ccc; color: var(--text); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;" title="Mégse"><i class="fas fa-times"></i></button>
+                <button id="customPromptOkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;" title="OK"><i class="fas fa-check"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
 
 <div id="iconDataLoader" style="display: none;" data-icon-url="https://i.imgur.com/YpR6PdE.png"></div>
 
@@ -865,12 +865,17 @@ const db = (() => {
             request.onsuccess = (event) => { dbInstance = event.target.result; resolve(dbInstance); };
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
+                // Létrehoz egy "entries" objektumtárolót, ha még nem létezik.
+                // Az "id" a fő kulcs, autoIncrementtel automatikusan generálódik.
                 const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
+                // Létrehozza a "category" indexet a kategória alapján történő lekérdezéshez.
                 objectStore.createIndex('category', 'category', { unique: false });
+                // Létrehozza a "category_code" indexet a kategória és a kód egyedi kombinációjának ellenőrzéséhez.
                 objectStore.createIndex('category_code', ['category', 'code'], { unique: true });
             };
         });
     }
+    // Tranzakció végrehajtása az IndexedDB-ben
     async function performTransaction(storeName, mode, action) {
         const db = await openDB();
         const transaction = db.transaction(storeName, mode);
@@ -905,982 +910,1052 @@ const db = (() => {
 /* --- Fő alkalmazáslogika --- */
 
 (async function(){
-  // DOM elemek
-  const categoryGrid1 = document.getElementById('categoryGrid1');
-  const categoryGrid2 = document.getElementById('categoryGrid2');
-  const categoryLabelLeft = document.getElementById('categoryLabelLeft');
-  const mainControls = document.getElementById('mainControls');
-  const listSection = document.getElementById('listSection');
-  const logBody = document.getElementById('logBody');
+    // DOM elemek lekérése
+    const categoryGrid1 = document.getElementById('categoryGrid1');
+    const categoryGrid2 = document.getElementById('categoryGrid2');
+    const categoryLabelLeft = document.getElementById('categoryLabelLeft');
+    const mainControls = document.getElementById('mainControls');
+    const listSection = document.getElementById('listSection');
+    const logBody = document.getElementById('logBody');
 
-  // Modálok
-  const imageModal = document.getElementById('imageModal');
-  const modalImage = document.getElementById('modalImage');
-  const noteModal = document.getElementById('noteModal');
-  const noteModalTextarea = document.getElementById('noteModalTextarea');
-  const noteModalSaveBtn = document.getElementById('noteModalSaveBtn');
-  const deleteImageBtn = document.getElementById('deleteImageBtn');
-  const imageUploadInput = document.getElementById('imageUploadInput');
-  const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
+    // Modál elemek
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const noteModal = document.getElementById('noteModal');
+    const noteModalTextarea = document.getElementById('noteModalTextarea');
+    const noteModalSaveBtn = document.getElementById('noteModalSaveBtn');
+    const deleteImageBtn = document.getElementById('deleteImageBtn');
+    const imageUploadInput = document.getElementById('imageUploadInput');
+    const customPromptModal = document.getElementById('customPromptModal'); // Hozzáadva: customPromptModal változó
 
-  // Gombok
-  const manualEntryBtn = document.getElementById('manualEntryBtn');
-  const clearCategoryBtn = document.getElementById('clearCategoryBtn');
+    // Vezérlőgombok
+    const manualEntryBtn = document.getElementById('manualEntryBtn');
+    const clearCategoryBtn = document.getElementById('clearCategoryBtn');
 
-  // Állapot
-  let currentCategory = null;
-  let entries = [];
-  let entryIdToUpdate = null;
-  let noteEntryIdToUpdate = null;
+    // Alkalmazás állapota
+    let currentCategory = null; // A jelenleg kiválasztott kategória száma
+    let entries = []; // A jelenleg kiválasztott kategória bejegyzései
+    let entryIdToUpdate = null; // A képfeltöltéshez kiválasztott bejegyzés ID-je
+    let noteEntryIdToUpdate = null; // A jegyzet szerkesztéséhez kiválasztott bejegyzés ID-je
 
-  // Global state for image modal carousel
-  let currentModalImages = [];
-  let currentModalImageIndex = 0;
-  let currentImageEntryId = null;
+    // Globális állapot a képmodál karusszeljéhez
+    let currentModalImages = []; // A jelenleg megjelenített képek listája
+    let currentModalImageIndex = 0; // A jelenleg megjelenített kép indexe
+    let currentImageEntryId = null; // Annak a bejegyzésnek az ID-je, amelyikhez a képek tartoznak
 
-  // Lézer szkenner kezelése
-  let laserScannerBuffer = [];
-  let laserScannerTimer = null;
+    // Lézer szkenner bemeneti puffer és időzítő
+    let laserScannerBuffer = [];
+    let laserScannerTimer = null;
 
-  window.addEventListener('keydown', (e) => {
-    // Esc billentyű kezelése
-    if (e.key === 'Escape') {
-      if (imageModal.style.display === 'flex') {
-        closeModal(imageModal);
-      } else if (noteModal.style.display === 'flex') {
-        closeModal(noteModal);
-      } else if (customPromptModal.style.display === 'flex') { // customPromptModal hozzáadása
-        closeModal(customPromptModal);
-      }
-      return;
-    }
-
-    if (document.querySelector('.modal-overlay[style*="display: flex"]') || !currentCategory) {
-      return;
-    }
-    if (e.key === 'Enter' && laserScannerBuffer.length > 0) {
-      e.preventDefault();
-      const scannedCode = laserScannerBuffer.join('');
-      addNewEntry(scannedCode, null, 'laser');
-      laserScannerBuffer = [];
-      clearTimeout(laserScannerTimer);
-      return;
-    }
-    if (e.key.length === 1) {
-      laserScannerBuffer.push(e.key);
-      clearTimeout(laserScannerTimer);
-      laserScannerTimer = setTimeout(() => {
-        laserScannerBuffer = [];
-      }, 100);
-    }
-  });
-
-  // Kategóriagombok létrehozása és inicializálása
-  for(let i=1; i<=16; i++){
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.addEventListener('click', () => selectCategory(i, btn));
-    categoryGrid1.appendChild(btn);
-  }
-  for(let i=17; i<=28; i++){
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.addEventListener('click', () => selectCategory(i, btn));
-    categoryGrid2.appendChild(btn);
-  }
-
-  async function updateCategoryButtonColors() {
-    const allCategoryButtons = document.querySelectorAll('.grid button');
-    // Kinyerjük az ikon URL-t a rejtett HTML elemből
-    const iconUrl = document.getElementById('iconDataLoader').dataset.iconUrl;
-
-    for (const button of allCategoryButtons) {
-        const categoryNum = parseInt(button.textContent);
-        const entriesForCategory = await db.getEntriesForCategory(categoryNum);
-        
-        const existingIcon = button.querySelector('.time-icon');
-        if (existingIcon) {
-            existingIcon.remove();
+    // Billentyűzet eseménykezelő a szkenner bemenetéhez és Esc gombhoz
+    window.addEventListener('keydown', (e) => {
+        // Esc billentyű kezelése a modálok bezárásához
+        if (e.key === 'Escape') {
+            if (imageModal.style.display === 'flex') {
+                closeModal(imageModal);
+            } else if (noteModal.style.display === 'flex') {
+                closeModal(noteModal);
+            } else if (customPromptModal.style.display === 'flex') {
+                closeModal(customPromptModal);
+            }
+            return; // Kilép, ha modált zártunk
         }
 
-        const existingDayLetter = button.querySelector('.day-letter');
-        if(existingDayLetter) {
-            existingDayLetter.remove();
+        // Ha modál van nyitva, vagy nincs kategória kiválasztva, ne dolgozzuk fel a szkenner bemenetet
+        if (document.querySelector('.modal-overlay[style*="display: flex"]') || !currentCategory) {
+            return;
         }
 
-        // FA/NA ikon eltávolítása minden frissítés előtt
-        const existingFaNaIcon = button.querySelector('.fa-na-icon');
-        if (existingFaNaIcon) {
-            existingFaNaIcon.remove();
+        // Enter lenyomása szkenner bemenet után
+        if (e.key === 'Enter' && laserScannerBuffer.length > 0) {
+            e.preventDefault(); // Megakadályozza az alapértelmezett Enter viselkedést (pl. űrlap elküldése)
+            const scannedCode = laserScannerBuffer.join(''); // Összefűzi a karaktereket
+            addNewEntry(scannedCode, null, 'laser'); // Hozzáadja az új bejegyzést
+            laserScannerBuffer = []; // Törli a puffert
+            clearTimeout(laserScannerTimer); // Törli az időzítőt
+            return;
         }
 
-        let hasFaNaEntry = false;
-        if (entriesForCategory.length > 0) {
-            button.classList.remove('empty-category');
+        // Karakter hozzáadása a szkenner pufferhez
+        if (e.key.length === 1) { // Csak egyetlen karakteres billentyűket dolgoz fel
+            laserScannerBuffer.push(e.key);
+            clearTimeout(laserScannerTimer); // Reseteli az időzítőt minden billentyűnyomásra
+            // Az időzítő 100 ms után törli a puffert, ha nincs további karakter
+            laserScannerTimer = setTimeout(() => {
+                laserScannerBuffer = [];
+            }, 100);
+        }
+    });
+
+    // Kategóriagombok létrehozása és inicializálása
+    for(let i=1; i<=16; i++){
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.addEventListener('click', () => selectCategory(i, btn));
+        categoryGrid1.appendChild(btn);
+    }
+    for(let i=17; i<=28; i++){
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.addEventListener('click', () => selectCategory(i, btn));
+        categoryGrid2.appendChild(btn);
+    }
+
+    // Frissíti a kategóriagombok színeit és ikonjait az adatok alapján
+    async function updateCategoryButtonColors() {
+        const allCategoryButtons = document.querySelectorAll('.grid button');
+        // Kinyerjük az ikon URL-t a rejtett HTML elemből
+        const iconUrl = document.getElementById('iconDataLoader').dataset.iconUrl;
+
+        for (const button of allCategoryButtons) {
+            const categoryNum = parseInt(button.textContent);
+            const entriesForCategory = await db.getEntriesForCategory(categoryNum);
             
-            const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-            const entryDate = new Date(latestEntry.date);
-            const entryHour = entryDate.getHours();
+            // Eltávolítja az idő ikont, ha már létezik
+            const existingTimeIcon = button.querySelector('.time-icon');
+            if (existingTimeIcon) {
+                existingTimeIcon.remove();
+            }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const isPreviousDay = entryDate < today;
+            // Eltávolítja a nap betűjét, ha már létezik
+            const existingDayLetter = button.querySelector('.day-letter');
+            if(existingDayLetter) {
+                existingDayLetter.remove();
+            }
 
-            const icon = document.createElement('i');
-            icon.classList.add('fas', 'time-icon');
-            if (entryHour < 14) {
-                icon.classList.add('fa-sun');
-                icon.style.color = isPreviousDay ? '#666666' : 'yellow';
+            // FA/NA ikon eltávolítása minden frissítés előtt
+            const existingFaNaIcon = button.querySelector('.fa-na-icon');
+            if (existingFaNaIcon) {
+                existingFaNaIcon.remove();
+            }
+
+            let hasFaNaEntry = false;
+            if (entriesForCategory.length > 0) {
+                button.classList.remove('empty-category'); // Ha van adat, nem üres kategória
+                
+                // Legfrissebb bejegyzés megkeresése az idő és nap ikonhoz
+                const latestEntry = entriesForCategory.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                const entryDate = new Date(latestEntry.date);
+                const entryHour = entryDate.getHours();
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Beállítja a mai nap kezdetét
+                const isPreviousDay = entryDate < today; // Ellenőrzi, hogy előző nap-e
+
+                const icon = document.createElement('i');
+                icon.classList.add('fas', 'time-icon');
+                if (entryHour < 14) { // Ha 14 óra előtt van (délelőtt)
+                    icon.classList.add('fa-sun');
+                    icon.style.color = isPreviousDay ? '#666666' : 'yellow'; // Szürke, ha előző nap, sárga, ha ma
+                } else { // Ha 14 óra után van (délután)
+                    icon.classList.add('fa-moon');
+                    icon.style.color = isPreviousDay ? '#666666' : '#F9E79F'; // Szürke, ha előző nap, halvány sárga, ha ma
+                }
+                button.appendChild(icon);
+
+                const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']; // Napok német rövidítéssel
+                const dayIndex = entryDate.getDay();
+                const daySpan = document.createElement('span');
+                daySpan.className = 'day-letter';
+                daySpan.textContent = days[dayIndex];
+                button.appendChild(daySpan);
+
+                // Ellenőrizze, hogy van-e FA vagy NA kezdetű bejegyzés
+                hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
+
             } else {
-                icon.classList.add('fa-moon');
-                icon.style.color = isPreviousDay ? '#666666' : '#F9E79F';
+                button.classList.add('empty-category'); // Ha nincs adat, üres kategória
             }
-            button.appendChild(icon);
 
-            const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-            const dayIndex = entryDate.getDay();
-            const daySpan = document.createElement('span');
-            daySpan.className = 'day-letter';
-            daySpan.textContent = days[dayIndex];
-            button.appendChild(daySpan);
+            // FA/NA ikon hozzáadása, ha van ilyen bejegyzés
+            if (hasFaNaEntry) {
+                const faNaIcon = document.createElement('img'); // Képként illesztjük be
+                faNaIcon.src = iconUrl; // Az ikon URL-je a rejtett HTML elemből
+                faNaIcon.alt = 'Traverse Status Icon';
+                faNaIcon.classList.add('fa-na-icon');
+                button.appendChild(faNaIcon);
+            }
+        }
+    }
 
-            // Ellenőrizze, hogy van-e FA vagy NA kezdetű bejegyzés
-            hasFaNaEntry = entriesForCategory.some(entry => entry.code && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
-
+    // Frissíti az alsó vezérlőgombok (kézi bevitel) színét
+    function updateControlButtonsColor(isEmpty) {
+        if (isEmpty) {
+            manualEntryBtn.classList.add('empty-category-control');
         } else {
-            button.classList.add('empty-category');
-        }
-
-        // FA/NA ikon hozzáadása, ha van ilyen bejegyzés
-        if (hasFaNaEntry) {
-            const faNaIcon = document.createElement('img'); // Képként illesztjük be
-            // Az ikon URL-je a rejtett HTML elemből
-            faNaIcon.src = iconUrl;
-            faNaIcon.alt = 'Traverse Status Icon';
-            faNaIcon.classList.add('fa-na-icon');
-            button.appendChild(faNaIcon);
+            manualEntryBtn.classList.remove('empty-category-control');
         }
     }
-  }
 
-  function updateControlButtonsColor(isEmpty) {
-    if (isEmpty) {
-      manualEntryBtn.classList.add('empty-category-control');
-    } else {
-      manualEntryBtn.classList.remove('empty-category-control');
-    }
-  }
-
-  async function selectCategory(num, btn){
-    if(currentCategory === num) return;
-    const prevActive = document.querySelector('.grid button.active');
-    if(prevActive) prevActive.classList.remove('active'); // Javítva: prev helyett prevActive
-    btn.classList.add('active');
-    currentCategory = num;
-    
-    try {
-        entries = await db.getEntriesForCategory(currentCategory);
-        const isEmpty = entries.length === 0; // Meghatározzuk az üres állapotot
-        updateHeaderAndControls();
-        updateTraverseHeader(); // Call to update the new header
+    // Kategória kiválasztása eseménykezelő
+    async function selectCategory(num, btn){
+        if(currentCategory === num) return; // Ha már ez a kategória van kiválasztva, ne tegyen semmit
         
-        mainControls.style.display = 'block';
-        listSection.style.display = 'block';
-        renderTable();
-        await updateCategoryButtonColors();
-        updateControlButtonsColor(isEmpty); // Hozzáadva: a szkenner gomb színének frissítése
-    }
-    catch (e) {
-        console.error("Fehler beim Lesen der Datenbank:", e);
-        showCustomAlert('Fehler beim Laden der Traverse.', 'Fehler');
-    }
-  }
-
-  // Helper function to update the bottom label and controls
-  function updateHeaderAndControls() {
-    if (!currentCategory) {
-        categoryLabelLeft.innerHTML = ''; /* A HTML tartalom beállítása */
-        categoryLabelLeft.style.color = 'var(--muted)';
-        return;
-    }
-
-    const isEmpty = entries.length === 0;
-    // Az ikon SVG kódja, szín dinamikusan beállítva
-    const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-    // Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
-    const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="category-label-icon">`;
-
-    // Az innerHTML beállítása az ikonnal és a kategória számmal
-    categoryLabelLeft.innerHTML = `${iconSvg} ${currentCategory}`;
-    categoryLabelLeft.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
-  }
-
-  // NEW: Function to update the traverse header in the table
-  function updateTraverseHeader() {
-      const traverseHeader = document.getElementById('traverse-header');
-      if (!currentCategory) {
-          traverseHeader.innerHTML = '#'; /* A HTML tartalom beállítása */
-          traverseHeader.style.color = 'var(--muted)';
-          traverseHeader.style.fontWeight = 'bold';
-          traverseHeader.style.fontSize = '0.9em'; /* Visszaállítom az alapértelmezett méretre, ha nincs kiválasztva */
-          return;
-      }
-
-      const isEmpty = entries.length === 0;
-      // Az ikon SVG kódja, szín dinamikusan beállítva
-      const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
-      // ÚJ: Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
-      const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
-
-      // Az innerHTML beállítása az ikonnal és a kategória számmal
-      traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
-      traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
-      traverseHeader.style.fontWeight = 'bold';
-      traverseHeader.style.fontSize = '1.5em'; /* Növelje a betűméretet a fejléc számához */
-  }
-
-  function showCustomAlert(message, title = 'Info') {
-    const existingModal = document.getElementById('customAlertModal');
-    if (existingModal) existingModal.remove();
-
-    const alertModal = document.createElement('div');
-    alertModal.id = 'customAlertModal';
-    alertModal.classList.add('modal-overlay');
-    alertModal.innerHTML = `
-      <div class="note-modal-content">
-        <h2>${title}</h2>
-        <p>${message}</p>
-        <button id="customAlertCloseBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; align-self: flex-end;">OK</button>
-      </div>
-    `;
-    document.body.appendChild(alertModal);
-    alertModal.style.display = 'flex';
-    document.body.classList.add('modal-open');
-
-    document.getElementById('customAlertCloseBtn').addEventListener('click', () => {
-      alertModal.style.display = 'none';
-      document.body.classList.remove('modal-open');
-      alertModal.remove();
-    });
-    alertModal.addEventListener('click', (e) => {
-      if (e.target === alertModal) {
-        alertModal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        alertModal.remove();
-      }
-    });
-  }
-
-  // Simplified confirmation modal for image deletion
-  function showSimpleConfirm(message, title = 'Bestätigung') {
-    return new Promise(resolve => {
-      const existingModal = document.getElementById('customConfirmModal');
-      if (existingModal) existingModal.remove();
-
-      const confirmModal = document.createElement('div');
-      confirmModal.id = 'customConfirmModal';
-      confirmModal.classList.add('modal-overlay');
-      
-      confirmModal.innerHTML = `
-        <div class="note-modal-content">
-          <h2>${title}</h2>
-          <p>${message}</p>
-          <div style="display: flex; justify-content: flex-end; gap: 10px; width: 100%; margin-top: 20px;">
-            <button id="customConfirmCancelBtn">Abbrechen</button>
-            <button id="customConfirmOkBtn">OK</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(confirmModal);
-      confirmModal.style.display = 'flex';
-      document.body.classList.add('modal-open');
-
-      const okBtn = document.getElementById('customConfirmOkBtn');
-      const cancelBtn = document.getElementById('customConfirmCancelBtn');
-
-      const close = (result) => {
-        confirmModal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        confirmModal.remove();
-        resolve(result);
-      };
-
-      okBtn.addEventListener('click', () => close(true));
-      cancelBtn.addEventListener('click', () => close(false));
-      confirmModal.addEventListener('click', (e) => {
-        if (e.target === confirmModal) {
-          close(false);
-        }
-      });
-    });
-  }
-
-  function showCustomConfirm(message, title = 'Bestätigung', entry = null) {
-    return new Promise(resolve => {
-      const existingModal = document.getElementById('customConfirmModal');
-      if (existingModal) existingModal.remove();
-
-      const confirmModal = document.createElement('div');
-      confirmModal.id = 'customConfirmModal';
-      confirmModal.classList.add('modal-overlay');
-      
-      const isCheckedByDefault = !(entry && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
-
-      confirmModal.innerHTML = `
-        <div class="note-modal-content">
-          <h2>${title}</h2>
-          <p>${message}</p>
-          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 20px; flex-wrap: wrap; gap: 10px;">
-            <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9em;">
-              <input type="checkbox" id="exportPdfCheckbox" ${isCheckedByDefault ? 'checked' : ''} style="margin-right: 8px; width: 18px; height: 18px; transform: scale(1.2);">
-              PDF exportieren
-            </label>
-            <div style="display: flex; gap: 10px;">
-              <button id="customConfirmCancelBtn">Abbrechen</button>
-              <button id="customConfirmOkBtn">Löschen</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(confirmModal);
-      confirmModal.style.display = 'flex';
-      document.body.classList.add('modal-open');
-
-      document.getElementById('customConfirmOkBtn').addEventListener('click', () => {
-        const exportPdf = document.getElementById('exportPdfCheckbox').checked;
-        confirmModal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        confirmModal.remove();
-        resolve({ confirmed: true, exportPdf: exportPdf });
-      });
-      document.getElementById('customConfirmCancelBtn').addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-        confirmModal.remove();
-        resolve({ confirmed: false, exportPdf: false });
-      });
-      confirmModal.addEventListener('click', (e) => {
-        if (e.target === confirmModal) {
-          confirmModal.style.display = 'none';
-          document.body.classList.remove('modal-open');
-          confirmModal.remove();
-          resolve({ confirmed: false, exportPdf: false });
-        }
-      });
-    });
-  }
-
-  function openImageModal(images, startIndex, entryId) {
-      currentModalImages = images;
-      currentModalImageIndex = startIndex;
-      currentImageEntryId = entryId;
-
-      modalImage.src = currentModalImages[currentModalImageIndex];
-      modalImage.classList.remove('zoomed');
-      imageModal.style.display = 'flex';
-      document.body.classList.add('modal-open');
-
-      updateImageModalNavigation();
-  }
-
-  function updateImageModalNavigation() {
-      const prevBtn = document.getElementById('imageModalPrevBtn');
-      const nextBtn = document.getElementById('imageModalNextBtn');
-
-      if (currentModalImages.length <= 1) {
-          prevBtn.style.display = 'none';
-          nextBtn.style.display = 'none';
-      } else {
-          prevBtn.style.display = 'inline-flex';
-          nextBtn.style.display = 'inline-flex';
-          prevBtn.disabled = (currentModalImageIndex === 0);
-          nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1);
-      }
-  }
-
-  function showNextImage() {
-      if (currentModalImageIndex < currentModalImages.length - 1) {
-          currentModalImageIndex++;
-          modalImage.src = currentModalImages[currentModalImageIndex];
-          modalImage.classList.remove('zoomed');
-          updateImageModalNavigation();
-      }
-  }
-
-  function showPrevImage() {
-      if (currentModalImageIndex > 0) {
-          currentModalImageIndex--;
-          modalImage.src = currentModalImages[currentModalImageIndex];
-          modalImage.classList.remove('zoomed');
-          updateImageModalNavigation();
-      }
-  }
-
-  async function deleteCurrentImage() {
-      if (!currentImageEntryId || currentModalImages.length === 0) {
-          showCustomAlert('Kein Bild zum Löschen vorhanden.', 'Fehler');
-          return;
-      }
-
-      const confirmed = await showSimpleConfirm('Möchten Sie dieses Bild wirklich lölni?', 'Bild löschen');
-      if (!confirmed) {
-          return;
-      }
-
-      let entry = entries.find(e => e.id === currentImageEntryId);
-      if (entry) {
-          const imageUrlToDelete = currentModalImages[currentModalImageIndex];
-
-          if (entry.image === imageUrlToDelete) {
-              if (entry.kepek && entry.kepek.length > 0) {
-                  entry.image = entry.kepek.shift();
-              } else {
-                  entry.image = null;
-              }
-          } else if (entry.kepek) {
-              const indexToDelete = entry.kepek.indexOf(imageUrlToDelete);
-              if (indexToDelete > -1) {
-                  entry.kepek.splice(indexToDelete, 1);
-              }
-          }
-
-          await db.updateEntry(entry);
-          entries = entries.map(e => e.id === entry.id ? entry : e);
-          renderTable();
-
-          const allRemainingImages = [entry.image, ...(entry.kepek || [])].filter(Boolean);
-          if (allRemainingImages.length > 0) {
-              if (currentModalImageIndex >= allRemainingImages.length) {
-                  currentModalImageIndex = allRemainingImages.length - 1;
-              }
-              openImageModal(allRemainingImages, currentModalImageIndex, currentImageEntryId);
-          } else {
-              closeModal(imageModal);
-          }
-      }
-  }
-
-
-  // renderTable to include the new sequential number column
-  function renderTable(){
-    const sortedEntries = entries.slice().sort((a,b)=> new Date(b.date) - new Date(a.date));
-    logBody.innerHTML = sortedEntries.map((e,i) => {
-      const entryDate = new Date(e.date);
-      const formattedDate = entryDate.toLocaleDateString('de-DE');
-      const formattedTime = entryDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-      const allImageSources = [e.image, ...(e.kepek || [])].filter(Boolean);
-      let photosCellHtml = '';
-      for (let j = 0; j < allImageSources.length; j += 3) {
-          photosCellHtml += `<div class="photoRow">${allImageSources.slice(j, j + 3).map(src => `<img src="${src}" alt="Bild">`).join('')}</div>`;
-      }
-
-      const noteTitle = e.note ? 'Notiz öffnen' : 'Notiz hinzufügen';
-
-      let codeClass = '';
-      if (e.code && (e.code.startsWith('FA') || e.code.startsWith('NA'))) {
-          codeClass = 'auftrag-colored';
-      } else if (e.source === 'scanner' || e.source === 'manual' || e.source === 'laser') {
-          codeClass = 'auftrag-manual-bold';
-      }
-
-      return `
-      <tr data-id="${e.id}">
-        <td>
-          ${i + 1}
-        </td>
-        <td class="${codeClass}">
-          ${e.code} <!-- Az Auftrag kód -->
-        </td>
-        <td>
-          ${formattedDate}<br>
-          <span style="font-size: 0.85em; color: var(--muted);"> ${formattedTime}</span>
-        </td>
-        <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-book' : 'fa-plus'}"></i></button></td>
-        <td class="photo-cell">${photosCellHtml}</td>
-        <td><button class="uploadPhotoBtn" data-id="${e.id}" title="Bild hochladen"><i class="fas fa-folder"></i></button></td>
-        <td><button class="deleteBtn" data-id="${e.id}" data-code="${e.code}" title="Löschen"><i class="fas fa-trash-alt"></i></button></td>
-      </tr>`;
-    }).join('');
-    attachTableEventListeners();
-  }
-
-  function attachTableEventListeners() {
-      logBody.querySelectorAll('.deleteBtn').forEach(btn => btn.addEventListener('click', handleDelete));
-      logBody.querySelectorAll('.noteToggleBtn').forEach(btn => btn.addEventListener('click', openNoteModal));
-      logBody.querySelectorAll('.photo-cell img').forEach(img => img.addEventListener('click', (event) => {
-          const entryId = parseInt(event.target.closest('tr').dataset.id);
-          const entry = entries.find(e => e.id === entryId);
-          if (entry) {
-              const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
-              const clickedImageSrc = event.target.src;
-              const clickedImageIndex = allImageSources.indexOf(clickedImageSrc);
-              openImageModal(allImageSources, clickedImageIndex, entryId);
-          }
-      }));
-      logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
-  }
-  
-  function loadImage(src) {
-      return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = 'Anonymous';  
-          img.onload = () => resolve(img);
-          img.onerror = () => {
-            console.warn(`Failed to load image for PDF: ${src.substring(0, 50)}...`);
-            reject(new Error('Failed to load image for sanitization.'));
-          };
-          img.src = src; // Corrected: use `src` here, not `imageDataUrl`
-      });
-  }
-
-  // --- PDF GENERATION (REVISED) ---
-  async function generatePdfForEntry(entry) {
-    if (typeof window.jspdf === 'undefined') {
-        console.error('jsPDF is not loaded!');
-        showCustomAlert('PDF export fehlgeschlagen: jsPDF-Bibliothek nicht geloaden.', 'Fehler');
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const entryDate = new Date(entry.date);
-    const formattedDateTime = entryDate.toLocaleString('de-DE', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit'
-    });
-    const entryHour = entryDate.getHours();
-    const shiftText = entryHour < 14 ? 'Frühschicht' : 'Spätschicht';
-
-    doc.setFontSize(24);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Auftrag: ${entry.code}`, 10, 20);
-
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(18);
-    doc.text(`Datum: ${formattedDateTime}`, 10, 35);
-    
-    doc.text(shiftText, 10, 50);
-
-    doc.text('Traverse: ', 10, 65);
-    doc.setFont(undefined, 'bold');
-    doc.text(String(entry.category), 10 + doc.getStringUnitWidth('Traverse: ') * 18 / doc.internal.scaleFactor, 65);
-    doc.setFont(undefined, 'normal');
-
-    let yPos = 80;
-    if (entry.note) {
-        doc.setFontSize(18);
-        const noteWithLabel = `Notiz: ${entry.note}`;
-        const splitText = doc.splitTextToSize(noteWithLabel, 180);
-        doc.text(splitText, 10, yPos);
-        yPos += (splitText.length * 10);
-    }
-
-    const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
-    const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
-    
-    const loadedImages = [];
-    let failedImageCount = 0;
-    imageLoadResults.forEach(result => {
-        if (result.status === 'fulfilled') {
-            loadedImages.push(result.value);
-        } else {
-            console.error("Ein Bild konnte nicht geladen werden:", result.reason);
-            failedImageCount++;
-        }
-    });
-
-    if (failedImageCount > 0) {
-        showCustomAlert(`${failedImageCount} Bild(er) konnten nem für den PDF-Export geladen werden és átugorva.`, 'Warnung');
-    }
-
-    for (let i = 0; i < loadedImages.length; i++) {
-        const imageData = loadedImages[i];
-        yPos += 10;
-        if (yPos > 220) {
-            doc.addPage();
-            yPos = 10;
-        }
-        doc.setFontSize(18);
-        doc.text(`Bild ${i + 1}`, 10, yPos);
-        yPos += 8;
-
+        // Eltávolítja az "active" osztályt az előzőleg kiválasztott gombról
+        const prevActive = document.querySelector('.grid button.active');
+        if(prevActive) prevActive.classList.remove('active');
+        
+        btn.classList.add('active'); // Hozzáadja az "active" osztályt a jelenlegi gombhoz
+        currentCategory = num; // Beállítja a jelenlegi kategóriát
+        
         try {
-            const imgProps = doc.getImageProperties(imageData);
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
-            const maxWidth = pdfWidth - 20;
-            const maxHeight = pdfHeight - yPos - 10;
+            // Lekérdezi az adatbázisból a kiválasztott kategória bejegyzéseit
+            entries = await db.getEntriesForCategory(currentCategory);
+            const isEmpty = entries.length === 0; // Meghatározza, hogy a kategória üres-e
+            
+            updateHeaderAndControls(); // Frissíti az alsó vezérlőpult címkéjét
+            updateTraverseHeader(); // Frissíti a táblázat fejlécét
+            
+            mainControls.style.display = 'block'; // Megjeleníti az alsó vezérlőpultot
+            listSection.style.display = 'block'; // Megjeleníti az adatlistát
+            renderTable(); // Megrajzolja a táblázatot a bejegyzésekkel
+            await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
+            updateControlButtonsColor(isEmpty); // Frissíti a kézi bevitel gomb színét
+        }
+        catch (e) {
+            console.error("Fehler beim Lesen der Datenbank:", e);
+            showCustomAlert('Fehler beim Laden der Traverse.', 'Fehler');
+        }
+    }
 
-            let imgWidth = imgProps.width;
-            let imgHeight = imgProps.height;
-            const ratio = imgWidth / imgHeight;
+    // Segédfunkció az alsó címke és vezérlőpult frissítéséhez
+    function updateHeaderAndControls() {
+        if (!currentCategory) {
+            categoryLabelLeft.innerHTML = ''; /* A HTML tartalom beállítása */
+            categoryLabelLeft.style.color = 'var(--muted)';
+            return;
+        }
 
-            if (imgWidth > maxWidth) {
-                imgWidth = maxWidth;
-                imgHeight = imgWidth / ratio;
+        const isEmpty = entries.length === 0;
+        // Az ikon SVG kódja, szín dinamikusan beállítva
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+        // Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
+        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="category-label-icon">`;
+
+        // Az innerHTML beállítása az ikonnal és a kategória számmal
+        categoryLabelLeft.innerHTML = `${iconSvg} ${currentCategory}`;
+        categoryLabelLeft.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
+    }
+
+    // ÚJ: Funkció a táblázat fejlécének frissítéséhez
+    function updateTraverseHeader() {
+        const traverseHeader = document.getElementById('traverse-header');
+        if (!currentCategory) {
+            traverseHeader.innerHTML = '#'; /* A HTML tartalom beállítása */
+            traverseHeader.style.color = 'var(--muted)';
+            traverseHeader.style.fontWeight = 'bold';
+            traverseHeader.style.fontSize = '0.9em'; /* Visszaállítom az alapértelmezett méretre, ha nincs kiválasztva */
+            return;
+        }
+
+        const isEmpty = entries.length === 0;
+        // Az ikon SVG kódja, szín dinamikusan beállítva
+        const iconColor = isEmpty ? '%236c757d' : '%230056b3'; /* Szürke vagy kék */
+        // ÚJ: Az ikon SVG kódja talpakkal, módosítva a jobb vizuális magasság érdekében
+        const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" class="header-traverse-icon">`;
+
+        // Az innerHTML beállítása az ikonnal és a kategória számmal
+        traverseHeader.innerHTML = `${iconSvg} ${currentCategory}`;
+        traverseHeader.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
+        traverseHeader.style.fontWeight = 'bold';
+        traverseHeader.style.fontSize = '1.5em'; /* Növeli a betűméretet a fejléc számához */
+    }
+
+    // Egyéni figyelmeztető modál megjelenítése
+    function showCustomAlert(message, title = 'Info') {
+        const existingModal = document.getElementById('customAlertModal');
+        if (existingModal) existingModal.remove(); // Eltávolítja az előző alert modált, ha van
+
+        const alertModal = document.createElement('div');
+        alertModal.id = 'customAlertModal';
+        alertModal.classList.add('modal-overlay');
+        alertModal.innerHTML = `
+            <div class="note-modal-content">
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <button id="customAlertCloseBtn" style="background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; align-self: flex-end;">OK</button>
+            </div>
+        `;
+        document.body.appendChild(alertModal);
+        alertModal.style.display = 'flex'; // Megjeleníti a modált
+        document.body.classList.add('modal-open'); // Letiltja a háttér görgetését
+
+        document.getElementById('customAlertCloseBtn').addEventListener('click', () => {
+            alertModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            alertModal.remove(); // Eltávolítja az elemet a DOM-ból
+        });
+        // Modálon kívüli kattintás kezelése
+        alertModal.addEventListener('click', (e) => {
+            if (e.target === alertModal) { // Ha az overlay-re kattintunk
+                alertModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                alertModal.remove();
             }
-            if (imgHeight > maxHeight) {
-                imgHeight = maxHeight;
-                imgWidth = imgHeight * ratio;
+        });
+    }
+
+    // Egyszerű megerősítő modál kép törléséhez
+    function showSimpleConfirm(message, title = 'Bestätigung') {
+        return new Promise(resolve => {
+            const existingModal = document.getElementById('customConfirmModal');
+            if (existingModal) existingModal.remove(); // Eltávolítja az előző modált, ha van
+
+            const confirmModal = document.createElement('div');
+            confirmModal.id = 'customConfirmModal';
+            confirmModal.classList.add('modal-overlay');
+            
+            confirmModal.innerHTML = `
+                <div class="note-modal-content">
+                    <h2>${title}</h2>
+                    <p>${message}</p>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; width: 100%; margin-top: 20px;">
+                        <button id="customConfirmCancelBtn">Abbrechen</button>
+                        <button id="customConfirmOkBtn">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmModal);
+            confirmModal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+
+            const okBtn = document.getElementById('customConfirmOkBtn');
+            const cancelBtn = document.getElementById('customConfirmCancelBtn');
+
+            const close = (result) => {
+                confirmModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                confirmModal.remove();
+                resolve(result);
+            };
+
+            okBtn.addEventListener('click', () => close(true));
+            cancelBtn.addEventListener('click', () => close(false));
+            confirmModal.addEventListener('click', (e) => {
+                if (e.target === confirmModal) {
+                    close(false);
+                }
+            });
+        });
+    }
+
+    // Komplexebb megerősítő modál PDF exportálási opcióval
+    function showCustomConfirm(message, title = 'Bestätigung', entry = null) {
+        return new Promise(resolve => {
+            const existingModal = document.getElementById('customConfirmModal');
+            if (existingModal) existingModal.remove();
+
+            const confirmModal = document.createElement('div');
+            confirmModal.id = 'customConfirmModal';
+            confirmModal.classList.add('modal-overlay');
+            
+            // Alapértelmezett bejelölési állapot: bejelölve, ha az entry nem FA/NA (azaz FA/NA esetén nincs bejelölve)
+            const isCheckedByDefault = !(entry && (entry.code.startsWith('FA') || entry.code.startsWith('NA')));
+
+            confirmModal.innerHTML = `
+                <div class="note-modal-content">
+                    <h2>${title}</h2>
+                    <p>${message}</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 20px; flex-wrap: wrap; gap: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9em;">
+                            <input type="checkbox" id="exportPdfCheckbox" ${isCheckedByDefault ? 'checked' : ''} style="margin-right: 8px; width: 18px; height: 18px; transform: scale(1.2);">
+                            PDF exportieren
+                        </label>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="customConfirmCancelBtn">Abbrechen</button>
+                            <button id="customConfirmOkBtn">Löschen</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(confirmModal);
+            confirmModal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+
+            document.getElementById('customConfirmOkBtn').addEventListener('click', () => {
+                const exportPdf = document.getElementById('exportPdfCheckbox').checked;
+                confirmModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                confirmModal.remove();
+                resolve({ confirmed: true, exportPdf: exportPdf });
+            });
+            document.getElementById('customConfirmCancelBtn').addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                confirmModal.remove();
+                resolve({ confirmed: false, exportPdf: false });
+            });
+            confirmModal.addEventListener('click', (e) => {
+                if (e.target === confirmModal) {
+                    confirmModal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                    confirmModal.remove();
+                    resolve({ confirmed: false, exportPdf: false });
+                }
+            });
+        });
+    }
+
+    // Képmodál megnyitása
+    function openImageModal(images, startIndex, entryId) {
+        currentModalImages = images;
+        currentModalImageIndex = startIndex;
+        currentImageEntryId = entryId;
+
+        modalImage.src = currentModalImages[currentModalImageIndex];
+        modalImage.classList.remove('zoomed'); // Eltávolítja a "zoomed" osztályt
+        imageModal.style.display = 'flex';
+        document.body.classList.add('modal-open');
+
+        updateImageModalNavigation();
+    }
+
+    // Képmodál navigációs gombjainak állapotának frissítése
+    function updateImageModalNavigation() {
+        const prevBtn = document.getElementById('imageModalPrevBtn');
+        const nextBtn = document.getElementById('imageModalNextBtn');
+
+        if (currentModalImages.length <= 1) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'inline-flex';
+            nextBtn.style.display = 'inline-flex';
+            prevBtn.disabled = (currentModalImageIndex === 0); // Tiltja az előző gombot, ha az első kép van
+            nextBtn.disabled = (currentModalImageIndex === currentModalImages.length - 1); // Tiltja a következő gombot, ha az utolsó kép van
+        }
+    }
+
+    // Következő kép megjelenítése a karusszelben
+    function showNextImage() {
+        if (currentModalImageIndex < currentModalImages.length - 1) {
+            currentModalImageIndex++;
+            modalImage.src = currentModalImages[currentModalImageIndex];
+            modalImage.classList.remove('zoomed');
+            updateImageModalNavigation();
+        }
+    }
+
+    // Előző kép megjelenítése a karusszelben
+    function showPrevImage() {
+        if (currentModalImageIndex > 0) {
+            currentModalImageIndex--;
+            modalImage.src = currentModalImages[currentModalImageIndex];
+            modalImage.classList.remove('zoomed');
+            updateImageModalNavigation();
+        }
+    }
+
+    // Jelenlegi kép törlése a modálból és az adatbázisból
+    async function deleteCurrentImage() {
+        if (!currentImageEntryId || currentModalImages.length === 0) {
+            showCustomAlert('Nincs kép a törléshez.', 'Hiba');
+            return;
+        }
+
+        const confirmed = await showSimpleConfirm('Biztosan törölni szeretné ezt a képet?', 'Kép törlése');
+        if (!confirmed) {
+            return;
+        }
+
+        let entry = entries.find(e => e.id === currentImageEntryId);
+        if (entry) {
+            const imageUrlToDelete = currentModalImages[currentModalImageIndex];
+
+            // Ellenőrzi, hogy a törlendő kép az elsődleges kép-e
+            if (entry.image === imageUrlToDelete) {
+                if (entry.kepek && entry.kepek.length > 0) {
+                    // Ha van további kép a "kepek" tömbben, az elsőt beállítja elsődleges képnek
+                    entry.image = entry.kepek.shift(); // Eltávolítja az első elemet és visszaadja
+                } else {
+                    entry.image = null; // Ha nincs további kép, az elsődleges kép is null lesz
+                }
+            } else if (entry.kepek) {
+                // Ha a törlendő kép a "kepek" tömbben van
+                const indexToDelete = entry.kepek.indexOf(imageUrlToDelete);
+                if (indexToDelete > -1) {
+                    entry.kepek.splice(indexToDelete, 1); // Eltávolítja a képet a tömbből
+                }
             }
 
-            if (yPos + imgHeight > pdfHeight - 10) {
+            await db.updateEntry(entry); // Frissíti a bejegyzést az adatbázisban
+            entries = entries.map(e => e.id === entry.id ? entry : e); // Frissíti a helyi "entries" tömböt
+            renderTable(); // Újra rendereli a táblázatot
+
+            // Újra megnyitja a képmodált a fennmaradó képekkel, vagy bezárja, ha nincs több kép
+            const allRemainingImages = [entry.image, ...(entry.kepek || [])].filter(Boolean);
+            if (allRemainingImages.length > 0) {
+                // Beállítja a megfelelő indexet, ha a törölt kép volt az utolsó
+                if (currentModalImageIndex >= allRemainingImages.length) {
+                    currentModalImageIndex = allRemainingImages.length - 1;
+                }
+                openImageModal(allRemainingImages, currentModalImageIndex, currentImageEntryId);
+            } else {
+                closeModal(imageModal);
+            }
+        }
+    }
+
+
+    // renderTable a sorrendi szám oszlopával
+    function renderTable(){
+        // Rendezés dátum szerint, legújabb elöl
+        const sortedEntries = entries.slice().sort((a,b)=> new Date(b.date) - new Date(a.date));
+        logBody.innerHTML = sortedEntries.map((e,i) => {
+            const entryDate = new Date(e.date);
+            const formattedDate = entryDate.toLocaleDateString('de-DE'); // Dátum formázása
+            const formattedTime = entryDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); // Idő formázása
+
+            // Összegyűjti az összes képet (fő kép + extra képek)
+            const allImageSources = [e.image, ...(e.kepek || [])].filter(Boolean);
+            let photosCellHtml = '';
+            // Képek megjelenítése 3-as csoportokban egy sorban
+            for (let j = 0; j < allImageSources.length; j += 3) {
+                photosCellHtml += `<div class="photoRow">${allImageSources.slice(j, j + 3).map(src => `<img src="${src}" alt="Bild">`).join('')}</div>`;
+            }
+
+            const noteTitle = e.note ? 'Notiz öffnen' : 'Notiz hinzufügen'; // Jegyzet gomb tooltipje
+
+            let codeClass = '';
+            // CSS osztály hozzáadása a kód alapján
+            if (e.code && (e.code.startsWith('FA') || e.code.startsWith('NA'))) {
+                codeClass = 'auftrag-colored'; // Színezett FA/NA kódok
+            } else if (e.source === 'scanner' || e.source === 'manual' || e.source === 'laser') {
+                codeClass = 'auftrag-manual-bold'; // Félkövér kézi vagy szkennelt kódok
+            }
+
+            return `
+            <tr data-id="${e.id}">
+                <td>
+                    ${i + 1} <!-- Sorrendi szám -->
+                </td>
+                <td class="${codeClass}">
+                    ${e.code} <!-- Az Auftrag kód -->
+                </td>
+                <td>
+                    ${formattedDate}<br>
+                    <span style="font-size: 0.85em; color: var(--muted);"> ${formattedTime}</span>
+                </td>
+                <td><button class="noteToggleBtn ${e.note ? 'note-filled' : ''}" data-id="${e.id}" title="${noteTitle}" aria-label="${noteTitle}"><i class="fas ${e.note ? 'fa-book' : 'fa-plus'}"></i></button></td>
+                <td class="photo-cell">${photosCellHtml}</td>
+                <td><button class="uploadPhotoBtn" data-id="${e.id}" title="Bild hochladen"><i class="fas fa-folder"></i></button></td>
+                <td><button class="deleteBtn" data-id="${e.id}" data-code="${e.code}" title="Löschen"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>`;
+        }).join('');
+        attachTableEventListeners(); // Hozzáadja az eseménykezelőket az újonnan létrehozott elemekhez
+    }
+
+    // Eseménykezelők hozzáadása a táblázat elemeihez
+    function attachTableEventListeners() {
+        logBody.querySelectorAll('.deleteBtn').forEach(btn => btn.addEventListener('click', handleDelete));
+        logBody.querySelectorAll('.noteToggleBtn').forEach(btn => btn.addEventListener('click', openNoteModal));
+        logBody.querySelectorAll('.photo-cell img').forEach(img => img.addEventListener('click', (event) => {
+            const entryId = parseInt(event.target.closest('tr').dataset.id);
+            const entry = entries.find(e => e.id === entryId);
+            if (entry) {
+                const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
+                const clickedImageSrc = event.target.src;
+                const clickedImageIndex = allImageSources.indexOf(clickedImageSrc);
+                openImageModal(allImageSources, clickedImageIndex, entryId);
+            }
+        }));
+        logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
+    }
+    
+    // Kép betöltése (promise-t ad vissza Image objektummal)
+    function loadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous'; // Fontos a cross-origin képekhez (ha lenne)
+            img.onload = () => resolve(img);
+            img.onerror = () => {
+                console.warn(`Failed to load image for PDF: ${src.substring(0, 50)}...`);
+                reject(new Error('Hiba történt a kép betöltésekor szanáláshoz.'));
+            };
+            img.src = src;
+        });
+    }
+
+    // --- PDF GENERÁLÁS (JAVÍTOTT) ---
+    async function generatePdfForEntry(entry) {
+        if (typeof window.jspdf === 'undefined') {
+            console.error('A jsPDF nincs betöltve!');
+            showCustomAlert('PDF exportálás sikertelen: a jsPDF könyvtár nincs betöltve.', 'Hiba');
+            return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const entryDate = new Date(entry.date);
+        const formattedDateTime = entryDate.toLocaleString('de-DE', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        });
+        const entryHour = entryDate.getHours();
+        const shiftText = entryHour < 14 ? 'Frühschicht' : 'Spätschicht'; // Műszak meghatározása
+
+        // Fejléc
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Auftrag: ${entry.code}`, 10, 20);
+
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(18);
+        doc.text(`Datum: ${formattedDateTime}`, 10, 35);
+        
+        doc.text(shiftText, 10, 50);
+
+        doc.text('Traverse: ', 10, 65);
+        doc.setFont(undefined, 'bold');
+        // Kategória számának pozícionálása a "Traverse:" után
+        doc.text(String(entry.category), 10 + doc.getStringUnitWidth('Traverse: ') * 18 / doc.internal.scaleFactor, 65);
+        doc.setFont(undefined, 'normal');
+
+        let yPos = 80;
+        // Jegyzet hozzáadása, ha van
+        if (entry.note) {
+            doc.setFontSize(18);
+            const noteWithLabel = `Notiz: ${entry.note}`;
+            const splitText = doc.splitTextToSize(noteWithLabel, 180); // Szöveg tördelése
+            doc.text(splitText, 10, yPos);
+            yPos += (splitText.length * 10); // Hozzáadja a jegyzet magasságát
+        }
+
+        // Képek betöltése és hozzáadása
+        const allImageSources = [entry.image, ...(entry.kepek || [])].filter(Boolean);
+        // Párhuzamos képbetöltés Promise.allSettled-del a hibák kezelésére
+        const imageLoadResults = await Promise.allSettled(allImageSources.map(loadImage));
+        
+        const loadedImages = [];
+        let failedImageCount = 0;
+        imageLoadResults.forEach(result => {
+            if (result.status === 'fulfilled') {
+                loadedImages.push(result.value);
+            } else {
+                console.error("Egy kép nem tölthető be:", result.reason);
+                failedImageCount++;
+            }
+        });
+
+        if (failedImageCount > 0) {
+            showCustomAlert(`${failedImageCount} kép nem tölthető be a PDF exportáláshoz és kihagyásra került.`, 'Figyelmeztetés');
+        }
+
+        for (let i = 0; i < loadedImages.length; i++) {
+            const imageData = loadedImages[i];
+            yPos += 10; // Kis margó a kép előtt
+            if (yPos > 220) { // Új oldalra ugrás, ha nincs elég hely
                 doc.addPage();
                 yPos = 10;
             }
+            doc.setFontSize(18);
+            doc.text(`Bild ${i + 1}`, 10, yPos); // Képcímke
+            yPos += 8; // Margó a képcímke és a kép között
 
-            doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight);
-            yPos += imgHeight + 5;
-        } catch (e) {
-            console.error("Fehler beim Hinzofügen eines Bildes zum PDF:", e);
-            if (yPos > 280) { doc.addPage(); yPos = 10; }
-            doc.text(`[Bild ${i + 1} konnte nem verarbeitet werden]`, 10, yPos);
-            yPos += 15;
-        }
-    }
-    
-    doc.save(`${entry.code}_trav${entry.category}.pdf`);
-  }
+            try {
+                const imgProps = doc.getImageProperties(imageData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = doc.internal.pageSize.getHeight();
+                const maxWidth = pdfWidth - 20; // 10px margó mindkét oldalon
+                const maxHeight = pdfHeight - yPos - 10; // Hely a képnek az oldal aljáig
 
-  async function handleDelete(event) {
-      const id = parseInt(event.currentTarget.dataset.id);
-      const entryToDelete = entries.find(e => e.id === id);
-      if (!entryToDelete) return;
+                let imgWidth = imgProps.width;
+                let imgHeight = imgProps.height;
+                const ratio = imgWidth / imgHeight;
 
-      const result = await showCustomConfirm(`Möchten Sie den Eintrag "${entryToDelete.code}" wirklich törölni?`, 'Bestätigung', entryToDelete);
-      
-      if (result.confirmed) {
-          try {
-              if (result.exportPdf) {
-                  await generatePdfForEntry(entryToDelete);
-              }
-              
-              await db.deleteEntry(id);
-              entries = entries.filter(e => e.id !== id);
-              renderTable();
-              await updateCategoryButtonColors();
-              updateTraverseHeader(); // Update header after deletion
-
-              const count = await db.getEntryCountForCategory(currentCategory);
-              if (count === 0) {
-                  categoryLabelLeft.style.color = 'var(--muted)';
-                  updateControlButtonsColor(true);
-              }
-          } catch (error) {
-              console.error("Fehler beim Löszön vagy Exportálás során.", error);
-              showCustomAlert('Ein Fehler ist beim Löszön oder Exportieren aufgetreten.', 'Fehler');
-          }
-      }
-  }
-
-  function openNoteModal(event) {
-    noteEntryIdToUpdate = parseInt(event.currentTarget.dataset.id);
-    const entry = entries.find(e => e.id === noteEntryIdToUpdate);
-    if (entry) {
-      noteModalTextarea.value = entry.note || '';
-      noteModal.style.display = 'flex';
-      document.body.classList.add('modal-open');
-    }
-  }
-
-  async function saveNoteFromModal() {
-    const entry = entries.find(e => e.id === noteEntryIdToUpdate);
-    if (entry) {
-      entry.note = noteModalTextarea.value;
-      await db.updateEntry(entry);
-      renderTable();
-    }
-    noteModal.style.display = 'none';
-    document.body.classList.remove('modal-open');
-  }
-
-  function handleUploadPhotoClick(event) {
-    entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
-    imageUploadInput.click();
-  }
-  
-  function sanitizeImage(imageDataUrl, quality = 0.95) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => {
-            console.warn(`Failed to load image for sanitization: ${imageDataUrl.substring(0, 50)}...`);
-            reject(new Error('Failed to load image for sanitization.'));
-        };
-        img.src = imageDataUrl;
-    });
-  }
-
-  async function handleFileSelected(event) {
-    const file = event.target.files[0];
-    if (!file || !entryIdToUpdate) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
-            const sanitizedImageDataUrl = await sanitizeImage(e.target.result);
-            const entry = entries.find(entry => entry.id === entryIdToUpdate);
-            if (entry) {
-                if (!entry.kepek) entry.kepek = [];
-                entry.kepek.push(sanitizedImageDataUrl);
-                await db.updateEntry(entry);
-                renderTable();
-                navigator.vibrate?.(100);
-            }
-        } catch (error) {
-            console.error("Image sanitization failed:", error);
-            showCustomAlert('Das Bild konnte nem verarbeitet werden. Es ist möglicherweise beschädigt.', 'Fehler');
-        }
-    };
-    reader.readAsDataURL(file);
-
-    event.target.value = null;
-  }
-
-  async function addNewEntry(code, image, source) {
-      if (!code) return;
-      // Ellenőrzés, hogy a kategórián belül létezik-e már ilyen kód
-      const existingEntryInCurrentCategory = entries.find(e => e.category === currentCategory && e.code === code);
-      if (existingEntryInCurrentCategory) {
-          showCustomAlert(`Ez az azonosító ("${code}") már létezik ebben a kategóriában (${currentCategory}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
-          return;
-      }
-
-      const newEntry = {
-          code: code,
-          date: new Date().toISOString(),
-          note: '',
-          image: image,
-          kepek: [],
-          category: currentCategory,
-          source: source
-      };
-
-      try {
-          const wasEmpty = entries.length === 0; // Check before adding
-          const newId = await db.addEntry(newEntry);
-          newEntry.id = newId;
-          entries.push(newEntry);
-          renderTable();
-          await updateCategoryButtonColors();
-
-          if (wasEmpty) { // If it was empty before
-              updateControlButtonsColor(false);
-              updateTraverseHeader(); // Refresh header style and content
-          }
-
-          const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN95oJtfAME2P_5/exec';
-          const dataForSheet = {
-              code: newEntry.code,
-              date: new Date(newEntry.date).toLocaleString('de-DE'),
-              category: newEntry.category
-          };
-          fetch(webAppUrl, {
-              method: 'POST',
-              mode: 'no-cors',
-              body: JSON.stringify(dataForSheet)
-          }).catch(error => console.error('Fehler beim Senden an Google Tabelle:', error));
-
-      } catch(e) {
-          // Módosított hibaüzenet az IndexedDB duplikált kulcs hibájára
-          if (e.name === 'ConstraintError') {
-              showCustomAlert(`Ez az azonosító ("${newEntry.code}") már létezik ebben a kategóriában (${newEntry.category}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
-          } else {
-              console.error('Fehler beim lokalen Speichern:', e);
-              showCustomAlert('Hiba történt a helyi mentés során! Az adatok nem lettek elmentve.', 'Hiba');
-          }
-      }
-  }
-
-  function handleManualEntry() {
-      showCustomPrompt('Bitte geben Sie den Produktnamen vagy a Kennung-ot:', 'Manuelle Eingabe').then(manualCode => {
-          if (manualCode && manualCode.trim() !== '') {
-              addNewEntry(manualCode.trim(), null, 'manual');
-          }
-      });
-  }
-
-  function showCustomPrompt(message, title = 'Eingabe') {
-      return new Promise(async resolve => {
-          const promptModal = document.getElementById('customPromptModal');
-          const input = document.getElementById('customPromptInput');
-          const okBtn = document.getElementById('customPromptOkBtn');
-          const cancelBtn = document.getElementById('customPromptCancelBtn');
-          const categoryNumberSpan = document.getElementById('promptCategoryNumber');
-
-          // A kategóriaszám és az ikon frissítése a modálban
-          const count = await db.getEntryCountForCategory(currentCategory);
-          const isEmpty = count === 0; // Meghatározzuk az üres állapotot
-
-          const iconColor = isEmpty ? '%236c757d' : '%230056b3';
-          // Módosított SVG ikon és inline stílus a megegyező magasság érdekében
-          const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
-          
-          categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
-          categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
-
-          input.value = '';
-          promptModal.style.display = 'flex';
-          document.body.classList.add('modal-open');
-          input.focus();
-
-          // OK gomb színének beállítása
-          if (isEmpty) {
-            okBtn.style.background = 'var(--muted)';
-            okBtn.style.color = 'white'; /* Szöveg színe fehér legyen a szürke gombon */
-            okBtn.style.boxShadow = 'none';
-          } else {
-            okBtn.style.background = 'var(--primary)';
-            okBtn.style.color = 'white';
-            okBtn.style.boxShadow = 'var(--shadow-soft)';
-          }
-          // Hover és active állapotok kezelése
-          okBtn.onmouseover = () => {
-            if (isEmpty) okBtn.style.background = '#888';
-            else okBtn.style.background = 'var(--primary-dark)';
-            okBtn.style.boxShadow = 'var(--shadow-medium)';
-          };
-          okBtn.onmouseout = () => {
-            if (isEmpty) okBtn.style.background = 'var(--muted)';
-            else okBtn.style.background = 'var(--primary)';
-            okBtn.style.boxShadow = isEmpty ? 'none' : 'var(--shadow-soft)';
-          };
-          okBtn.onmousedown = () => {
-            okBtn.style.transform = 'scale(0.98)';
-            okBtn.style.boxShadow = 'var(--shadow-active)';
-          };
-          okBtn.onmouseup = () => {
-            okBtn.style.transform = 'scale(1)';
-            okBtn.style.boxShadow = isEmpty ? 'none' : 'var(--shadow-soft)';
-          };
-
-
-          const processAndResolve = (value) => {
-              if (value && value.includes('.')) {
-                  value = value.split('.')[0];
-              }
-              closeAndResolve(value);
-          };
-
-          const okHandler = () => {
-              processAndResolve(input.value);
-          };
-
-          const cancelHandler = () => {
-              closeAndResolve(null);
-          };
-          
-          const keydownHandler = (e) => {
-              if (e.key === 'Enter') {
-                  e.preventDefault();
-                  processAndResolve(input.value);
-              }
-          };
-
-          const overlayHandler = (e) => {
-              if (e.target === promptModal) {
-                  closeAndResolve(null);
-              }
-          };
-
-          const closeAndResolve = (value) => {
-              promptModal.style.display = 'none';
-              document.body.classList.remove('modal-open');
-              okBtn.removeEventListener('click', okHandler);
-              cancelBtn.removeEventListener('click', cancelHandler);
-              promptModal.removeEventListener('click', overlayHandler);
-              input.removeEventListener('keydown', keydownHandler);
-              // Eseménykezelők eltávolítása a gombokról is, hogy ne maradjanak meg
-              okBtn.onmouseover = null;
-              okBtn.onmouseout = null;
-              okBtn.onmousedown = null;
-              okBtn.onmouseup = null;
-              resolve(value);
-          };
-
-          okBtn.addEventListener('click', okHandler);
-          cancelBtn.addEventListener('click', cancelHandler);
-          promptModal.addEventListener('click', overlayHandler);
-          input.addEventListener('keydown', keydownHandler);
-      });
-  }
-
-  function closeModal(modal) {
-      if (modal) {
-        modal.style.display = 'none';
-      }
-      document.body.classList.remove('modal-open');
-  }
-
-  // Listener-ek
-  manualEntryBtn.addEventListener('click', handleManualEntry);
-  noteModalSaveBtn.addEventListener('click', saveNoteFromModal);
-  deleteImageBtn.addEventListener('click', deleteCurrentImage);
-
-  imageUploadInput.addEventListener('change', handleFileSelected);
-
-  document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
-  document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
-  
-  modalImage.addEventListener('click', () => {
-    imageModal.classList.toggle('image-zoomed-in');
-  });
-
-  imageModal.addEventListener('click', (e) => {
-      if (e.target === imageModal) {
-          imageModal.style.display = 'none';
-          document.body.classList.remove('modal-open');
-        }
-  });
-  noteModal.addEventListener('click', (e) => {
-      if (e.target === noteModal) {
-          noteModal.style.display = 'none'; document.body.classList.remove('modal-open');
-        }
-  });
-
-  clearCategoryBtn.addEventListener('click', async () => {
-    const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
-    const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null;
-    const result = await showCustomConfirm(`Möchten Sie den Eintrag "${dummyEntryForCheckbox ? 'FA/NA' : 'összes'}" wirklich törölni?`, 'Bestätítés', dummyEntryForCheckbox);
-    
-    if (result.confirmed) {
-        try {
-            if (result.exportPdf && entries.length > 0) {
-                for (const entry of entries) {
-                    await generatePdfForEntry(entry);
+                // Kép átméretezése, hogy beférjen az oldalra
+                if (imgWidth > maxWidth) {
+                    imgWidth = maxWidth;
+                    imgHeight = imgWidth / ratio;
                 }
+                if (imgHeight > maxHeight) {
+                    imgHeight = maxHeight;
+                    imgWidth = imgHeight * ratio;
+                }
+
+                if (yPos + imgHeight > pdfHeight - 10) { // Új oldal, ha a kép nem fér el
+                    doc.addPage();
+                    yPos = 10;
+                }
+
+                doc.addImage(imageData, undefined, 10, yPos, imgWidth, imgHeight); // Kép hozzáadása
+                yPos += imgHeight + 5; // Hozzáadja a kép magasságát és egy kis margót
+            } catch (e) {
+                console.error("Hiba történt a kép PDF-hez adásakor:", e);
+                if (yPos > 280) { doc.addPage(); yPos = 10; } // Új oldal, ha túl sok hibaüzenet van
+                doc.text(`[Bild ${i + 1} konnte nicht verarbeitet werden]`, 10, yPos); // Hibaüzenet a PDF-be
+                yPos += 15;
             }
-            
-            await db.clearCategory(currentCategory);
-            entries = [];
-            renderTable();
-            await updateCategoryButtonColors();
-            
-            updateTraverseHeader(); // Update header after clearing
-            categoryLabelLeft.style.color = 'var(--muted)';
-            updateControlButtonsColor(true);
-
-        } catch (error) {
-            console.error("Hiba a kategória törlése vagy exportálása során.", error);
-            showCustomAlert('Ein Fehler ist beim Löszön oder Exportieren aufgetreten.', 'Fehler');
-          }
+        }
+        
+        doc.save(`${entry.code}_trav${entry.category}.pdf`); // PDF mentése fájlként
     }
-  });
 
-  window.addEventListener('beforeunload', function (e) {
-    e.preventDefault();
-    e.returnValue = '';
-  });
+    // Törlés eseménykezelő
+    async function handleDelete(event) {
+        const id = parseInt(event.currentTarget.dataset.id);
+        const entryToDelete = entries.find(e => e.id === id);
+        if (!entryToDelete) return; // Ha a bejegyzés nem található, kilép
 
-  window.onload = updateCategoryButtonColors;
+        // Megerősítés kérése PDF exportálási opcióval
+        const result = await showCustomConfirm(`Biztosan törölni szeretné a(z) "${entryToDelete.code}" bejegyzést?`, 'Megerősítés', entryToDelete);
+        
+        if (result.confirmed) {
+            try {
+                if (result.exportPdf) {
+                    await generatePdfForEntry(entryToDelete); // PDF generálása, ha a felhasználó kérte
+                }
+                
+                await db.deleteEntry(id); // Bejegyzés törlése az adatbázisból
+                entries = entries.filter(e => e.id !== id); // Eltávolítja a bejegyzést a helyi tömbből
+                renderTable(); // Újra rendereli a táblázatot
+                await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
+                updateTraverseHeader(); // Frissíti a fejlécet törlés után
+
+                const count = await db.getEntryCountForCategory(currentCategory);
+                if (count === 0) { // Ha a kategória kiürült
+                    categoryLabelLeft.style.color = 'var(--muted)';
+                    updateControlButtonsColor(true); // Frissíti a kézi bevitel gomb színét
+                }
+            } catch (error) {
+                console.error("Hiba történt a törlés vagy exportálás során.", error);
+                showCustomAlert('Hiba történt a törlés vagy exportálás során.', 'Hiba');
+            }
+        }
+    }
+
+    // Jegyzet modál megnyitása
+    function openNoteModal(event) {
+        noteEntryIdToUpdate = parseInt(event.currentTarget.dataset.id);
+        const entry = entries.find(e => e.id === noteEntryIdToUpdate);
+        if (entry) {
+            noteModalTextarea.value = entry.note || ''; // Betölti a jegyzetet, vagy üres stringet
+            noteModal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    // Jegyzet mentése a modálból
+    async function saveNoteFromModal() {
+        const entry = entries.find(e => e.id === noteEntryIdToUpdate);
+        if (entry) {
+            entry.note = noteModalTextarea.value; // Frissíti a jegyzetet
+            await db.updateEntry(entry); // Mentés az adatbázisba
+            renderTable(); // Újra rendereli a táblázatot
+        }
+        noteModal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
+    // Képfeltöltés gomb kattintás eseménykezelője
+    function handleUploadPhotoClick(event) {
+        entryIdToUpdate = parseInt(event.currentTarget.dataset.id);
+        imageUploadInput.click(); // Aktiválja a rejtett fájl kiválasztó inputot
+    }
+    
+    // Kép szanálása (átméretezés/tömörítés JPEG-be)
+    function sanitizeImage(imageDataUrl, quality = 0.95) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/jpeg', quality)); // JPEG formátumba konvertálás
+            };
+            img.onerror = () => {
+                console.warn(`Hiba történt a kép szanálásakor: ${imageDataUrl.substring(0, 50)}...`);
+                reject(new Error('Hiba történt a kép betöltésekor szanáláshoz.'));
+            };
+            img.src = imageDataUrl;
+        });
+    }
+
+    // Fájl kiválasztása eseménykezelő (képfeltöltéshez)
+    async function handleFileSelected(event) {
+        const file = event.target.files[0];
+        if (!file || !entryIdToUpdate) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                // Kép szanálása a méret csökkentése érdekében
+                const sanitizedImageDataUrl = await sanitizeImage(e.target.result);
+                const entry = entries.find(entry => entry.id === entryIdToUpdate);
+                if (entry) {
+                    if (!entry.kepek) entry.kepek = [];
+                    entry.kepek.push(sanitizedImageDataUrl); // Hozzáadja az extra képekhez
+                    await db.updateEntry(entry); // Frissíti az adatbázist
+                    renderTable(); // Újra rendereli a táblázatot
+                    navigator.vibrate?.(100); // Rezgés visszajelzés
+                }
+            } catch (error) {
+                console.error("Kép szanálása sikertelen:", error);
+                showCustomAlert('A kép nem dolgozható fel. Lehet, hogy sérült.', 'Hiba');
+            }
+        };
+        reader.readAsDataURL(file); // Fájl beolvasása Data URL-ként
+
+        event.target.value = null; // Törli az input értékét, hogy ugyanazt a fájlt újra lehessen tölteni
+    }
+
+    // Új bejegyzés hozzáadása
+    async function addNewEntry(code, image, source) {
+        if (!code) return; // Ha nincs kód, kilép
+        
+        // Ellenőrzés, hogy a kategórián belül létezik-e már ilyen kód (UX célból)
+        const existingEntryInCurrentCategory = entries.find(e => e.category === currentCategory && e.code === code);
+        if (existingEntryInCurrentCategory) {
+            showCustomAlert(`Ez az azonosító ("${code}") már létezik ebben a kategóriában (${currentCategory}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
+            return;
+        }
+
+        const newEntry = {
+            code: code,
+            date: new Date().toISOString(), // Jelenlegi dátum és idő ISO formátumban
+            note: '',
+            image: image, // Elsődleges kép
+            kepek: [], // További képek tömbje
+            category: currentCategory,
+            source: source // Forrás: 'scanner', 'manual', 'laser'
+        };
+
+        try {
+            const wasEmpty = entries.length === 0; // Ellenőrzi, üres volt-e a kategória hozzáadás előtt
+            const newId = await db.addEntry(newEntry); // Hozzáadja a bejegyzést az IndexedDB-hez
+            newEntry.id = newId; // Frissíti az új bejegyzés ID-jét
+            entries.push(newEntry); // Hozzáadja a bejegyzést a helyi tömbhöz
+            renderTable(); // Újra rendereli a táblázatot
+            await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit
+
+            if (wasEmpty) { // Ha előzőleg üres volt a kategória
+                updateControlButtonsColor(false); // Frissíti a vezérlőgombok színét (nem üres)
+                updateTraverseHeader(); // Frissíti a fejléc stílusát és tartalmát
+            }
+
+            // Adatok küldése a Google Táblázatba egy Google Apps Script webalkalmazáson keresztül
+            const webAppUrl = 'https://script.google.com/macros/s/AKfycbz7cN31qlQVBxpMmJIpyyV-bDHaI-i3vxG06vPv3pKurSpdxVHDKcN95oJtfAME2P_5/exec';
+            const dataForSheet = {
+                code: newEntry.code,
+                date: new Date(newEntry.date).toLocaleString('de-DE'),
+                category: newEntry.category
+            };
+            fetch(webAppUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Fontos a CORS problémák elkerüléséhez Apps Script esetén
+                body: JSON.stringify(dataForSheet)
+            }).catch(error => console.error('Hiba történt a Google Táblázatba küldés során:', error));
+
+        } catch(e) {
+            // Módosított hibaüzenet az IndexedDB duplikált kulcs hibájára
+            if (e.name === 'ConstraintError') {
+                showCustomAlert(`Ez az azonosító ("${newEntry.code}") már létezik ebben a kategóriában (${newEntry.category}). Kérjük, használjon egyedi azonosítót.`, 'Duplikált bejegyzés');
+            } else {
+                console.error('Hiba történt a helyi mentés során:', e);
+                showCustomAlert('Hiba történt a helyi mentés során! Az adatok nem lettek elmentve.', 'Hiba');
+            }
+        }
+    }
+
+    // Manuális beviteli gomb eseménykezelője
+    function handleManualEntry() {
+        showCustomPrompt('Kérem adja meg a termék nevét vagy az azonosítót:', 'Manuális bejegyzés').then(manualCode => {
+            if (manualCode && manualCode.trim() !== '') {
+                addNewEntry(manualCode.trim(), null, 'manual'); // Hozzáadja az új bejegyzést
+            }
+        });
+    }
+
+    // Egyéni prompt modál megjelenítése
+    function showCustomPrompt(message, title = 'Eingabe') {
+        return new Promise(async resolve => {
+            const promptModal = document.getElementById('customPromptModal');
+            const input = document.getElementById('customPromptInput');
+            const okBtn = document.getElementById('customPromptOkBtn');
+            const cancelBtn = document.getElementById('customPromptCancelBtn');
+            const categoryNumberSpan = document.getElementById('promptCategoryNumber');
+
+            // A kategóriaszám és az ikon frissítése a modálban
+            const count = await db.getEntryCountForCategory(currentCategory);
+            const isEmpty = count === 0; // Meghatározza, hogy a kategória üres-e
+
+            const iconColor = isEmpty ? '%236c757d' : '%230056b3';
+            // Módosított SVG ikon és inline stílus a megegyező magasság érdekében
+            const iconSvg = `<img src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="80" y="5" width="10" height="70" fill="${iconColor}"/%3E%3Crect x="0" y="30" width="100" height="15" fill="${iconColor}"/%3E%3Crect x="0" y="80" width="30" height="10" fill="${iconColor}"/%3E%3Crect x="70" y="80" width="30" height="10" fill="${iconColor}"/%3E%3C/svg%3E' alt="Traverse Icon" style="width: 1em; height: 1em; vertical-align: middle; margin-right: 10px; display: inline-block;">`;
+            
+            categoryNumberSpan.innerHTML = `${iconSvg} ${currentCategory}`;
+            categoryNumberSpan.style.color = isEmpty ? 'var(--muted)' : 'var(--primary)';
+
+            input.value = ''; // Törli az input mező tartalmát
+            promptModal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            input.focus(); // Fókusz az input mezőre
+
+            // OK gomb színének és árnyékának dinamikus beállítása
+            const updateOkButtonStyles = () => {
+                if (isEmpty) {
+                    okBtn.style.background = 'var(--muted)';
+                    okBtn.style.color = 'white';
+                    okBtn.style.boxShadow = 'none';
+                } else {
+                    okBtn.style.background = 'var(--primary)';
+                    okBtn.style.color = 'white';
+                    okBtn.style.boxShadow = 'var(--shadow-soft)';
+                }
+            };
+            updateOkButtonStyles(); // Első beállítás
+
+            // Hover és active állapotok kezelése dinamikusan
+            okBtn.onmouseover = () => {
+                if (isEmpty) okBtn.style.background = '#888';
+                else okBtn.style.background = 'var(--primary-dark)';
+                okBtn.style.boxShadow = 'var(--shadow-medium)';
+            };
+            okBtn.onmouseout = () => {
+                updateOkButtonStyles(); // Visszaáll az alapállapotra
+            };
+            okBtn.onmousedown = () => {
+                okBtn.style.transform = 'scale(0.98)';
+                okBtn.style.boxShadow = 'var(--shadow-active)';
+            };
+            okBtn.onmouseup = () => {
+                okBtn.style.transform = 'scale(1)';
+                updateOkButtonStyles(); // Visszaáll az alapállapotra
+            };
+
+
+            const processAndResolve = (value) => {
+                // Specifikus üzleti logika: eltávolítja a tizedesjegyeket, ha vannak
+                if (value && value.includes('.')) {
+                    value = value.split('.')[0];
+                }
+                closeAndResolve(value);
+            };
+
+            const okHandler = () => {
+                processAndResolve(input.value);
+            };
+
+            const cancelHandler = () => {
+                closeAndResolve(null);
+            };
+            
+            const keydownHandler = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    processAndResolve(input.value);
+                }
+            };
+
+            const overlayHandler = (e) => {
+                if (e.target === promptModal) {
+                    closeAndResolve(null);
+                }
+            };
+
+            // Eseménykezelők hozzáadása és eltávolítása a memóriaszivárgás elkerülése érdekében
+            const closeAndResolve = (value) => {
+                promptModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                okBtn.removeEventListener('click', okHandler);
+                cancelBtn.removeEventListener('click', cancelHandler);
+                promptModal.removeEventListener('click', overlayHandler);
+                input.removeEventListener('keydown', keydownHandler);
+                // Eseménykezelők eltávolítása a gombokról is, hogy ne maradjanak meg
+                okBtn.onmouseover = null;
+                okBtn.onmouseout = null;
+                okBtn.onmousedown = null;
+                okBtn.onmouseup = null;
+                resolve(value);
+            };
+
+            okBtn.addEventListener('click', okHandler);
+            cancelBtn.addEventListener('click', cancelHandler);
+            promptModal.addEventListener('click', overlayHandler);
+            input.addEventListener('keydown', keydownHandler);
+        });
+    }
+
+    // Modál bezárása
+    function closeModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        document.body.classList.remove('modal-open');
+    }
+
+    // Fő eseménykezelők inicializálása
+    manualEntryBtn.addEventListener('click', handleManualEntry);
+    noteModalSaveBtn.addEventListener('click', saveNoteFromModal);
+    deleteImageBtn.addEventListener('click', deleteCurrentImage);
+
+    imageUploadInput.addEventListener('change', handleFileSelected);
+
+    document.getElementById('imageModalPrevBtn').addEventListener('click', showPrevImage);
+    document.getElementById('imageModalNextBtn').addEventListener('click', showNextImage);
+    
+    // Kép nagyítása/kicsinyítése
+    modalImage.addEventListener('click', () => {
+        imageModal.classList.toggle('image-zoomed-in');
+    });
+
+    // Képmodál bezárása overlay kattintásra
+    imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal) {
+            imageModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+    });
+    // Jegyzetmodál bezárása overlay kattintásra
+    noteModal.addEventListener('click', (e) => {
+        if (e.target === noteModal) {
+            noteModal.style.display = 'none'; document.body.classList.remove('modal-open');
+        }
+    });
+
+    // Kategória törlése gomb eseménykezelője
+    clearCategoryBtn.addEventListener('click', async () => {
+        // Ellenőrzi, hogy minden bejegyzés FA/NA-val kezdődik-e (ehhez igazítja a megerősítő üzenetet és a PDF exportálási opciót)
+        const allAreFANA = entries.length > 0 && entries.every(e => e.code.startsWith('FA') || e.code.startsWith('NA'));
+        const dummyEntryForCheckbox = allAreFANA ? { code: 'FA' } : null; // "dummy" bejegyzés a checkbox állapotának inicializálásához
+        
+        const result = await showCustomConfirm(`Biztosan törölni szeretné a(z) "${dummyEntryForCheckbox ? 'FA/NA' : 'összes'}" bejegyzést?`, 'Megerősítés', dummyEntryForCheckbox);
+        
+        if (result.confirmed) {
+            try {
+                if (result.exportPdf && entries.length > 0) {
+                    // Ha exportálni kell PDF-be, akkor az összes bejegyzést exportálja
+                    for (const entry of entries) {
+                        await generatePdfForEntry(entry);
+                    }
+                }
+                
+                await db.clearCategory(currentCategory); // Törli a kategória összes bejegyzését az adatbázisból
+                entries = []; // Ürítii a helyi bejegyzés tömböt
+                renderTable(); // Újra rendereli a táblázatot (most már üres lesz)
+                await updateCategoryButtonColors(); // Frissíti a kategóriagombok színeit (visszaáll üresre)
+                
+                updateTraverseHeader(); // Frissíti a fejlécet törlés után
+                categoryLabelLeft.style.color = 'var(--muted)'; // Visszaállítja a kategória címke színét
+                updateControlButtonsColor(true); // Visszaállítja a vezérlőgomb színét üres állapotra
+
+            } catch (error) {
+                console.error("Hiba történt a kategória törlése vagy exportálása során.", error);
+                showCustomAlert('Hiba történt a törlés vagy exportálás során.', 'Hiba');
+            }
+        }
+    });
+
+    // Figyelmeztetés az oldal elhagyása előtt ( IndexedDB miatt )
+    window.addEventListener('beforeunload', function (e) {
+        e.preventDefault();
+        e.returnValue = ''; // Ez szükséges ahhoz, hogy a böngésző figyelmeztetést jelenítsen meg
+    });
+
+    // Az oldal betöltésekor frissíti a kategóriagombok színeit
+    window.onload = updateCategoryButtonColors;
 
 })();
 </script>
