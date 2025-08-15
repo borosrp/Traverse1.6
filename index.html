@@ -247,7 +247,7 @@
             color: white;
             border: 1px solid var(--danger);
             box-shadow: var(--shadow-soft);
-            animation: blink-red-white 1.5s infinite alternate; /* Ugyanaz az animáció, mint a táblázat jegyzet gombján */
+            animation: blink-red-white 1.5s infinite alternate;
         }
         .grid button .note-status-indicator i {
             text-shadow: none; /* A belső ikon árnyékát eltávolítjuk */
@@ -970,7 +970,7 @@ const db = (() => {
                 const objectStore = db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
                 // Erstellt einen "category" Index für Abfragen basierend auf der Kategorie.
                 objectStore.createIndex('category', 'category', { unique: false });
-                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.<br>
+                // Erstellt einen "category_code" Index zur Überprüfung der Einzigartigkeit von Kategorie und Code.
                 objectStore.createIndex('category_code', ['category', 'code'], { unique: true });
             };
         });
@@ -1194,11 +1194,23 @@ const db = (() => {
         }
 
 
-        // Handle Manual Enter on active category (only if no scanner input is buffered and no other modal is open)
+        // Handle Enter key for focused category buttons OR manual entry
         if (e.key === 'Enter' && laserScannerBuffer.length === 0) {
-            if (currentCategory) { // Only open if a category is selected
+            const focusedElement = document.activeElement;
+            // Ellenőrizzük, hogy a fókuszált elem valamelyik kategória gombunk-e
+            const isCategoryButton = focusedElement && 
+                                     (focusedElement.closest('#categoryGrid1 button') || 
+                                      focusedElement.closest('#categoryGrid2 button'));
+
+            if (isCategoryButton) {
+                e.preventDefault(); // Megakadályozzuk az alapértelmezett műveletet
+                // Szimuláljuk a kattintást a fókuszált gombon, hogy elindítsuk a meglévő kattintáskezelőjét
+                focusedElement.click(); 
+                return; // Leállítjuk a további feldolgozást
+            } else if (currentCategory && focusedElement !== customPromptInput) { 
+                // Ha nincs gomb fókuszban, de van kiválasztott kategória, és az input mező sem aktív, engedélyezzük a kézi bevitelt
                 e.preventDefault();
-                handleManualEntry(); // This opens the customPromptModal
+                handleManualEntry();
                 return;
             }
         }
@@ -1341,6 +1353,7 @@ const db = (() => {
         if(prevActive) prevActive.classList.remove('active');
         
         btn.classList.add('active'); // Fügt die "active"-Klasse zum aktuellen Button hinzu
+        btn.focus(); // *** ÚJ: Fókuszálja az újonnan aktív gombot ***
         currentCategory = num; // Setzt die aktuelle Kategorie
         
         try {
@@ -1763,7 +1776,7 @@ const db = (() => {
                 openImageModal(allImageSources, clickedImageIndex, entryId);
             }
         }));
-        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.<br>
+        // Fontos: Az uploadPhotoBtn kattintása most a jelölőnégyzet állapotát is figyelembe veszi.
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
         
         // Fő jelölőnégyzet eseménykezelője
@@ -1787,7 +1800,7 @@ const db = (() => {
                 console.warn(`Fehler beim Laden des Bildes für PDF: ${src.substring(0, 50)}...`);
                 reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
-            img.src = src;
+            img.src = imageDataUrl;
         });
     }
 
@@ -2049,7 +2062,7 @@ const db = (() => {
 
             } catch (error) {
                 console.error("Bildverarbeitung fehlgeschlagen:", error);
-                showCustomAlert('Das Bild konnte nicht verarbeitet werden. Es könnte beschädigt sein.', 'Fehler');
+                showCustomAlert('Das Bild konnte nem verarbeitet werden. Es könnte beschädigt sein.', 'Fehler');
             } finally {
                 hideLoading();
                 // Reset all checkboxes after upload
@@ -2121,7 +2134,7 @@ const db = (() => {
                 showCustomAlert(`Diese Kennung ("${newEntry.code}") existiert bereits in dieser Kategorie (${newEntry.category}). Bitte verwenden Sie eine eindeutige Kennung.`, 'Doppelter Eintrag');
             } else {
                 console.error('Fehler beim lokalen Speichern:', e);
-                showCustomAlert('Fehler beim lokalen Speichern! Daten wurden nicht gespeichert.', 'Fehler');
+                showCustomAlert('Fehler beim lokalen Speichern! Daten wurden nem gespeichert.', 'Fehler');
             }
         } finally {
             hideLoading();
