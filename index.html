@@ -529,14 +529,43 @@
             width: auto; /* Engedélyezi a szélesség beállítását */
         }
 
-        /* Stílus a fő jelölőnégyzetnek a fejlécben */
-        .master-upload-checkbox {
-            margin-left: 10px; /* Távolság a "Bilder" szövegtől */
-            width: 20px; /* Kicsit nagyobb a könnyebb érintésért */
-            height: 20px;
-            vertical-align: middle;
+        /* Frissítve: A fő jelölőnégyzet elrejtése és a mappa ikon stílusa a fejlécben */
+        .master-upload-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transform: scale(1.2); /* Kiemeltebbé teszi */
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Elrejti a tényleges jelölőnégyzetet */
+        .master-upload-container input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* A mappa ikon stílusa */
+        .master-upload-container .fas.fa-folder {
+            font-size: 1.5em; /* Növelt ikon méret */
+            color: var(--primary); /* Kék szín a mappa ikonhoz */
+            transition: color 0.2s ease-in-out, filter 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
+        }
+        /* Hover effektus az ikonon */
+        .master-upload-container:hover .fas.fa-folder {
+            color: var(--primary-dark);
+        }
+        /* Kijelölt állapot: a jelölőnégyzet `checked` állapotának tükrözése a mappa ikonon */
+        .master-upload-container input[type="checkbox"]:checked + .fas.fa-folder {
+            color: var(--primary); /* Kék marad kijelölve */
+            filter: brightness(1.2); /* Kicsit fényesebb, ha be van jelölve */
+            text-shadow: 0 0 8px rgba(0, 86, 179, 0.7); /* Halvány ragyogás */
+        }
+        /* Egyéb ikonok a fejlécben */
+        .master-upload-container .fas.fa-trash-alt {
+            font-size: 1.5em;
         }
 
         .addExtraPhotoBtn, .uploadPhotoBtn {
@@ -890,10 +919,10 @@
                         <th width="8%">Notiz</th>
                         <th width="26%">Bilder</th>
                         <th width="8%">
-                            <label style="display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                                <input type="checkbox" id="selectAllUploadsToggle" class="master-upload-checkbox" title="Alle Bilder-Upload-Checkboxes auswählen/abwählen">
+                            <div class="master-upload-container">
+                                <input type="checkbox" id="selectAllUploadsToggle" title="Alle Bilder-Upload-Checkboxes auswählen/abwählen">
                                 <i class="fas fa-folder" title="Bild hochladen"></i>
-                            </label>
+                            </div>
                         </th>
                         <th width="8%"><i class="fas fa-trash-alt" title="Löschen"></i></th>
                     </tr>
@@ -1036,7 +1065,8 @@ const db = (() => {
     // Steuerungsbuttons
     const manualEntryBtn = document.getElementById('manualEntryBtn');
     const clearCategoryBtn = document.getElementById('clearCategoryBtn');
-    const selectAllUploadsToggle = document.getElementById('selectAllUploadsToggle'); // Hozzáadva: Fő jelölőnégyzet
+    // selectAllUploadsToggle most a rejtett jelölőnégyzet
+    const selectAllUploadsToggle = document.getElementById('selectAllUploadsToggle'); 
 
     // Anwendungsstatus
     let currentCategory = null; // A jelenleg kiválasztott kategória száma
@@ -1059,9 +1089,9 @@ const db = (() => {
     // Grid konstansok a navigációhoz
     const GRID1_COLS = 8;
     const GRID2_COLS = 12;
-    const GRID1_SIZE = 16; 
-    const GRID2_SIZE = 12; 
-    const TOTAL_BUTTONS = GRID1_SIZE + GRID2_SIZE; 
+    const GRID1_SIZE = 16;  
+    const GRID2_SIZE = 12;  
+    const TOTAL_BUTTONS = GRID1_SIZE + GRID2_SIZE;  
 
 
     // Loading Overlay Steuerungen
@@ -1129,7 +1159,7 @@ const db = (() => {
             return;
         }
 
-        // Ha a customPromptInput a fókuszban lévő elem, akkor az Enter billentyűt a saját kezelője dolgozza fel.
+        // Ha a customPromptInput a fókuszben lévő elem, akkor az Enter billentyűt a saját kezelője dolgozza fel.
         if (document.activeElement === customPromptInput) {
             // Itt nem kell semmit tenni, mert a customPromptInput saját keydown kezelője van.
             return;
@@ -1784,13 +1814,37 @@ const db = (() => {
         logBody.querySelectorAll('.uploadPhotoBtn').forEach(btn => btn.addEventListener('click', handleUploadPhotoClick));
         
         // Fő jelölőnégyzet eseménykezelője
-        if (selectAllUploadsToggle) { // Check if element exists before adding listener
-            selectAllUploadsToggle.addEventListener('change', (event) => {
-                const isChecked = event.target.checked;
-                logBody.querySelectorAll('.upload-checkbox').forEach(checkbox => {
-                    checkbox.checked = isChecked;
-                });
-            });
+        // selectAllUploadsToggle most a rejtett jelölőnégyzet
+        if (selectAllUploadsToggle) { 
+            // Eltávolítjuk az eredeti change eseménykezelőt, ha volt ilyen, hogy elkerüljük a duplikációt
+            selectAllUploadsToggle.removeEventListener('change', handleMasterToggleChange);
+            selectAllUploadsToggle.addEventListener('change', handleMasterToggleChange);
+        }
+
+        // Új eseménykezelő a master-upload-container divre
+        const masterUploadContainer = document.querySelector('.master-upload-container');
+        if (masterUploadContainer) {
+            // Eltávolítjuk az eredeti kattintáskezelőt, ha volt ilyen
+            masterUploadContainer.removeEventListener('click', handleMasterContainerClick);
+            masterUploadContainer.addEventListener('click', handleMasterContainerClick);
+        }
+    }
+
+    // Új függvény a master jelölőnégyzet change eseményének kezelésére
+    function handleMasterToggleChange(event) {
+        const isChecked = event.target.checked;
+        logBody.querySelectorAll('.upload-checkbox').forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+    }
+
+    // Új függvény a master-upload-container kattintáskezelésére
+    function handleMasterContainerClick(event) {
+        // Csak akkor aktiválja a jelölőnégyzetet, ha nem magára a jelölőnégyzetre kattintottak (ami rejtve van)
+        if (event.target !== selectAllUploadsToggle) {
+            selectAllUploadsToggle.checked = !selectAllUploadsToggle.checked;
+            // Manuálisan kiváltjuk a change eseményt, mert a .checked módosítása nem teszi meg automatikusan
+            selectAllUploadsToggle.dispatchEvent(new Event('change'));
         }
     }
     
@@ -1801,7 +1855,7 @@ const db = (() => {
             img.crossOrigin = 'Anonymous'; // Wichtig für Cross-Origin-Bilder (falls vorhanden)
             img.onload = () => resolve(img);
             img.onerror = () => {
-                console.warn(`Fehler beim Bereinigen des Bildes: ${imageDataUrl.substring(0, 50)}...`);
+                console.warn(`Fehler beim Bereinigen des Bildes: ${src.substring(0, 50)}...`); // FIX: Changed imageDataUrl to src
                 reject(new Error('Fehler beim Laden des Bildes für die Bereinigung.'));
             };
             img.src = src;
@@ -1938,7 +1992,10 @@ const db = (() => {
             showLoading("Eintrag wird gelöscht...");
             try {
                 if (result.exportPdf) {
-                    await generatePdfForEntry(entryToDelete); // PDF generieren, wenn vom Benutzer angefordert
+                    // Generálja a PDF-eket az összes bejegyzésről a kategóriában
+                    for (const entry of entries) {
+                        await generatePdfForEntry(entry);
+                    }
                 }
                 
                 await db.deleteEntry(id); // Eintrag aus der Datenbank löschen
